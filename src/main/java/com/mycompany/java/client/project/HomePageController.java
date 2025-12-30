@@ -1,14 +1,17 @@
 package com.mycompany.java.client.project;
 
 import java.io.IOException;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 
 public class HomePageController {
+
     @FXML
     private ImageView logoImage;
     @FXML
@@ -17,7 +20,7 @@ public class HomePageController {
     private ListView<AnchorPane> recordedGamesList;
 
     public void initialize() {
-        
+
         logoImage.setImage(new Image(getClass().getResourceAsStream("/assets/xo.png")));
 
         // إضافة البيانات
@@ -43,8 +46,8 @@ public class HomePageController {
     }
 
     private void addDummyLeaderboard() {
-        String[] topPlayers = {"Ahmed", "Sara", "John","Esraa"};
-        String[] scores = {"2500 XP", "1800 XP", "1200 XP","1000 px"};
+        String[] topPlayers = {"Ahmed", "Sara", "John", "Esraa"};
+        String[] scores = {"2500 XP", "1800 XP", "1200 XP", "1000 px"};
 
         for (int i = 0; i < topPlayers.length; i++) {
             try {
@@ -52,13 +55,12 @@ public class HomePageController {
                 AnchorPane leaderboardItem = loader.load();
 
                 LeaderboardItemController controller = loader.getController();
-                
+
                 int rank = i + 1;
                 controller.setRank("#" + rank);
                 controller.setPlayerName(topPlayers[i]);
                 controller.setScore(scores[i]);
                 leaderboardItem.setPrefWidth(recordedGamesList.getWidth() - 10);
-
 
                 recordedGamesList.getItems().add(leaderboardItem);
             } catch (IOException e) {
@@ -66,4 +68,14 @@ public class HomePageController {
             }
         }
     }
+
+    @FXML
+    private void navigateToLoginPage(ActionEvent event) {
+        try {
+            App.setRoot("loginPage");
+        } catch (IOException ex) {
+            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }
+
 }
