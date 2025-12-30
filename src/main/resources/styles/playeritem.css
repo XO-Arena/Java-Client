@@ -1,0 +1,60 @@
+
+.player-item-card {
+    -fx-background-color: #1e293b; 
+    -fx-background-radius: 8;
+    -fx-border-color: #334155;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-padding: 5;
+}
+
+
+.player-item-card:hover {
+    -fx-background-color: #334155;
+    -fx-border-color: #2563eb;
+}
+
+
+.player-name {
+    -fx-text-fill: #f8fafc;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+
+.player-status {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
+}
+
+
+.item-action-button {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 4 12 4 12;
+    -fx-cursor: hand;
+}
+
+.item-action-button:hover {
+    -fx-background-color: #3b82f6;
+}
+
+
+.custom-list .list-cell {
+    -fx-padding: 4 0 4 0;
+}
+
+/* إخفاء التحديد الافتراضي للخلية لأنه يغطي تصميم الكارت */
+.custom-list .list-cell:selected {
+    -fx-background-color: transparent; 
+}
+
+/* جعل الكارت يتفاعل عند اختيار الخلية */
+.custom-list .list-cell:selected .player-item-card {
+    -fx-border-color: #2563eb;
+    -fx-border-width: 1.5;
+    -fx-background-color: #1e293b;
+}

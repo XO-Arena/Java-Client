@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import static javafx.application.Application.launch;
 
 /**
  * JavaFX App
@@ -17,13 +18,9 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480); // change it to your scene
+        scene = new Scene(loadFXML("homePage"), 850, 650);
         stage.setScene(scene);
         stage.show();
-    }
-
-    static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
