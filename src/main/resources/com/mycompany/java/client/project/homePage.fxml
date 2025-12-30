@@ -28,7 +28,7 @@
                         <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="top-bar">
                             <children>
                                 <Label styleClass="welcome-text" text="Welcome, Guest!" />
-                                <Button styleClass="login_button" text="Login" />
+                                <Button onAction="#navigateToLoginPage" styleClass="login_button" text="Login" />
                                 <Region HBox.hgrow="ALWAYS" />
                                 <Label styleClass="status-text" text="Status: Offline" />
                             </children>
