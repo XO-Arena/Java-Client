@@ -1,10 +1,11 @@
-com\mycompany\java\client\project\LoginPageController.class
 Models\Player.class
 com\mycompany\java\client\project\HomePageController.class
-Enums\PlayerState.class
 Enums\PlayerGender.class
 module-info.class
 com\mycompany\java\client\project\LeaderboardItemController.class
 com\mycompany\java\client\project\PlayerItemController.class
 com\mycompany\java\client\project\App.class
+com\mycompany\java\client\project\LoginPageController.class
+com\mycompany\java\client\project\GameBoardController.class
+Enums\PlayerState.class
 com\mycompany\java\client\project\RegisterPageController.class

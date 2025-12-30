@@ -69,6 +69,8 @@ public class HomePageController {
         }
     }
 
+    
+    
     @FXML
     private void navigateToLoginPage(ActionEvent event) {
         try {
@@ -76,6 +78,24 @@ public class HomePageController {
         } catch (IOException ex) {
             System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
+    }
+
+    @FXML
+    private void navigateToOnlineGameBoardPage(ActionEvent event) {
+        try {
+                App.setRoot("GameBoardPage");
+            } catch (IOException ex) {
+                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+    }
+
+    @FXML
+    private void navigateToOfflineGameBoardPage(ActionEvent event) {
+          try {
+                App.setRoot("GameBoardPage");
+            } catch (IOException ex) {
+                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
     }
 
 }
