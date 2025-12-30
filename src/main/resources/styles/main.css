@@ -1,0 +1,106 @@
+
+.root {
+    -fx-background-color: #0f172a;
+    -fx-font-family: "Segoe UI";
+}
+
+.main-panel {
+    -fx-padding: 25;
+    -fx-background-radius: 16;
+}
+
+
+.top-bar {
+    -fx-padding: 0 10 0 10;
+}
+
+.welcome-text {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+}
+
+.status-text {
+    -fx-text-fill: #D73535;
+    -fx-font-size: 13px;
+}
+
+.logo-container {
+    -fx-padding: 20;
+}
+
+
+.menu-buttons Button {
+    -fx-pref-width: 220;
+    -fx-pref-height: 42;
+
+    -fx-background-color: #1e293b;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-background-radius: 10;
+
+    -fx-cursor: hand;
+}
+
+.menu-buttons Button:hover {
+    -fx-background-color: #2563eb;
+}
+
+
+.login_button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cbd5f5;
+    -fx-font-size: 13px;
+}
+
+.login_button:hover {
+    -fx-text-fill: white;
+}
+.custom-list {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: #3f3f46;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 6;
+}
+
+
+.custom-list .viewport {
+    -fx-background-color: transparent;
+}
+
+.custom-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 13px;
+    -fx-padding: 10 12 10 12;
+}
+
+.custom-list .list-cell:hover {
+    -fx-background-color: #2a2a2a;
+}
+
+
+
+.custom-list:focused {
+    -fx-background-insets: 0;
+}
+
+.section-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e5e7eb;
+
+    -fx-padding: 8 0 8 0;
+
+    -fx-border-color: #3f3f46;
+    -fx-border-width: 0 0 1.5 0;
+
+    -fx-alignment: center;
+}
+
+.list-view .scroll-bar {
+    -fx-opacity: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+}
