@@ -44,8 +44,8 @@
 
                         <VBox alignment="CENTER" maxWidth="350.0" spacing="12.0" styleClass="menu-buttons" VBox.vgrow="SOMETIMES">
                             <children>
-                                <Button maxWidth="Infinity" text="Quick Game" />
-                                <Button maxWidth="Infinity" text="Local Multiplayer" />
+                                <Button maxWidth="Infinity" onAction="#navigateToOnlineGameBoardPage" text="Quick Game" />
+                                <Button maxWidth="Infinity" onAction="#navigateToOfflineGameBoardPage" text="Local Multiplayer" />
                                 <Button maxWidth="Infinity" text="Play vs Computer" />
                                 <Button maxWidth="Infinity" text="Recorded Games" />
                             </children>
