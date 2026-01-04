@@ -97,5 +97,14 @@ public class HomePageController {
                 System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
             }
     }
+    
+    @FXML
+    private void navigateToLocalMultiplayer(ActionEvent event) {
+        try {
+            App.setRoot("localMultiplayer");
+        } catch (IOException ex) {
+            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }
 
 }
