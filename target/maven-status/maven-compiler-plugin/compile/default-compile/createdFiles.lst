@@ -1,13 +1,11 @@
 Models\Player.class
 com\mycompany\java\client\project\HomePageController.class
 Enums\PlayerGender.class
-com\mycompany\java\client\project\GameResultController.class
 module-info.class
 com\mycompany\java\client\project\LeaderboardItemController.class
 com\mycompany\java\client\project\PlayerItemController.class
 com\mycompany\java\client\project\App.class
 com\mycompany\java\client\project\LoginPageController.class
-com\mycompany\java\client\project\LocalMultiplayerController.class
 com\mycompany\java\client\project\GameBoardController.class
 Enums\PlayerState.class
 com\mycompany\java\client\project\RegisterPageController.class

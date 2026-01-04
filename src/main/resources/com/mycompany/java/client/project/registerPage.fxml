@@ -12,36 +12,36 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane prefHeight="688.0" prefWidth="974.0" stylesheets="@/styles/register-page.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.java.client.project.RegisterPageController">
+<StackPane prefHeight="688.0" prefWidth="974.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.java.client.project.RegisterPageController">
     <children>
-        <VBox alignment="TOP_CENTER" maxHeight="420.0" maxWidth="390.0" prefHeight="420.0" prefWidth="390.0" spacing="15.0" styleClass="register-container">
+        <VBox alignment="TOP_CENTER" maxHeight="420.0" maxWidth="390.0" prefHeight="420.0" prefWidth="390.0" spacing="15.0" style="-fx-border-color: black; -fx-border-width: 1; -fx-background-color: white;">
             <children>
-                <Label alignment="CENTER" prefHeight="35.0" prefWidth="268.0" styleClass="register-title" text="Register" />
+                <Label prefHeight="35.0" prefWidth="100.0" style="-fx-font-size: 24;" text="Register" />
 
-                <VBox alignment="CENTER_LEFT" spacing="5.0" styleClass="form-section">
+                <VBox alignment="CENTER_LEFT" spacing="5.0">
                     <children>
-                        <Label graphicTextGap="8.0" styleClass="field-label" text="Username" />
-                        <TextField fx:id="usernameField" prefHeight="37.0" prefWidth="358.0" styleClass="text-field" />
+                        <Label graphicTextGap="8.0" style="-fx-font-size: 12;" text="Username" />
+                        <TextField fx:id="usernameField" prefHeight="37.0" prefWidth="358.0" style="-fx-border-color: black; -fx-border-width: 1; -fx-background-color: white;" />
                     </children>
                     <VBox.margin>
                         <Insets left="18.0" right="18.0" />
                     </VBox.margin>
                 </VBox>
 
-                <VBox alignment="CENTER_LEFT" spacing="5.0" styleClass="form-section">
+                <VBox alignment="CENTER_LEFT" spacing="5.0">
                     <children>
-                        <Label styleClass="field-label" text="Password" />
-                        <PasswordField fx:id="passwordField" prefHeight="36.0" prefWidth="358.0" styleClass="password-field" />
+                        <Label style="-fx-font-size: 12px;" text="Password" />
+                        <PasswordField fx:id="passwordField" prefHeight="36.0" prefWidth="358.0" style="-fx-border-color: black; -fx-border-width: 1; -fx-background-color: white;" />
                     </children>
                     <VBox.margin>
                         <Insets left="18.0" right="18.0" />
                     </VBox.margin>
                 </VBox>
 
-                <HBox alignment="CENTER_LEFT" spacing="5.0" styleClass="gender-container">
+                <HBox alignment="CENTER_LEFT" spacing="5.0">
                     <children>
-                        <Label prefHeight="18.0" prefWidth="272.0" styleClass="field-label" text="Gender" />
-                        <ComboBox fx:id="genderComboBox" prefHeight="36.0" prefWidth="110.0" promptText="Select Gender" styleClass="combo-box">
+                        <Label prefHeight="18.0" prefWidth="272.0" style="-fx-font-size: 12px;" text="Gender" />
+                        <ComboBox fx:id="genderComboBox" prefHeight="36.0" prefWidth="110.0" promptText="Select Gender" style="-fx-border-color: black; -fx-border-width: 1; -fx-background-color: white;">
                             <items>
                                 <FXCollections fx:factory="observableArrayList">
                                     <String fx:value="Male" />
@@ -61,24 +61,15 @@
                         <Insets top="5.0" />
                     </VBox.margin>
                 </HBox>
-
-                <Button fx:id="registerButton" prefHeight="33.0" prefWidth="94.0" styleClass="register-button" text="Register" />
+                <Button fx:id="registerButton" prefHeight="33.0" prefWidth="94.0" style="-fx-font-size: 12; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: white; -fx-border-radius: 3; -fx-background-radius: 3;" text="Register" />
 
                 <HBox alignment="CENTER" spacing="10.0" />
-
-                <Button fx:id="backToLoginButton" onAction="#navigateToLogin" prefHeight="38.0" prefWidth="150.0" styleClass="secondary-button" text="Back to Login" />
+                <Button fx:id="backToLoginButton" onAction="#navigateToLogin" prefHeight="38.0" prefWidth="150.0" style="-fx-font-size: 12; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: white; -fx-border-radius: 3; -fx-background-radius: 3;" text="Back to Login" />
             </children>
 
             <padding>
                 <Insets bottom="20.0" left="0" right="0" top="20.0" />
             </padding>
         </VBox>
-
-        <!-- Back to Home Button - Top Left of Screen -->
-        <Button fx:id="backToHomeButton" onAction="#navigateToHome" styleClass="back-button" text="← Back" StackPane.alignment="TOP_LEFT">
-            <StackPane.margin>
-                <Insets left="20.0" top="20.0" />
-            </StackPane.margin>
-        </Button>
     </children>
 </StackPane>

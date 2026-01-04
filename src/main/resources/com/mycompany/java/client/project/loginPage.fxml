@@ -9,26 +9,26 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane prefHeight="688.0" prefWidth="974.0" stylesheets="@/styles/login-page.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.java.client.project.LoginPageController">
+<StackPane prefHeight="688.0" prefWidth="974.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.java.client.project.LoginPageController">
     <children>
-        <VBox alignment="TOP_CENTER" maxHeight="382.0" maxWidth="390.0" prefHeight="382.0" prefWidth="390.0" spacing="15.0" styleClass="login-container">
+        <VBox alignment="TOP_CENTER" maxHeight="382.0" maxWidth="390.0" prefHeight="382.0" prefWidth="390.0" spacing="15.0" style="-fx-border-color: black; -fx-border-width: 1; -fx-background-color: white;">
             <children>
-                <Label alignment="CENTER" prefHeight="35.0" prefWidth="326.0" styleClass="login-title" text="Login" />
+                <Label prefHeight="35.0" prefWidth="60.0" style="-fx-font-size: 24;" text="Login" />
 
-                <VBox alignment="CENTER_LEFT" spacing="5.0" styleClass="form-section">
+                <VBox alignment="CENTER_LEFT" spacing="5.0">
                     <children>
-                        <Label graphicTextGap="8.0" styleClass="field-label" text="Username" />
-                        <TextField fx:id="usernameField" prefHeight="37.0" prefWidth="358.0" styleClass="text-field" />
+                        <Label graphicTextGap="8.0" style="-fx-font-size: 12;" text="Username" />
+                        <TextField fx:id="usernameField" prefHeight="37.0" prefWidth="358.0" style="-fx-border-color: black; -fx-border-width: 1; -fx-background-color: white;" />
                     </children>
                     <VBox.margin>
                         <Insets left="18.0" right="18.0" />
                     </VBox.margin>
                 </VBox>
 
-                <VBox alignment="CENTER_LEFT" spacing="5.0" styleClass="form-section">
+                <VBox alignment="CENTER_LEFT" spacing="5.0">
                     <children>
-                        <Label styleClass="field-label" text="Password" />
-                        <PasswordField fx:id="passwordField" prefHeight="36.0" prefWidth="358.0" styleClass="password-field" />
+                        <Label style="-fx-font-size: 12px;" text="Password" />
+                        <PasswordField fx:id="passwordField" prefHeight="36.0" prefWidth="358.0" style="-fx-border-color: black; -fx-border-width: 1; -fx-background-color: white;" />
                     </children>
                     <VBox.margin>
                         <Insets left="18.0" right="18.0" />
@@ -40,12 +40,10 @@
                         <Insets top="5.0" />
                     </VBox.margin>
                 </HBox>
-
-                <Button fx:id="loginButton" prefHeight="33.0" prefWidth="94.0" styleClass="login-button" text="Login" />
+                <Button fx:id="loginButton" prefHeight="33.0" prefWidth="94.0" style="-fx-font-size: 12; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: white; -fx-border-radius: 3; -fx-background-radius: 3;" text="Login" />
 
                 <HBox alignment="CENTER" spacing="10.0" />
-
-                <Button fx:id="createAccountButton" onAction="#navigateToRegister" prefHeight="38.0" prefWidth="150.0" styleClass="secondary-button" text="Create an account" />
+                <Button fx:id="createAccountButton" onAction="#navigateToRegister" prefHeight="38.0" prefWidth="150.0" style="-fx-font-size: 12; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: white; -fx-border-radius: 3; -fx-background-radius: 3;" text="Create an account" />
             </children>
 
             <padding>
