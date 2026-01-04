@@ -45,13 +45,5 @@ public class RegisterPageController {
             System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
-    @FXML
-    private void navigateToHome(ActionEvent event) {
-        try {
-            App.setRoot("homePage");
-        } catch (IOException ex) {
-            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
-    }
 
 }
