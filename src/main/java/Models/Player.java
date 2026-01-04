@@ -6,6 +6,7 @@ package Models;
 
 import Enums.PlayerGender;
 import Enums.PlayerState;
+import Enums.PlayerType;
 
 /**
  *
@@ -15,6 +16,7 @@ public class Player {
 
     private String username;
     private PlayerGender gender;
+    private PlayerType type; // HUMAN, AI, ONLINE
     private PlayerState state;
     private int score;
 
