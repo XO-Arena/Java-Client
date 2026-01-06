@@ -46,7 +46,7 @@ public class ServerConnection implements Closeable, AutoCloseable {
     }
     
     public String getMessage() throws IOException {
-        return br.readAllAsString();
+        return br.readLine();
     }
     
     public void sendMessage(String message) throws IOException {

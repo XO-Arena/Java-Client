@@ -10,4 +10,5 @@ com\mycompany\java\client\project\LoginPageController.class
 com\mycompany\java\client\project\LocalMultiplayerController.class
 com\mycompany\java\client\project\GameBoardController.class
 Enums\PlayerState.class
+com\mycompany\java\client\project\data\ServerConnection.class
 com\mycompany\java\client\project\RegisterPageController.class
