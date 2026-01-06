@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<HBox xmlns="http://javafx.com/javafx/19" 
+      xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.mycompany.java.client.project.GameCardItemController"
+      styleClass="game-card" 
+      alignment="CENTER_LEFT" 
+      spacing="20.0">
+    
+    <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+        <HBox spacing="10.0" alignment="CENTER_LEFT">
+            <Label fx:id="player1Label" text="Player 1" styleClass="player-name-primary" />
+            <Label text="vs" styleClass="vs-label" />
+            <Label fx:id="player2Label" text="Player 2" styleClass="player-name-secondary" />
+        </HBox>
+        
+        <HBox spacing="15.0" alignment="CENTER_LEFT">
+            <Label text="Winner:" styleClass="game-info-label" />
+            <Label fx:id="winnerLabel" text="Winner" styleClass="winner-label" />
+            <Label text="•" styleClass="separator" />
+            <Label fx:id="dateLabel" text="Date" styleClass="game-info-label" />
+            <Label text="•" styleClass="separator" />
+            <Label fx:id="movesLabel" text="0 moves" styleClass="game-info-label" />
+        </HBox>
+    </VBox>
+    
+    <Button fx:id="playButton" styleClass="play-button" onAction="#handlePlay">
+        <graphic>
+            <SVGPath content="M8 5v14l11-7z" fill="white" scaleX="1.5" scaleY="1.5" />
+        </graphic>
+    </Button>
+    
+</HBox>

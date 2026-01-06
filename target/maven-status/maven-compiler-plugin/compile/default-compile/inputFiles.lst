@@ -1,6 +1,7 @@
 E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\GameResultController.java
 E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\PlayerItemController.java
 E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\App.java
+E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\GameCardItemController.java
 E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\LoginPageController.java
 E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\LeaderboardItemController.java
 E:\Projects\NetBeans\Java-Client\src\main\java\Models\Player.java
@@ -11,4 +12,6 @@ E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project
 E:\Projects\NetBeans\Java-Client\src\main\java\Enums\PlayerGender.java
 E:\Projects\NetBeans\Java-Client\src\main\java\Enums\PlayerState.java
 E:\Projects\NetBeans\Java-Client\src\main\java\module-info.java
+E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\GameRecord.java
+E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\RecordedGamesController.java
 E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\data\ServerConnection.java
