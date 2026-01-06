@@ -1,51 +1,22 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Models;
 
-import Enums.PlayerGender;
-import Enums.PlayerState;
+import Enums.PlayerSymbol;
 import Enums.PlayerType;
+import Enums.UserGender;
 
-/**
- *
- * @author omara
- */
-public class Player {
+public class Player extends User {
 
-    private String username;
-    private PlayerGender gender;
-    private PlayerType type; // HUMAN, AI, ONLINE
-    private PlayerState state;
-    private int score;
+    private PlayerType type;
+    private PlayerSymbol symbole;
 
-    public Player(String username, String password, PlayerGender gender) { }
+    public Player(String username, UserGender gender, int score, PlayerType type, PlayerSymbol symbole) {
+        super(username, gender, score);
+        this.type = type;
+        this.symbole = symbole;
+    }
 
-    public String getUsername() { 
-        return username;
+    public PlayerType getType() {
+        return this.type;
     }
-    public void setUsername(String username) { 
-        this.username = username;
-    }
-    
-    public PlayerGender getGender() {
-        return gender;
-    }
-    public void setGender(PlayerGender gender) {
-        this.gender = gender;
-    }
-    public PlayerState getState() { 
-        return state;
-    }
-    public void setState(PlayerState state) {
-        this.state = state;
-    }
-    public int getScore() {
-        return score;
-    }
-    public void updateScore(int score) { 
-        this.score += score;
-    }
+
 }
-

@@ -18,6 +18,11 @@ public class Board {
         return cells[row][col];
     }
 
+    public int[][] getCells() {
+
+        return cells;
+    }
+
     public boolean isEmpty(int row, int col) {
 
         return cells[row][col] == 0;

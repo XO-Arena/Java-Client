@@ -17,6 +17,7 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane prefHeight="600.0" prefWidth="900.0" styleClass="main-container" stylesheets="@/styles/GameBoard.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.java.client.project.GameBoardController">
+    <!-- Left Panel: Stats -->
     <left>
         <VBox prefWidth="240.0" spacing="20" styleClass="stats-container">
             <padding>
@@ -49,22 +50,21 @@
         </VBox>
     </left>
 
-
+    <!-- Center Panel: Game Area -->
     <center>
         <VBox alignment="CENTER" spacing="10">
             <padding>
                 <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
 
-            <HBox alignment="CENTER_LEFT" spacing="15" styleClass="player-card-container">
+            <!-- Player 1 Card -->
+            <HBox alignment="CENTER_LEFT" spacing="15" styleClass="player-card-container full-width player1-card">
                 <padding>
                     <Insets bottom="10" left="15" right="15" top="10" />
                 </padding>
                 <StackPane>
                     <Circle fill="TRANSPARENT" opacity="0.3" radius="28" stroke="#2e5bff" strokeWidth="1" />
-    
                     <Circle fx:id="player1Avatar" radius="25" stroke="#2e5bff" strokeWidth="2" styleClass="avatar-fancy" />
-    
                     <Circle fill="#00ff88" radius="5" stroke="#0d0d17" strokeWidth="2" StackPane.alignment="BOTTOM_RIGHT">
                         <StackPane.margin>
                             <Insets bottom="2" right="2" />
@@ -78,15 +78,16 @@
                     <Label fx:id="player1Name" style="-fx-font-weight: bold; -fx-font-size: 15px;" text="Sova" textFill="WHITE" />
                     <HBox>
                         <children>
-                            <Label fx:id="player1Score" style="-fx-font-weight: bold;" text="Rank: " textFill="#2e5bff" />
+                            <Label fx:id="player1Score" style="-fx-font-weight: bold;" text="Score : " textFill="#2e5bff" />
                             <Label fx:id="player1Rank" style="-fx-font-weight: bold;" text="0" textFill="#2e5bff" />
                         </children>
                     </HBox>
                 </VBox>
             </HBox>
 
+            <!-- Game Grid -->
             <StackPane fx:id="gameArea" VBox.vgrow="ALWAYS">
-                <GridPane fx:id="gridPane" alignment="CENTER" hgap="10" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="350.0" prefWidth="350.0" styleClass="game-grid" vgap="10">
+                <GridPane fx:id="gridPane" alignment="CENTER" hgap="10" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="400.0" styleClass="game-grid" vgap="10">
                     <Button fx:id="btn00" onAction="#handleMove" prefHeight="90" prefWidth="90" styleClass="game-button" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <Button fx:id="btn01" onAction="#handleMove" prefHeight="90" prefWidth="90" styleClass="game-button" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                     <Button fx:id="btn02" onAction="#handleMove" prefHeight="90" prefWidth="90" styleClass="game-button" GridPane.columnIndex="2" GridPane.rowIndex="0" />
@@ -109,7 +110,8 @@
                 </GridPane>
             </StackPane>
 
-            <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="player-card-container">
+            <!-- Player 2 Card -->
+            <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="player-card-container full-width player2-card">
                 <padding>
                     <Insets bottom="10" left="15" right="15" top="10" />
                 </padding>
@@ -117,17 +119,14 @@
                     <Label fx:id="player2Name" style="-fx-font-weight: bold; -fx-font-size: 15px;" text="Sage" textFill="WHITE" />
                     <HBox>
                         <children>
-                            <Label fx:id="player2Rank" style="-fx-font-weight: bold;" text="Rank: " textFill="#ff5e7e" />
+                            <Label fx:id="player2Rank" style="-fx-font-weight: bold;" text="Score : " textFill="#ff5e7e" />
                             <Label fx:id="player2Score1" layoutX="10.0" layoutY="10.0" style="-fx-font-weight: bold;" text="0" textFill="#ff5e7e" />
                         </children>
                     </HBox>
                 </VBox>
-                
                 <StackPane>
                     <Circle fill="TRANSPARENT" opacity="0.3" radius="28" stroke="#ff5e7e" strokeWidth="1" />
-    
                     <Circle fx:id="player2Avatar" radius="25" stroke="#ff5e7e" strokeWidth="2" styleClass="avatar-fancy-p2" />
-    
                     <Circle fill="#00ff88" radius="5" stroke="#0d0d17" strokeWidth="2" StackPane.alignment="BOTTOM_LEFT">
                         <StackPane.margin>
                             <Insets bottom="2" left="2" />
@@ -141,6 +140,7 @@
         </VBox>
     </center>
 
+    <!-- Right Panel: Spectators -->
     <right>
         <VBox prefWidth="220.0" spacing="15" styleClass="spectators-container">
             <padding>

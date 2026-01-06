@@ -41,6 +41,7 @@ public class Game {
             if (board.getCell(i, 0) != 0
                     && board.getCell(i, 0) == board.getCell(i, 1)
                     && board.getCell(i, 1) == board.getCell(i, 2)) {
+
                 return board.getCell(i, 0) == 1 ? GameResult.X_WIN : GameResult.O_WIN;
             }
         }
