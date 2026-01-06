@@ -7,16 +7,23 @@ import Enums.UserGender;
 public class Player extends User {
 
     private PlayerType type;
-    private PlayerSymbol symbole;
+    private PlayerSymbol symbol;
 
-    public Player(String username, UserGender gender, int score, PlayerType type, PlayerSymbol symbole) {
+    public Player(String username, UserGender gender, int score, PlayerType type, PlayerSymbol symbol) {
         super(username, gender, score);
         this.type = type;
-        this.symbole = symbole;
+        this.symbol = symbol;
     }
 
     public PlayerType getType() {
         return this.type;
     }
 
+    public PlayerSymbol getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(PlayerSymbol symbol) {
+        this.symbol = symbol;
+    }
 }

@@ -90,15 +90,15 @@ public class GameBoardController {
                 UserGender.Male,
                 0,
                 PlayerType.LOCAL,
-                PlayerSymbol.X_SYMBOL
+                PlayerSymbol.X
         );
 
         player2 = new Player(
                 "Computer",
                 UserGender.Female,
                 0,
-                PlayerType.ONLINE,
-                PlayerSymbol.O_SYMBOL
+                PlayerType.LOCAL,
+                PlayerSymbol.O
         );
 
         player1Name.setText(player1.getUserName());
@@ -107,6 +107,12 @@ public class GameBoardController {
 
     private void initSession(SessionType type) {
         session = new GameSession(player1, player2, type);
+    }
+    
+    private void endTurn() {
+        updateBoardUI();
+        handleResult();
+        handleNextTurn();
     }
 
     
@@ -128,10 +134,8 @@ public class GameBoardController {
 
         boolean played = session.playMove(row, col);
         if (!played) return;
-
-        updateBoardUI();
-        handleResult();
-        handleNextTurn();
+        
+        endTurn();
     }
 
     private void handleNextTurn() {
@@ -159,15 +163,10 @@ public class GameBoardController {
 
     private void playComputerMove() {
 
-        MoveProvider provider =
-                new ComputerMoveProvider(session.getGame().getBoard());
-
-        Move move = provider.getNextMove();
+        Move move = session.getMoveProvider().getNextMove();
         session.playMove(move.row, move.col);
 
-        updateBoardUI();
-        handleResult();
-        handleNextTurn();
+        endTurn();
     }
 
     private void waitForServerMove() {
@@ -178,16 +177,14 @@ public class GameBoardController {
 
         session.playMove(row, col);
 
-        updateBoardUI();
-        handleResult();
-        handleNextTurn();
+        endTurn();
     }
 
     
 
     private void updateBoardUI() {
 
-        int[][] cells = session.getGame().getBoard().getCells();
+        PlayerSymbol[][] cells = session.getGame().getBoard().getCells();
 
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
@@ -198,12 +195,12 @@ public class GameBoardController {
                         "x-style", "o-style", "win-cell"
                 );
 
-                if (cells[r][c] == 1) {
+                if (cells[r][c] == PlayerSymbol.X) {
                     btn.setText("X");
                     btn.getStyleClass().add("x-style");
                     btn.setDisable(true);
 
-                } else if (cells[r][c] == 2) {
+                } else if (cells[r][c] == PlayerSymbol.O) {
                     btn.setText("O");
                     btn.getStyleClass().add("o-style");
                     btn.setDisable(true);

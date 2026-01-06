@@ -1,6 +1,7 @@
 package Models;
 
 import Enums.GameResult;
+import Enums.PlayerSymbol;
 import Enums.SessionType;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +18,8 @@ public class GameSession {
 
     private SessionType sessionType;
     private GameResult lastResult;
-    private boolean gameEnded;
     private List<Player> spectatorsList;
+    private MoveProvider moveProvider;
 
     public GameSession(Player player1, Player player2, SessionType type) {
         this.player1 = player1;
@@ -26,20 +27,30 @@ public class GameSession {
         this.sessionType = type;
         this.game = new Game();
         this.lastResult = GameResult.NONE;
-        this.gameEnded = false;
         this.player1Wins = this.player2Wins = this.drawCount = 0;
 
         this.spectatorsList = new ArrayList<>();
-
+        
+        switch(type) {
+            case LOCAL:
+                moveProvider = new LocalMoveProvider();
+                break;
+            case AI:
+                moveProvider = new ComputerMoveProvider(game.getBoard());
+                break;
+            case ONLINE:
+                moveProvider = new OnlineMoveProvider();
+                break;
+        }
     }
-
+    
     public Game getGame(){return this.game;}
     public int getPlayer1Wins(){return this.player1Wins;}
     public int getPlayer2Wins(){return this.player2Wins;}
     
     public boolean playMove(int row ,int col) {
 
-        if (gameEnded) {
+        if (game.hasEnded()) {
             return false;
         }
 
@@ -60,10 +71,14 @@ public class GameSession {
 
         return true;
     }
+    
+    public MoveProvider getMoveProvider() {
+        return moveProvider;
+    }
 
     private void handleGameEnd() {
 
-        gameEnded = true;
+        game.setHasEnded(true);
         int rewardPoints = 10;
 
         switch (lastResult) {
@@ -91,15 +106,20 @@ public class GameSession {
             }
         }
     }
+    
+    public void switchPlayerSymbols() {
+        PlayerSymbol s1 = player1.getSymbol();
+        player1.setSymbol(player2.getSymbol());
+        player2.setSymbol(s1);
+    }
 
     public void resetSession() {
         game.reset();
         lastResult = GameResult.NONE;
-        gameEnded = false;
     }
 
     public Player getCurrentPlayer() {
-        return game.getCurrentPlayer() == 1 ? player1 : player2;
+        return game.getCurrentPlayer() == PlayerSymbol.X ? player1 : player2;
     }
 
     public GameResult getLastResult() {
@@ -107,7 +127,7 @@ public class GameSession {
     }
 
     public boolean isGameEnded() {
-        return gameEnded;
+        return game.hasEnded();
     }
 
     public int getDrawCount() {

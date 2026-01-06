@@ -12,8 +12,7 @@ public class OnlineMoveProvider implements MoveProvider {
         
          */
 
-        int row = 3, col = 2;
-        return new Move(row, col);
+        return new Move(2, 2);
     }
 
 }

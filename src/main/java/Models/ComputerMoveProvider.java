@@ -8,8 +8,7 @@ public class ComputerMoveProvider implements MoveProvider {
     public ComputerMoveProvider(Board board) {
         this.board = board;
     }
-
-    
+        
     private Move moveByMiniMax() {
         // TODO: implement AI logic
 
