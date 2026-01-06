@@ -5,24 +5,39 @@
 package com.mycompany.java.client.project.data;
 
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.stream.Collectors;
 
-public class ServerConnection implements Closeable, AutoCloseable {
-    private String ipAddress;
-    private int portNumber;
+public class ServerConnection {
+    private static String ipAddress;
+    private static int portNumber;
     private Socket s;
     private BufferedReader br;
     private PrintStream ps;
     
-    public ServerConnection(String ipAddress, int port) throws IOException {
-        this.ipAddress = ipAddress;
+    private static ServerConnection INSTANCE;
+    private static final Object lock = new Object();
+    
+    private ServerConnection(String address, int port) throws IOException {
+        ipAddress = address;
         portNumber = port;
         connectToServer();
+    }
+    
+    public static ServerConnection getConnection() throws IOException {        
+        synchronized(lock) {
+            if (ipAddress == null) {
+                ipAddress = "127.0.0.1";
+            }
+            if (portNumber == 0) {
+                portNumber = 4646;
+            }
+            INSTANCE = new ServerConnection(ipAddress, portNumber);
+        }
+        return INSTANCE;
     }
     
     private void connectToServer() throws IOException {
@@ -54,7 +69,6 @@ public class ServerConnection implements Closeable, AutoCloseable {
         ps.write(message.getBytes());
     }
 
-    @Override
     public void close() throws IOException {
         if (s != null) s.close();
         if (br != null) br.close();
