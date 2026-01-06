@@ -1,176 +1,281 @@
 package com.mycompany.java.client.project;
 
-import java.io.IOException;
+import Enums.GameResult;
+import Enums.PlayerSymbol;
+import Enums.PlayerType;
+import Enums.SessionType;
+import Enums.UserGender;
+import Models.ComputerMoveProvider;
+import Models.GameSession;
+import Models.Move;
+import Models.MoveProvider;
+import Models.Player;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.image.Image;
+import javafx.scene.shape.Circle;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.ImagePattern;
-import javafx.scene.shape.Circle;
 
 public class GameBoardController {
 
     @FXML
     private Button btn00, btn01, btn02,
-                   btn10, btn11, btn12, 
+                   btn10, btn11, btn12,
                    btn20, btn21, btn22;
-    
+
     @FXML
     private Label player1Wins, player2Wins, drawsCount;
-    
+    @FXML
+    private Label player1Name, player2Name;
+    @FXML
+    private Label player1Rank, player2Rank;
+
+    @FXML
+    private Circle player1Avatar, player2Avatar;
+
     @FXML
     private ListView<String> spectatorsList;
 
-    private boolean xTurn = true;
-    private int[][] boardState = new int[3][3];
-    private int p1Score = 0, p2Score = 0, draws = 0;
 
-    @FXML
-    private Circle player1Avatar;
-    @FXML
-    private Label player1Name;
-    @FXML
-    private Label player1Rank;
+    private Map<String, Button> buttonsMap;
+    private GameSession session;
+    private Player player1;
+    private Player player2;
     @FXML
     private Label player1Score;
-    
-    @FXML
-    private Circle player2Avatar;
-    @FXML
-    private Label player2Name;
-    @FXML
-    private Label player2Rank;
-    @FXML
-    private Label player2Score1;
-
-
     @FXML
     private StackPane gameArea;
     @FXML
     private GridPane gridPane;
+    @FXML
+    private Label player2Score1;
+
+   
 
     public void initialize() {
 
-        try {
-            if (spectatorsList != null) {
-                spectatorsList.getItems().addAll("Ahmed", "Sara", "Guest_77", "Bot_Alpha");
-            }
+        initButtonsMap();
+        initPlayers();
+        initSession(SessionType.AI); 
 
-            Image img2 = new Image(getClass().getResourceAsStream("/assets/girl.png"));
-            player2Avatar.setFill(new ImagePattern(img2));
-
-            Image img1 = new Image(getClass().getResourceAsStream("/assets/boy.png"));
-            player1Avatar.setFill(new ImagePattern(img1));
-
-        } catch (Exception e) {
-            System.out.println("Resource not found: " + e.getMessage());
-        }
-
-        resetBoard();
+        updateBoardUI();
+        updateScoreUI();
+        highlightCurrentPlayer();
     }
+
+    private void initButtonsMap() {
+        buttonsMap = new HashMap<>();
+        buttonsMap.put("00", btn00);
+        buttonsMap.put("01", btn01);
+        buttonsMap.put("02", btn02);
+        buttonsMap.put("10", btn10);
+        buttonsMap.put("11", btn11);
+        buttonsMap.put("12", btn12);
+        buttonsMap.put("20", btn20);
+        buttonsMap.put("21", btn21);
+        buttonsMap.put("22", btn22);
+    }
+
+    private void initPlayers() {
+
+        player1 = new Player(
+                "Player 1",
+                UserGender.Male,
+                0,
+                PlayerType.LOCAL,
+                PlayerSymbol.X
+        );
+
+        player2 = new Player(
+                "Computer",
+                UserGender.Female,
+                0,
+                PlayerType.LOCAL,
+                PlayerSymbol.O
+        );
+
+        player1Name.setText(player1.getUserName());
+        player2Name.setText(player2.getUserName());
+    }
+
+    private void initSession(SessionType type) {
+        session = new GameSession(player1, player2, type);
+    }
+    
+    private void endTurn() {
+        updateBoardUI();
+        handleResult();
+        handleNextTurn();
+    }
+
+    
 
     @FXML
     private void handleMove(ActionEvent event) {
 
+        if (session.isGameEnded()) return;
+
+        Player current = session.getCurrentPlayer();
+        
+        if (current.getType() != PlayerType.LOCAL) return;
+
         Button clickedBtn = (Button) event.getSource();
         String id = clickedBtn.getId();
+
         int row = Character.getNumericValue(id.charAt(3));
         int col = Character.getNumericValue(id.charAt(4));
 
-        if (boardState[row][col] != 0) {
-            return;
-        }
-
-        if (xTurn) {
-            clickedBtn.setText("X");
-            clickedBtn.getStyleClass().add("x-style");
-            boardState[row][col] = 1;
-        } else {
-            clickedBtn.setText("O");
-            clickedBtn.getStyleClass().add("o-style");
-            boardState[row][col] = 2;
-        }
-
-        xTurn = !xTurn;
-        checkGameStatus();
+        boolean played = session.playMove(row, col);
+        if (!played) return;
+        
+        endTurn();
     }
 
-    private void checkGameStatus() {
-        int winner = checkWinner();
-        if (winner != 0) {
-            if (winner == 1) {
-                p1Score++;
-            } else {
-                p2Score++;
-            }
-            updateUI();
-            resetBoard();
-        } else if (isBoardFull()) {
-            draws++;
-            updateUI();
-            resetBoard();
+    private void handleNextTurn() {
+
+        if (session.isGameEnded()) return;
+
+        highlightCurrentPlayer();
+
+        Player current = session.getCurrentPlayer();
+
+        switch (current.getType()) {
+
+            case COMPUTER:
+                playComputerMove();
+                break;
+
+            case ONLINE:
+                waitForServerMove();
+                break;
+
+            case LOCAL:
+                break;
         }
     }
 
-    private int checkWinner() {
-        for (int i = 0; i < 3; i++) {
-            if (boardState[i][0] != 0 && boardState[i][0] == boardState[i][1] && boardState[i][1] == boardState[i][2]) {
-                return boardState[i][0];
-            }
-            if (boardState[0][i] != 0 && boardState[0][i] == boardState[1][i] && boardState[1][i] == boardState[2][i]) {
-                return boardState[0][i];
-            }
-        }
-        if (boardState[1][1] != 0) {
-            if (boardState[0][0] == boardState[1][1] && boardState[1][1] == boardState[2][2]) {
-                return boardState[1][1];
-            }
-            if (boardState[0][2] == boardState[1][1] && boardState[1][1] == boardState[2][0]) {
-                return boardState[1][1];
-            }
-        }
-        return 0;
+    private void playComputerMove() {
+
+        Move move = session.getMoveProvider().getNextMove();
+        session.playMove(move.row, move.col);
+
+        endTurn();
     }
 
-    private boolean isBoardFull() {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (boardState[i][j] == 0) {
-                    return false;
+    private void waitForServerMove() {
+        System.out.println("Waiting for server move...");
+    }
+
+    public void onServerMove(int row, int col) {
+
+        session.playMove(row, col);
+
+        endTurn();
+    }
+
+    
+
+    private void updateBoardUI() {
+
+        PlayerSymbol[][] cells = session.getGame().getBoard().getCells();
+
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+
+                Button btn = buttonsMap.get("" + r + c);
+
+                btn.getStyleClass().removeAll(
+                        "x-style", "o-style", "win-cell"
+                );
+
+                if (cells[r][c] == PlayerSymbol.X) {
+                    btn.setText("X");
+                    btn.getStyleClass().add("x-style");
+                    btn.setDisable(true);
+
+                } else if (cells[r][c] == PlayerSymbol.O) {
+                    btn.setText("O");
+                    btn.getStyleClass().add("o-style");
+                    btn.setDisable(true);
                 }
             }
         }
-        return true;
     }
 
-    private void updateUI() {
-        player1Wins.setText(String.valueOf(p1Score));
-        player2Wins.setText(String.valueOf(p2Score));
-        drawsCount.setText(String.valueOf(draws));
+    private void updateScoreUI() {
+        player1Wins.setText(String.valueOf(session.getPlayer1Wins()));
+        player2Wins.setText(String.valueOf(session.getPlayer2Wins()));
+        drawsCount.setText(String.valueOf(session.getDrawCount()));
     }
 
-    private void resetBoard() {
-        Button[] btns = {btn00, btn01, btn02, btn10, btn11, btn12, btn20, btn21, btn22};
-        for (Button b : btns) {
-            if (b != null) {
-                b.setText("");
-                b.getStyleClass().removeAll("x-style", "o-style");
-            }
+    
+    private void handleResult() {
+
+        GameResult result = session.getLastResult();
+
+        switch (result) {
+
+            case NONE:
+                break;
+
+            case X_WIN:
+            case O_WIN:
+                highlightWinningCells();
+//                playWinSound();
+                disableBoard();
+                updateScoreUI();
+                break;
+
+            case DRAW:
+                disableBoard();
+                updateScoreUI();
+                break;
         }
-        boardState = new int[3][3];
-        xTurn = true;
+    }
+
+    private void highlightWinningCells() {
+
+    }
+
+    private void highlightCurrentPlayer() {
+    
+        player1Avatar.getStyleClass().remove("avatar-fancy");
+        
+        player2Avatar.getStyleClass().remove("avatar-fancy-p2");
+
+        Player current = session.getCurrentPlayer();
+
+        if (current == player1) {
+            player1Avatar.getStyleClass().add("avatar-fancy");
+        } else {
+            player2Avatar.getStyleClass().add("avatar-fancy-p2");
+        }
+    }
+
+    private void disableBoard() {
+        for (Button btn : buttonsMap.values()) {
+            btn.setDisable(true);
+        }
+    }
+
+
+    private void showAlert(String message) {
+        System.out.println(message);
     }
 
     @FXML
     private void leaveGame(ActionEvent event) {
-         try {
-                App.setRoot("homePage");
-            } catch (IOException ex) {
-                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-            }
+        try {
+            App.setRoot("homePage");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }

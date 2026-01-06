@@ -1,6 +1,6 @@
 package Enums;
 
-public enum PlayerGender {
+public enum UserGender {
     Male,
     Female
 }

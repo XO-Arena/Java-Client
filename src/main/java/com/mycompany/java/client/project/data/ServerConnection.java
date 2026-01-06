@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.stream.Collectors;
 
 public class ServerConnection implements Closeable, AutoCloseable {
     private String ipAddress;
@@ -46,7 +47,7 @@ public class ServerConnection implements Closeable, AutoCloseable {
     }
     
     public String getMessage() throws IOException {
-        return br.readAllAsString();
+        return br.lines().collect(Collectors.joining(System.lineSeparator()));
     }
     
     public void sendMessage(String message) throws IOException {
