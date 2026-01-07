@@ -135,3 +135,9 @@
     -fx-stroke-width: 3;
     -fx-effect: dropshadow(three-pass-box, #ff5e7e, 25, 0.5, 0, 0);
 }
+
+.winning-cell {
+    -fx-background-color: linear-gradient(to bottom right, #2e5bff, #4facfe);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(46,91,255,0.8), 18, 0.4, 0, 0);
+}
