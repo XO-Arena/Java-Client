@@ -1,10 +1,10 @@
 package com.mycompany.java.client.project;
 
+import Enums.PlayerType;
 import java.io.IOException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -83,16 +83,8 @@ public class HomePageController {
     @FXML
     private void navigateToOnlineGameBoardPage(ActionEvent event) {
         try {
-                App.setRoot("GameBoardPage");
-            } catch (IOException ex) {
-                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-            }
-    }
-
-    @FXML
-    private void navigateToOfflineGameBoardPage(ActionEvent event) {
-          try {
-                App.setRoot("GameBoardPage");
+                GameBoardController controller = App.setRoot("GameBoardPage").getController();
+                controller.initDummyPlayers(PlayerType.ONLINE);
             } catch (IOException ex) {
                 System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
             }
@@ -102,6 +94,15 @@ public class HomePageController {
     private void navigateToLocalMultiplayer(ActionEvent event) {
         try {
             App.setRoot("localMultiplayer");
+        } catch (IOException ex) {
+            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }
+
+    @FXML
+    private void onPlayVsPcClicked(ActionEvent event) {
+        try {
+            App.setRoot("difficultySelector");
         } catch (IOException ex) {
             System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }

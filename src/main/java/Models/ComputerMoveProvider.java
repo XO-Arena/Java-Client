@@ -1,12 +1,17 @@
 package Models;
 
+import Enums.Difficulty;
+
 public class ComputerMoveProvider implements MoveProvider {
 
     private final Board board;
+    private Board aiBoard;
     private int row, col;
+    private Difficulty difficulty;
 
-    public ComputerMoveProvider(Board board) {
+    public ComputerMoveProvider(Board board, Difficulty difficulty) {
         this.board = board;
+        this.difficulty = difficulty;
     }
         
     private Move moveByMiniMax() {
@@ -18,6 +23,7 @@ public class ComputerMoveProvider implements MoveProvider {
             
         } while (!board.isEmpty(row, col));
 
+        System.out.println(difficulty.name + " Played");
         return new Move(row, col);
 
     }
