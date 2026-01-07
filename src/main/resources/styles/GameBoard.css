@@ -1,13 +1,7 @@
-/* =========================================
-   1. General Settings & Main Background
-   ========================================= */
 .root, .main-container {
     -fx-background-color: #0d0d17;
 }
 
-/* =========================================
-   2. Game Board (Grid & Buttons)
-   ========================================= */
 .game-grid {
     -fx-background-color: #161625;
     -fx-background-radius: 20;
@@ -15,7 +9,6 @@
 }
 
 .game-button {
-    /* Set background and typography for the grid cells */
     -fx-background-color: #1e1e30; 
     -fx-background-radius: 15;
     -fx-font-size: 42px;
@@ -28,22 +21,19 @@
     -fx-background-color: #2a2a45;
 }
 
-/* Glowing effect for X symbol */
 .x-style {
     -fx-text-fill: #2e5bff !important;
-    -fx-effect: dropshadow(gaussian, #2e5bff, 15, 0.5, 0, 0);
+    /*-fx-effect: dropshadow(gaussian, #2e5bff, 15, 0.5, 0, 0);*/
 }
 
-/* Glowing effect for O symbol */
 .o-style {
     -fx-text-fill: #ff5e7e !important;
-    -fx-effect: dropshadow(gaussian, #ff5e7e, 15, 0.5, 0, 0);
+    /*-fx-effect: dropshadow(gaussian, #ff5e7e, 15, 0.5, 0, 0);*/
 }
 
-/* =========================================
-   3. Match Statistics (Side Panels)
-   ========================================= */
-.stats-container {
+    /* Match Statistics (Side Panels)*/
+     
+   .stats-container {
     -fx-background-color: #0b0b1a;
     -fx-border-color: transparent #1a1a2e transparent transparent;
     -fx-border-width: 1;
@@ -71,7 +61,6 @@
     -fx-effect: dropshadow(three-pass-box, rgba(255, 94, 126, 0.4), 10, 0.5, 0, 0);
 }
 
-/* Red-themed Leave Match button */
 .leave-button {
     -fx-background-color: transparent;
     -fx-text-fill: #ff4444;
@@ -90,7 +79,7 @@
 }
 
 /* =========================================
-   4. Spectators List (Spaced Cards)
+   4. Spectators List
    ========================================= */
 .spectators-container {
     -fx-background-color: #0b0b1a;
@@ -106,7 +95,6 @@
 
 .dark-list-view {
     -fx-background-color: transparent;
-    /* Removes the default white background of the list container */
     -fx-control-inner-background: transparent;
     -fx-background-insets: 0;
 }
@@ -116,41 +104,19 @@
     -fx-text-fill: white;
     -fx-background-radius: 8;
     -fx-padding: 12;
-    
-    /* Trick: Use a transparent bottom border to create visual spacing between cards */
-    -fx-border-color: #0b0b1a; 
-    -fx-border-width: 0 0 12 0; 
+    -fx-border-color: #0b0b1a;
+    -fx-border-width: 0 0 12 0;
 }
 
 .dark-list-view .list-cell:filled:hover {
     -fx-background-color: #1f1f3d;
-    -fx-border-color: #2e5bff, #0b0b1a; /* Blue hover border + Transparent spacing border */
-    -fx-border-width: 1, 0 0 12 0;
 }
 
-/* Hide empty rows entirely */
 .dark-list-view .list-cell:empty {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
 }
 
-/* =========================================
-   5. Player Profile Cards
-   ========================================= */
-.player-card-container {
-    -fx-background-color: rgba(26, 26, 46, 0.8);
-    -fx-background-radius: 15;
-    -fx-padding: 15;
-    -fx-border-color: rgba(90, 90, 122, 0.2);
-    -fx-border-width: 1;
-    -fx-max-width: 350px;
-}
-
-.player-card-container:hover {
-    -fx-background-color: rgba(30, 30, 55, 0.8);
-}
-
-/* Blue neon glow for Player 1 */
 .avatar-fancy {
     -fx-effect: dropshadow(three-pass-box, rgba(46, 91, 255, 0.8), 15, 0.3, 0, 0);
 }
@@ -160,7 +126,7 @@
     -fx-effect: dropshadow(three-pass-box, #2e5bff, 25, 0.5, 0, 0);
 }
 
-/* Pink neon glow for Player 2 */
+/* Pink neon glow for Player 2 avatar */
 .avatar-fancy-p2 {
     -fx-effect: dropshadow(three-pass-box, rgba(255, 94, 126, 0.8), 15, 0.3, 0, 0);
 }
@@ -168,4 +134,10 @@
 .avatar-fancy-p2:hover {
     -fx-stroke-width: 3;
     -fx-effect: dropshadow(three-pass-box, #ff5e7e, 25, 0.5, 0, 0);
+}
+
+.winning-cell {
+    -fx-background-color: linear-gradient(to bottom right, #2e5bff, #4facfe);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(46,91,255,0.8), 18, 0.4, 0, 0);
 }

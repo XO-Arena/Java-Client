@@ -1,1 +1,46 @@
-/target/
+# ========================
+# IDE Files
+# ========================
+
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# NetBeans
+/nbproject/private/
+/build/
+/dist/
+
+# VS Code
+.vscode/
+
+# ========================
+# Build Output
+# ========================
+
+# Maven
+target/
+
+# Gradle
+.gradle/
+build/
+
+# ========================
+# Java
+# ========================
+*.class
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Logs & Temp
+# ========================
+*.log
+*.tmp
+
+board.png
