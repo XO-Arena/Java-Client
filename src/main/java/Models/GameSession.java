@@ -37,7 +37,7 @@ public class GameSession {
                 break;
             case AI:
                 AIPlayer aiPlayer = (AIPlayer) player2;
-                moveProvider = new ComputerMoveProvider(game.getBoard(), aiPlayer.getDifficulty());
+                moveProvider = new ComputerMoveProvider(game.getBoard(), aiPlayer.getDifficulty(), player2.getSymbol());
                 break;
             case ONLINE:
                 moveProvider = new OnlineMoveProvider();
