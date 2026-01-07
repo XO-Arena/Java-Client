@@ -10,18 +10,32 @@ import Models.GameSession;
 import Models.Move;
 import Models.MoveProvider;
 import Models.Player;
+import java.io.File;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.shape.Circle;
+import javafx.embed.swing.SwingFXUtils;
+
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import javafx.application.Platform;
+import javafx.geometry.Bounds;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.StrokeLineCap;
+import javax.imageio.ImageIO;
 
 public class GameBoardController {
 
@@ -56,6 +70,10 @@ public class GameBoardController {
     private GridPane gridPane;
     @FXML
     private Label player2Score1;
+    @FXML
+    private Pane gridOverlay;
+    
+    private Line winLine;
 
    
 
@@ -219,11 +237,11 @@ public class GameBoardController {
     private void handleResult() {
 
         GameResult result = session.getLastResult();
-
+        
         switch (result) {
 
             case NONE:
-                break;
+                return;
 
             case X_WIN:
             case O_WIN:
@@ -238,11 +256,63 @@ public class GameBoardController {
                 updateScoreUI();
                 break;
         }
+        Platform.runLater(this::takeBoardScreenshot);
+    }
+    
+    private void takeBoardScreenshot() {
+        try {
+            WritableImage image = gameArea.snapshot(new SnapshotParameters(), null);
+            
+            File file = new File("board.png");
+            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+        } catch (IOException ex) {
+            System.getLogger(GameBoardController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
     }
 
     private void highlightWinningCells() {
-
+        String winCode = session.getGame().getBoard().getWinCode();
+        if (winCode == null) return;
+        System.out.println("WinCode: " + winCode);
+        
+        List<Button> winningButtons = new ArrayList<>();
+        for(int i = 0; i < winCode.length(); i += 2) {
+            Button cell = buttonsMap.get(winCode.substring(i, i + 2));
+            cell.getStyleClass().add("winning-cell");
+            winningButtons.add(cell);
+        }
+        
+//        drawWinningLine(winningButtons);
     }
+    
+    private void drawWinningLine(List<Button> cells) {
+        if (cells.size() < 2) return;
+
+        Button first = cells.get(0);
+        Button last  = cells.get(cells.size() - 1);
+
+        Bounds start = first.getBoundsInParent();
+        Bounds end   = last.getBoundsInParent();
+
+        double startX = start.getMinX() + start.getWidth() / 2;
+        double startY = start.getMinY() + start.getHeight() / 2;
+        double endX   = end.getMinX()   + end.getWidth() / 2;
+        double endY   = end.getMinY()   + end.getHeight() / 2;
+
+        Line line = new Line(startX, startY, endX, endY);
+        line.setStrokeWidth(6);
+        line.setStrokeLineCap(StrokeLineCap.ROUND);
+        line.setMouseTransparent(true);
+
+        line.setStroke(
+            session.getGame().checkResult() == GameResult.X_WIN
+                ? Color.web("#2e5bff")
+                : Color.web("#ff5e7e")
+        );
+
+        gridOverlay.getChildren().add(line);
+    }
+
 
     private void highlightCurrentPlayer() {
     

@@ -48,7 +48,7 @@ public class Game {
     public void setHasEnded(boolean hasEnded) {
         this.hasEnded = hasEnded;
     }
-
+    
     public void reset() {
         board.reset();
         currentPlayer = PlayerSymbol.X;
