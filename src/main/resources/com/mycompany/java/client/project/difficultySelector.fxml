@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane prefHeight="600" prefWidth="900" styleClass="root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.java.client.project.DifficultySelectorController">
+
+    <!-- Main Content -->
+    <VBox alignment="CENTER" spacing="40">
+
+        <!-- Title -->
+        <Label styleClass="title-label" text="Choose AI Difficulty">
+            <font>
+                <Font name="System Bold" size="32" />
+            </font>
+        </Label>
+
+        <!-- Difficulty Grid -->
+        <GridPane alignment="CENTER" hgap="40" vgap="40">
+
+            <!-- Easy -->
+            <VBox alignment="CENTER" onMouseClicked="#selectEasy" styleClass="difficulty-tile" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <ImageView fx:id="easyImg" fitHeight="100" fitWidth="100" preserveRatio="true" />
+                <Label styleClass="difficulty-label" text="Easy" />
+            </VBox>
+
+            <!-- Medium -->
+            <VBox alignment="CENTER" onMouseClicked="#selectMedium" styleClass="difficulty-tile" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+                <ImageView fx:id="mediumImg" fitHeight="100" fitWidth="100" preserveRatio="true" />
+                <Label contentDisplay="CENTER" styleClass="difficulty-label" text="Medium" />
+            </VBox>
+
+            <!-- Hard -->
+            <VBox alignment="CENTER" onMouseClicked="#selectHard" styleClass="difficulty-tile" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                <ImageView fx:id="hardImg" fitHeight="100" fitWidth="100" preserveRatio="true" />
+                <Label styleClass="difficulty-label" text="Hard" />
+            </VBox>
+
+            <!-- Impossible -->
+            <VBox alignment="CENTER" onMouseClicked="#selectImpossible" styleClass="difficulty-tile" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <ImageView fx:id="impossibleImg" fitHeight="100" fitWidth="100" preserveRatio="true" />
+                <Label styleClass="difficulty-label" text="Impossible" />
+            </VBox>
+         <columnConstraints>
+            <ColumnConstraints />
+            <ColumnConstraints />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+         </rowConstraints>
+
+        </GridPane>
+
+    </VBox>
+
+    <!-- Back Button -->
+    <Button onAction="#handleBack" styleClass="back-button" text="← Back" StackPane.alignment="TOP_LEFT">
+        <StackPane.margin>
+            <Insets left="20" top="20" />
+        </StackPane.margin>
+    </Button>
+   <stylesheets>
+      <URL value="@../../../../../styles/difficulty-selector.css" />
+      <URL value="@../../../../../styles/local-multiplayer.css" />
+   </stylesheets>
+
+</StackPane>
