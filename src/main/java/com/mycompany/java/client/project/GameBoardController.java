@@ -1,11 +1,11 @@
 package com.mycompany.java.client.project;
 
-import Enums.Difficulty;
-import Enums.GameResult;
-import Enums.PlayerSymbol;
-import Enums.PlayerType;
-import Enums.SessionType;
-import Enums.UserGender;
+import enums.GameResult;
+import enums.PlayerSymbol;
+import enums.PlayerType;
+import enums.SessionType;
+import enums.UserGender;
+import Models.ComputerMoveProvider;
 import Models.GameSession;
 import Models.Move;
 import Models.Player;

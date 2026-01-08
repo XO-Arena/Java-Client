@@ -1,12 +1,12 @@
 package Models;
 
-import Enums.Difficulty;
-import static Enums.Difficulty.EASY;
-import static Enums.Difficulty.HARD;
-import static Enums.Difficulty.IMPOSSIBLE;
-import static Enums.Difficulty.MEDIUM;
-import Enums.GameResult;
-import Enums.PlayerSymbol;
+import enums.Difficulty;
+import static enums.Difficulty.EASY;
+import static enums.Difficulty.HARD;
+import static enums.Difficulty.IMPOSSIBLE;
+import static enums.Difficulty.MEDIUM;
+import enums.GameResult;
+import enums.PlayerSymbol;
 
 import java.util.*;
 

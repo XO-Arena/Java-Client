@@ -1,7 +1,7 @@
 package Models;
 
-import Enums.GameResult;
-import Enums.PlayerSymbol;
+import enums.GameResult;
+import enums.PlayerSymbol;
 
 public class Game {
 

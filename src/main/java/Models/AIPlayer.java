@@ -4,10 +4,10 @@
  */
 package Models;
 
-import Enums.Difficulty;
-import Enums.PlayerSymbol;
-import Enums.PlayerType;
-import Enums.UserGender;
+import enums.Difficulty;
+import enums.PlayerSymbol;
+import enums.PlayerType;
+import enums.UserGender;
 
 /**
  *

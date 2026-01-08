@@ -1,6 +1,6 @@
 package com.mycompany.java.client.project;
 
-import Enums.PlayerType;
+import enums.PlayerType;
 import java.io.IOException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

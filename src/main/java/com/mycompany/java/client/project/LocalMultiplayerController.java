@@ -4,9 +4,9 @@
  */
 package com.mycompany.java.client.project;
 
-import Enums.PlayerSymbol;
-import Enums.PlayerType;
-import Enums.UserGender;
+import enums.PlayerSymbol;
+import enums.PlayerType;
+import enums.UserGender;
 import Models.Player;
 import java.io.IOException;
 import java.net.URL;

@@ -5,6 +5,7 @@
 package com.mycompany.java.client.project;
 
 import com.mycompany.java.client.project.data.ServerConnection;
+import enums.RequestType;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -99,7 +100,7 @@ public class LoginPageController implements Initializable {
         }
 
         try (ServerConnection conn = ServerConnection.getInstance()) {
-            conn.sendRequest("LOGIN");
+            conn.sendRequest(RequestType.LOGIN);
             conn.sendRequest(username);
             conn.sendRequest(password);
 

@@ -62,8 +62,14 @@ public class ServerConnection implements Closeable {
 
     @Override
     public void close() throws IOException {
-        if (oos != null) oos.close();
-        if (ois != null) ois.close();
-        if (socket != null) socket.close();
+        if (oos != null) {
+            oos.close();
+        }
+        if (ois != null) {
+            ois.close();
+        }
+        if (socket != null) {
+            socket.close();
+        }
     }
 }

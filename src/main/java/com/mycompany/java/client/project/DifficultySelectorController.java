@@ -4,10 +4,10 @@
  */
 package com.mycompany.java.client.project;
 
-import Enums.Difficulty;
-import Enums.PlayerSymbol;
-import Enums.PlayerType;
-import Enums.UserGender;
+import enums.Difficulty;
+import enums.PlayerSymbol;
+import enums.PlayerType;
+import enums.UserGender;
 import Models.AIPlayer;
 import Models.Player;
 import java.io.IOException;
