@@ -99,7 +99,7 @@ public class LoginPageController implements Initializable {
             return;
         }
 
-        try (ServerConnection conn = new ServerConnection("127.0.0.1",4646)) {
+        try (ServerConnection conn = ServerConnection.getInstance()) {
             conn.sendRequest(RequestType.LOGIN);
             conn.sendRequest(username);
             conn.sendRequest(password);

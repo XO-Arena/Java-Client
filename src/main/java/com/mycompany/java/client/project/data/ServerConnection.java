@@ -1,44 +1,63 @@
-/* * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template */ package com.mycompany.java.client.project.data;
+package com.mycompany.java.client.project.data;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 
-public class ServerConnection implements Closeable, AutoCloseable {
+public class ServerConnection implements Closeable {
 
-    private String ipAddress;
-    private int portNumber;
-    private Socket s;
+    private static String ipAddress = "127.0.0.1";
+    private static int portNumber = 4646;
+    private static ServerConnection INSTANCE;
+    private static final Object lock = new Object();
+
+    private Socket socket;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
 
-    public ServerConnection(String ipAddress, int port) throws IOException {
-        this.ipAddress = ipAddress;
-        this.portNumber = port;
-        connectToServer();
+    private ServerConnection() throws IOException {
+        connect();
     }
 
-    private void connectToServer() throws IOException {
-        System.out.println("Attempting to connect to " + ipAddress + ":" + portNumber);
-        s = new Socket(ipAddress, portNumber);
-        oos = new ObjectOutputStream(s.getOutputStream());
+    public static ServerConnection getInstance() throws IOException {
+        synchronized (lock) {
+            if (INSTANCE == null) {
+                INSTANCE = new ServerConnection();
+            }
+            return INSTANCE;
+        }
+    }
+
+    private void connect() throws IOException {
+        socket = new Socket(ipAddress, portNumber);
+
+        // IMPORTANT ORDER
+        oos = new ObjectOutputStream(socket.getOutputStream());
         oos.flush();
-        ois = new ObjectInputStream(s.getInputStream());
-        System.out.println("Streams initialized successfully.");
+        ois = new ObjectInputStream(socket.getInputStream());
     }
 
     public void sendRequest(Object obj) throws IOException {
-        if (oos == null) {
-            throw new IOException("ObjectOutputStream is null. Connection failed earlier?");
-        }
         oos.writeObject(obj);
         oos.flush();
     }
 
     public Object readResponse() throws IOException, ClassNotFoundException {
         return ois.readObject();
+    }
+
+    public boolean isAlive() {
+        return socket != null && socket.isConnected() && !socket.isClosed();
+    }
+
+    public void reconnect() throws IOException {
+        close();
+        connect();
+    }
+
+    public void changeServer(String ip, int port) throws IOException {
+        ipAddress = ip;
+        portNumber = port;
+        reconnect();
     }
 
     @Override
@@ -49,8 +68,8 @@ public class ServerConnection implements Closeable, AutoCloseable {
         if (ois != null) {
             ois.close();
         }
-        if (s != null) {
-            s.close();
+        if (socket != null) {
+            socket.close();
         }
     }
 }
