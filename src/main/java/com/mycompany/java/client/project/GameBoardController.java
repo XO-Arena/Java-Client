@@ -8,7 +8,6 @@ import enums.UserGender;
 import Models.ComputerMoveProvider;
 import Models.GameSession;
 import Models.Move;
-import Models.MoveProvider;
 import Models.Player;
 import java.io.File;
 import javafx.event.ActionEvent;
@@ -75,17 +74,10 @@ public class GameBoardController {
     
     private Line winLine;
 
-   
+    
 
     public void initialize() {
-
         initButtonsMap();
-        initPlayers();
-        initSession(SessionType.AI); 
-
-        updateBoardUI();
-        updateScoreUI();
-        highlightCurrentPlayer();
     }
 
     private void initButtonsMap() {
@@ -101,39 +93,45 @@ public class GameBoardController {
         buttonsMap.put("22", btn22);
     }
 
-    private void initPlayers() {
+    public void initPlayers(Player player, Player opponent) {
 
-        player1 = new Player(
-                "Player 1",
-                UserGender.Male,
-                0,
-                PlayerType.LOCAL,
-                PlayerSymbol.X
-        );
-
-        player2 = new Player(
-                "Computer",
-                UserGender.Female,
-                0,
-                PlayerType.LOCAL,
-                PlayerSymbol.O
-        );
+        player1 = player;
+        player2 = opponent;
+        
+        session = new GameSession(player1, player2, player2.getType().getSessionType());
 
         player1Name.setText(player1.getUserName());
         player2Name.setText(player2.getUserName());
-    }
-
-    private void initSession(SessionType type) {
-        session = new GameSession(player1, player2, type);
+        
+        updateBoardUI();
+        updateScoreUI();
+        highlightCurrentPlayer();
     }
     
+    public void initDummyPlayers(PlayerType type) {
+        initPlayers(
+                new Player(
+                        "Player 1",
+                        UserGender.Male,
+                        300,
+                        PlayerType.LOCAL,
+                        PlayerSymbol.X
+                ),
+                new Player(
+                        "Player 2",
+                        UserGender.Male,
+                        300,
+                        type,
+                        PlayerSymbol.O
+                )
+        );
+    }
+        
     private void endTurn() {
         updateBoardUI();
         handleResult();
         handleNextTurn();
     }
-
-    
 
     @FXML
     private void handleMove(ActionEvent event) {

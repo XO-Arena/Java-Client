@@ -2,6 +2,7 @@ E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project
 E:\Projects\NetBeans\Java-Client\src\main\java\enums\UserGender.java
 E:\Projects\NetBeans\Java-Client\src\main\java\Models\Board.java
 E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\PlayerItemController.java
+E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\DifficultySelectorController.java
 E:\Projects\NetBeans\Java-Client\src\main\java\Models\Move.java
 E:\Projects\NetBeans\Java-Client\src\main\java\Models\User.java
 E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\LoginPageController.java
@@ -17,11 +18,13 @@ E:\Projects\NetBeans\Java-Client\src\main\java\enums\RequestType.java
 E:\Projects\NetBeans\Java-Client\src\main\java\enums\UserState.java
 E:\Projects\NetBeans\Java-Client\src\main\java\Models\OnlineMoveProvider.java
 E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\data\ServerConnection.java
+E:\Projects\NetBeans\Java-Client\src\main\java\Models\AIPlayer.java
 E:\Projects\NetBeans\Java-Client\src\main\java\enums\PlayerType.java
 E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\App.java
 E:\Projects\NetBeans\Java-Client\src\main\java\Models\MoveProvider.java
 E:\Projects\NetBeans\Java-Client\src\main\java\enums\PlayerSymbol.java
 E:\Projects\NetBeans\Java-Client\src\main\java\com\mycompany\java\client\project\RegisterPageController.java
+E:\Projects\NetBeans\Java-Client\src\main\java\enums\Difficulty.java
 E:\Projects\NetBeans\Java-Client\src\main\java\enums\GameResult.java
 E:\Projects\NetBeans\Java-Client\src\main\java\Models\ComputerMoveProvider.java
 E:\Projects\NetBeans\Java-Client\src\main\java\module-info.java

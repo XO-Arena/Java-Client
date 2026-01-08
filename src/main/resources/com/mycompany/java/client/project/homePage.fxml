@@ -46,7 +46,7 @@
                             <children>
                                 <Button maxWidth="Infinity" onAction="#navigateToOnlineGameBoardPage" text="Quick Game" />
                                 <Button maxWidth="Infinity" onAction="#navigateToLocalMultiplayer" text="Local Multiplayer" />
-                                <Button maxWidth="Infinity" text="Play vs Computer" />
+                                <Button maxWidth="Infinity" onAction="#onPlayVsPcClicked" text="Play vs Computer" />
                                 <Button maxWidth="Infinity" text="Recorded Games" />
                             </children>
                         </VBox>

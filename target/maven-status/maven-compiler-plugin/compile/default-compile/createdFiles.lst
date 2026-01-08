@@ -7,9 +7,12 @@ Models\Move.class
 enums\UserGender.class
 com\mycompany\java\client\project\App.class
 com\mycompany\java\client\project\LoginPageController.class
+Models\ComputerMoveProvider$1.class
 enums\PlayerType.class
 Models\ComputerMoveProvider.class
 com\mycompany\java\client\project\GameBoardController.class
+Models\AIPlayer.class
+enums\Difficulty.class
 Models\User.class
 Models\GameSession$1.class
 enums\RequestType.class
@@ -20,6 +23,7 @@ module-info.class
 com\mycompany\java\client\project\LeaderboardItemController.class
 com\mycompany\java\client\project\PlayerItemController.class
 Models\Game.class
+com\mycompany\java\client\project\DifficultySelectorController.class
 com\mycompany\java\client\project\LocalMultiplayerController.class
 enums\UserState.class
 Models\OnlineMoveProvider.class
