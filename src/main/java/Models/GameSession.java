@@ -1,8 +1,8 @@
 package Models;
 
-import Enums.GameResult;
-import Enums.PlayerSymbol;
-import Enums.SessionType;
+import enums.GameResult;
+import enums.PlayerSymbol;
+import enums.SessionType;
 import java.util.ArrayList;
 import java.util.List;
 

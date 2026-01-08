@@ -5,6 +5,7 @@
 package com.mycompany.java.client.project;
 
 import com.mycompany.java.client.project.data.ServerConnection;
+import enums.RequestType;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -85,8 +86,8 @@ public class RegisterPageController {
         }
 
         // 2. Connection and Server Logic
-        try (ServerConnection conn = ServerConnection.getInstance()) {
-            conn.sendRequest("REGISTER");
+        try ( ServerConnection conn = new ServerConnection("127.0.0.1",4646)) {
+           conn.sendRequest(RequestType.REGISTER);
             conn.sendRequest(username);
             conn.sendRequest(password);
             conn.sendRequest(gender.toString());

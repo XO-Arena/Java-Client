@@ -1,8 +1,8 @@
 package Models;
 
-import Enums.PlayerSymbol;
-import Enums.PlayerType;
-import Enums.UserGender;
+import enums.PlayerSymbol;
+import enums.PlayerType;
+import enums.UserGender;
 
 public class Player extends User {
 

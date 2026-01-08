@@ -1,7 +1,7 @@
 package Models;
 
-import Enums.UserGender;
-import Enums.UserState;
+import enums.UserGender;
+import enums.UserState;
 
 public class User {
 
