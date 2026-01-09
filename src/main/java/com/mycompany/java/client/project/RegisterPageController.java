@@ -51,6 +51,7 @@ public class RegisterPageController implements Initializable, ServerListener {
      */
     private ServerConnection conn;
     private Gson gson;
+    private boolean isSubmited = false;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -98,6 +99,9 @@ public class RegisterPageController implements Initializable, ServerListener {
 
     @FXML
     private void handleRegister(ActionEvent event) {
+        if (isSubmited) {
+            return;
+        }
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
         UserGender gender = genderComboBox.getValue();
@@ -105,20 +109,28 @@ public class RegisterPageController implements Initializable, ServerListener {
             showAlert("Validation Error", "Please fill in all fields.", Alert.AlertType.WARNING);
             return;
         }
+        // if not enter to this if statment
+        isSubmited = true;
+        registerButton.setDisable(true);
         try {
             RegisterDTO registerDto = new RegisterDTO(username, password, gender);
             Request rq = new Request(RequestType.REGISTER, gson.toJsonTree(registerDto));
             conn.sendRequest(rq);
 
         } catch (Exception e) {
+            isSubmited = false;
+            registerButton.setDisable(false);
             e.printStackTrace();
         }
 
     }
 
     private void handleRegisterResponse(Response response) {
+        Platform.runLater(() -> {
+            isSubmited = false;
+            registerButton.setDisable(false);
+        });
         switch (response.getType()) {
-
             case REGISTER_SUCCESS:
                 Platform.runLater(() -> {
                     showAlert("Registration Success", "Account created successfully", Alert.AlertType.INFORMATION);
@@ -160,6 +172,8 @@ public class RegisterPageController implements Initializable, ServerListener {
 
     @Override
     public void onDisconnect() {
+        isSubmited = false;
+        registerButton.setDisable(false);
         showAlert("Server Offline", "Cannot connect to the server. Please check if it's running.", Alert.AlertType.ERROR);
     }
 }

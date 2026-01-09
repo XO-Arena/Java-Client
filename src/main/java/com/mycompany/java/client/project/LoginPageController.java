@@ -55,6 +55,7 @@ public class LoginPageController implements ServerListener, Initializable {
     private boolean isPasswordVisible = false;
     private Gson gson;
     private ServerConnection conn;
+    private boolean isSubmited = false;// the default value
 
     /**
      * Initializes the controller class.
@@ -105,6 +106,9 @@ public class LoginPageController implements ServerListener, Initializable {
 
     @FXML
     private void handleLogin(ActionEvent event) {
+        if (isSubmited) {
+            return;
+        }
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
 
@@ -113,25 +117,31 @@ public class LoginPageController implements ServerListener, Initializable {
 
             return;
         }
-
+        // if not enter to this if statment
+        isSubmited = true;
+        loginButton.setDisable(true);
         try {
             LoginDTO loginDto = new LoginDTO(username, password);
-            System.out.println(Thread.currentThread().getName());
             // to convert the json to the class => fromJson(//jsonelement , // class name)
             //  to convert the class to json => toJsonTree(// take object)
             Request rq = new Request(RequestType.LOGIN, gson.toJsonTree(loginDto));
             conn.sendRequest(rq);
         } catch (Exception e) {
+            isSubmited = false;
+            loginButton.setDisable(false);
             e.printStackTrace();
         }
     }
 
-    private void handleLoginReponse(Response response) {
+    private void handleLoginResponse(Response response) {
+        Platform.runLater(() -> {
+            isSubmited = false;
+            loginButton.setDisable(false);
+        });
         switch (response.getType()) {
             case LOGIN_SUCCESS: {
                 Platform.runLater(() -> {
-                    System.out.println(Thread.currentThread().getName());
-                    showAlert("Login Success", "Login Successfully", Alert.AlertType.INFORMATION); // This is now safe
+                    //showAlert("Login Success", "Login Successfully", Alert.AlertType.INFORMATION); // This is now safe
                     try {
                         App.setRoot("homePage");
                     } catch (IOException ex) {
@@ -144,7 +154,6 @@ public class LoginPageController implements ServerListener, Initializable {
             //LOGIN_FAILED
             case LOGIN_FAILED:
                 Platform.runLater(() -> {
-                    System.out.println(Thread.currentThread().getName());
                     showAlert("Login Failed", "Invalid username or password", Alert.AlertType.ERROR); // This is now safe
                 });
 
@@ -197,11 +206,13 @@ public class LoginPageController implements ServerListener, Initializable {
 
     @Override
     public void onMessage(Response response) {
-        handleLoginReponse(response);
+        handleLoginResponse(response);
     }
 
     @Override
     public void onDisconnect() {
+        isSubmited = false;
+        loginButton.setDisable(false);
         showAlert("Server Offline", "The server is currently unreachable.", Alert.AlertType.ERROR);
     }
 }
