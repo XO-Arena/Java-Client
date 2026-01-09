@@ -7,7 +7,7 @@ package com.mycompany.java.client.project;
 import enums.PlayerSymbol;
 import enums.PlayerType;
 import enums.UserGender;
-import Models.Player;
+import models.Player;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;

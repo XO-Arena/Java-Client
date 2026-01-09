@@ -4,7 +4,7 @@
  */
 package enums;
 
-import Models.Player;
+import models.Player;
 
 /**
  *

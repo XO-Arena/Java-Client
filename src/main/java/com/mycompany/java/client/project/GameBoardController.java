@@ -3,12 +3,10 @@ package com.mycompany.java.client.project;
 import enums.GameResult;
 import enums.PlayerSymbol;
 import enums.PlayerType;
-import enums.SessionType;
 import enums.UserGender;
-import Models.ComputerMoveProvider;
-import Models.GameSession;
-import Models.Move;
-import Models.Player;
+import models.GameSession;
+import models.Move;
+import models.Player;
 import java.io.File;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,8 +15,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.shape.Circle;
 import javafx.embed.swing.SwingFXUtils;
-
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +33,6 @@ import javafx.scene.shape.StrokeLineCap;
 import javax.imageio.ImageIO;
 
 public class GameBoardController {
-
     @FXML
     private Button btn00, btn01, btn02,
                    btn10, btn11, btn12,
@@ -100,8 +95,8 @@ public class GameBoardController {
         
         session = new GameSession(player1, player2, player2.getType().getSessionType());
 
-        player1Name.setText(player1.getUserName());
-        player2Name.setText(player2.getUserName());
+        player1Name.setText(player1.getUsername());
+        player2Name.setText(player2.getUsername());
         
         updateBoardUI();
         updateScoreUI();

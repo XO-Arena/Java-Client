@@ -1,4 +1,4 @@
-package Models;
+package models;
 
 import enums.PlayerSymbol;
 import enums.PlayerType;

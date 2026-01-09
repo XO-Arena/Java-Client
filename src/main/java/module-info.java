@@ -4,7 +4,9 @@ module com.mycompany.java.client.project {
     requires java.base;
     requires java.desktop;
     requires javafx.swing;
-
+    requires com.google.gson;
+    
     opens com.mycompany.java.client.project to javafx.fxml;
     exports com.mycompany.java.client.project;
+    
 }
