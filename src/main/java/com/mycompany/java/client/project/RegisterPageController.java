@@ -4,11 +4,18 @@
  */
 package com.mycompany.java.client.project;
 
+import com.google.gson.Gson;
+import com.mycompany.java.client.project.data.Request;
+import com.mycompany.java.client.project.data.Response;
 import com.mycompany.java.client.project.data.ServerConnection;
+import com.mycompany.java.client.project.data.ServerListener;
+import dto.RegisterDTO;
 import enums.RequestType;
+import enums.UserGender;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -25,14 +32,15 @@ import javafx.scene.control.TextField;
  *
  * @author ANTER
  */
-public class RegisterPageController {
+public class RegisterPageController implements Initializable, ServerListener {
 
     @FXML
     private TextField usernameField;
     @FXML
     private PasswordField passwordField;
     @FXML
-    private ComboBox<?> genderComboBox;
+    private ComboBox<UserGender> genderComboBox;
+
     @FXML
     private Button registerButton;
     @FXML
@@ -41,6 +49,21 @@ public class RegisterPageController {
     /**
      * Initializes the controller class.
      */
+    private ServerConnection conn;
+    private Gson gson;
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        gson = new Gson();
+        try {
+            conn = ServerConnection.getConnection();
+        } catch (IOException ex) {
+            System.getLogger(LoginPageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        conn.setListener(this);
+        genderComboBox.getItems().setAll(UserGender.values());
+    }
+
     @FXML
     private void navigateToLogin(ActionEvent event) {
         try {
@@ -77,36 +100,66 @@ public class RegisterPageController {
     private void handleRegister(ActionEvent event) {
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
-        Object gender = genderComboBox.getValue();
-
-        // 1. Validation: Check if fields are empty
+        UserGender gender = genderComboBox.getValue();
         if (username.isEmpty() || password.isEmpty() || gender == null) {
             showAlert("Validation Error", "Please fill in all fields.", Alert.AlertType.WARNING);
             return;
         }
+        try {
+            RegisterDTO registerDto = new RegisterDTO(username, password, gender);
+            Request rq = new Request(RequestType.REGISTER, gson.toJsonTree(registerDto));
+            conn.sendRequest(rq);
 
-        // 2. Connection and Server Logic
-        try ( ServerConnection conn =  ServerConnection.getInstance()) {
-           conn.sendRequest(RequestType.REGISTER);
-            conn.sendRequest(username);
-            conn.sendRequest(password);
-            conn.sendRequest(gender.toString());
-
-            Object resp = conn.readResponse();
-
-            if ("REGISTER_SUCCESS".equals(resp)) {
-                showAlert("Success", "Account created successfully!", Alert.AlertType.INFORMATION);
-                App.setRoot("loginPage");
-            } else if ("USER_EXISTS".equals(resp)) {
-                showAlert("Registration Failed", "This username is already taken.", Alert.AlertType.ERROR);
-            } else {
-                showAlert("Error", "Server error: " + resp, Alert.AlertType.ERROR);
-            }
-        } catch (IOException e) {
-            // This catches "Server is off" (Connection Refused)
-            showAlert("Server Offline", "Cannot connect to the server. Please check if it's running.", Alert.AlertType.ERROR);
         } catch (Exception e) {
-            showAlert("Error", "An unexpected error occurred.", Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
+
+    }
+
+    private void handleRegisterResponse(Response response) {
+        switch (response.getType()) {
+
+            case REGISTER_SUCCESS:
+                Platform.runLater(() -> {
+                    showAlert("Registration Success", "Account created successfully", Alert.AlertType.INFORMATION);
+                });
+                 {
+                    try {
+                        App.setRoot("loginPage");
+                    } catch (IOException ex) {
+                        System.getLogger(RegisterPageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                    }
+                }
+                break;
+
+            case USER_EXISTS:
+                Platform.runLater(() -> {
+                    showAlert("Registration Error", "Username already exists", Alert.AlertType.ERROR);
+                });
+                break;
+
+            case INVALID_DATA:
+                Platform.runLater(() -> {
+                    showAlert("Registration Error", "Invalid registration data", Alert.AlertType.ERROR);
+                });
+
+                break;
+            case ERROR:
+            default:
+                Platform.runLater(() -> {
+                    showAlert("Server Error", "Server error occurred", Alert.AlertType.ERROR);
+                });
+                break;
+        }
+    }
+
+    @Override
+    public void onMessage(Response response) {
+        handleRegisterResponse(response);
+    }
+
+    @Override
+    public void onDisconnect() {
+        showAlert("Server Offline", "Cannot connect to the server. Please check if it's running.", Alert.AlertType.ERROR);
     }
 }

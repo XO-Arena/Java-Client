@@ -18,7 +18,7 @@ public class AIPlayer extends Player {
     private Difficulty difficulty;
     
     public AIPlayer(Difficulty difficulty, PlayerSymbol symbol) {
-        super(difficulty.name, UserGender.Male, difficulty.score, PlayerType.COMPUTER, symbol);
+        super(difficulty.name, UserGender.MALE, difficulty.score, PlayerType.COMPUTER, symbol);
         this.difficulty = difficulty;
     }
 

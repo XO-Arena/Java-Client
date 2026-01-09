@@ -107,14 +107,14 @@ public class GameBoardController {
         initPlayers(
                 new Player(
                         "Player 1",
-                        UserGender.Male,
+                        UserGender.MALE,
                         300,
                         PlayerType.LOCAL,
                         PlayerSymbol.X
                 ),
                 new Player(
                         "Player 2",
-                        UserGender.Male,
+                        UserGender.MALE,
                         300,
                         type,
                         PlayerSymbol.O

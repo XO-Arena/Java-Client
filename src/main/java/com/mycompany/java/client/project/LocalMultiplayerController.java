@@ -66,8 +66,8 @@ public class LocalMultiplayerController implements Initializable {
         try {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
             controller.initPlayers(
-                    new Player(player1NameField.getText(), UserGender.Male, 300, PlayerType.LOCAL, PlayerSymbol.X),
-                    new Player(player2NameField.getText(), UserGender.Male, 300, PlayerType.LOCAL, PlayerSymbol.O)
+                    new Player(player1NameField.getText(), UserGender.MALE, 300, PlayerType.LOCAL, PlayerSymbol.X),
+                    new Player(player2NameField.getText(), UserGender.MALE, 300, PlayerType.LOCAL, PlayerSymbol.O)
             );
         } catch (IOException ex) {
             System.getLogger(LocalMultiplayerController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
