@@ -1,6 +1,13 @@
 package com.mycompany.java.client.project.data;
 
-import java.io.*;
+
+import com.google.gson.Gson;
+import java.io.BufferedReader;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+
 import java.net.Socket;
 
 public class ServerConnection implements Closeable {
@@ -11,14 +18,20 @@ public class ServerConnection implements Closeable {
     private static final Object lock = new Object();
 
     private Socket socket;
-    private ObjectOutputStream oos;
-    private ObjectInputStream ois;
+
+    private BufferedReader reader;
+    private PrintWriter writer;
+    private final Gson gson;
+    private ServerListener listener;
+    private Thread listenerThread;
 
     private ServerConnection() throws IOException {
+        gson = new Gson();
         connect();
+        startListenerThread();
     }
 
-    public static ServerConnection getInstance() throws IOException {
+    public static ServerConnection getConnection() throws IOException {
         synchronized (lock) {
             if (INSTANCE == null) {
                 INSTANCE = new ServerConnection();
@@ -29,20 +42,37 @@ public class ServerConnection implements Closeable {
 
     private void connect() throws IOException {
         socket = new Socket(ipAddress, portNumber);
-
-        // IMPORTANT ORDER
-        oos = new ObjectOutputStream(socket.getOutputStream());
-        oos.flush();
-        ois = new ObjectInputStream(socket.getInputStream());
+        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        writer = new PrintWriter(socket.getOutputStream(), true);
     }
 
-    public void sendRequest(Object obj) throws IOException {
-        oos.writeObject(obj);
-        oos.flush();
+    public void setListener(ServerListener listener) {
+        this.listener = listener;
     }
 
-    public Object readResponse() throws IOException, ClassNotFoundException {
-        return ois.readObject();
+    public void sendRequest(Request request) {
+        String json = gson.toJson(request);
+        writer.println(json);
+    }
+
+    private void startListenerThread() {
+        listenerThread = new Thread(() -> {
+            try {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    Response response = gson.fromJson(line, Response.class);
+                    if (listener != null) {
+                        listener.onMessage(response);
+                    }
+                }
+            } catch (IOException e) {
+                if (listener != null) {
+                    listener.onDisconnect();
+                }
+            }
+        });
+        listenerThread.setDaemon(true);
+        listenerThread.start();
     }
 
     public boolean isAlive() {
@@ -52,6 +82,7 @@ public class ServerConnection implements Closeable {
     public void reconnect() throws IOException {
         close();
         connect();
+        startListenerThread();
     }
 
     public void changeServer(String ip, int port) throws IOException {
@@ -62,14 +93,8 @@ public class ServerConnection implements Closeable {
 
     @Override
     public void close() throws IOException {
-        if (oos != null) {
-            oos.close();
-        }
-        if (ois != null) {
-            ois.close();
-        }
-        if (socket != null) {
-            socket.close();
-        }
+        if (writer != null) writer.close();
+        if (reader != null) reader.close();
+        if (socket != null) socket.close();
     }
 }

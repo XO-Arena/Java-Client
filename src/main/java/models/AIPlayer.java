@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Models;
+package models;
 
 import enums.Difficulty;
 import enums.PlayerSymbol;
@@ -18,7 +18,7 @@ public class AIPlayer extends Player {
     private Difficulty difficulty;
     
     public AIPlayer(Difficulty difficulty, PlayerSymbol symbol) {
-        super(difficulty.name, UserGender.Male, difficulty.score, PlayerType.COMPUTER, symbol);
+        super(difficulty.name, UserGender.MALE, difficulty.score, PlayerType.COMPUTER, symbol);
         this.difficulty = difficulty;
     }
 

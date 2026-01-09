@@ -1,4 +1,4 @@
-package Models;
+package models;
 
 import enums.Difficulty;
 import static enums.Difficulty.EASY;

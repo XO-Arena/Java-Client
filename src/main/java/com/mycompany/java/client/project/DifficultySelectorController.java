@@ -8,8 +8,8 @@ import enums.Difficulty;
 import enums.PlayerSymbol;
 import enums.PlayerType;
 import enums.UserGender;
-import Models.AIPlayer;
-import Models.Player;
+import models.AIPlayer;
+import models.Player;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -59,7 +59,7 @@ public class DifficultySelectorController implements Initializable {
     private void navigateToGameBoard(Difficulty difficulty) {
         try {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
-            controller.initPlayers(new Player("Player 1", UserGender.Male, 300, PlayerType.LOCAL, PlayerSymbol.X), new AIPlayer(difficulty, PlayerSymbol.O));
+            controller.initPlayers(new Player("Player 1", UserGender.MALE, 300, PlayerType.LOCAL, PlayerSymbol.X), new AIPlayer(difficulty, PlayerSymbol.O));
         } catch (IOException ex) {
             System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }

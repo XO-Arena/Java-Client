@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package enums;
 
 public enum RequestType {
@@ -13,5 +9,8 @@ public enum RequestType {
     WATCH,
     QUICK_GAME,
     LEAVE_GAME,
-    LOGOUT
+    LOGOUT,
+    GET_ONLINE_PLAYERS,
+    GET_LEADERBOARD,
+    ACCEPT
 }

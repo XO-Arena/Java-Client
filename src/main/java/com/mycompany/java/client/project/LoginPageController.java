@@ -4,11 +4,17 @@
  */
 package com.mycompany.java.client.project;
 
+import com.google.gson.Gson;
+import com.mycompany.java.client.project.data.Request;
+import com.mycompany.java.client.project.data.Response;
 import com.mycompany.java.client.project.data.ServerConnection;
+import com.mycompany.java.client.project.data.ServerListener;
+import dto.LoginDTO;
 import enums.RequestType;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -23,7 +29,7 @@ import javafx.scene.control.TextField;
  *
  * @author ANTER
  */
-public class LoginPageController implements Initializable {
+public class LoginPageController implements ServerListener, Initializable {
 
     @FXML
     private TextField usernameField;
@@ -47,13 +53,22 @@ public class LoginPageController implements Initializable {
     private Button togglePasswordButton;
 
     private boolean isPasswordVisible = false;
+    private Gson gson;
+    private ServerConnection conn;
+    private boolean isSubmited = false;// the default value
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Bind the text fields together so they stay in sync
+        gson = new Gson();
+        try {
+            conn = ServerConnection.getConnection();
+        } catch (IOException ex) {
+            System.getLogger(LoginPageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        conn.setListener(this);
         passwordTextField.textProperty().bindBidirectional(passwordField.textProperty());
     }
 
@@ -91,29 +106,80 @@ public class LoginPageController implements Initializable {
 
     @FXML
     private void handleLogin(ActionEvent event) {
+        if (isSubmited) {
+            return;
+        }
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
             showAlert("Validation Error", "Please enter both username and password.", Alert.AlertType.WARNING);
+
             return;
         }
-
-        try (ServerConnection conn = ServerConnection.getInstance()) {
-            conn.sendRequest(RequestType.LOGIN);
-            conn.sendRequest(username);
-            conn.sendRequest(password);
-
-            Object response = conn.readResponse();
-            if ("LOGIN_SUCCESS".equals(response)) {
-                App.setRoot("homePage");
-            } else {
-                showAlert("Login Failed", "Invalid username or password.", Alert.AlertType.ERROR);
-            }
-        } catch (IOException e) {
-            showAlert("Server Offline", "The server is currently unreachable.", Alert.AlertType.ERROR);
+        // if not enter to this if statment
+        isSubmited = true;
+        loginButton.setDisable(true);
+        try {
+            LoginDTO loginDto = new LoginDTO(username, password);
+            // to convert the json to the class => fromJson(//jsonelement , // class name)
+            //  to convert the class to json => toJsonTree(// take object)
+            Request rq = new Request(RequestType.LOGIN, gson.toJsonTree(loginDto));
+            conn.sendRequest(rq);
         } catch (Exception e) {
+            isSubmited = false;
+            loginButton.setDisable(false);
             e.printStackTrace();
+        }
+    }
+
+    private void handleLoginResponse(Response response) {
+        Platform.runLater(() -> {
+            isSubmited = false;
+            loginButton.setDisable(false);
+        });
+        switch (response.getType()) {
+            case LOGIN_SUCCESS: {
+                Platform.runLater(() -> {
+                    //showAlert("Login Success", "Login Successfully", Alert.AlertType.INFORMATION); // This is now safe
+                    try {
+                        App.setRoot("homePage");
+                    } catch (IOException ex) {
+                        System.getLogger(LoginPageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                    }
+                });
+
+            }
+            break;
+            //LOGIN_FAILED
+            case LOGIN_FAILED:
+                Platform.runLater(() -> {
+                    showAlert("Login Failed", "Invalid username or password", Alert.AlertType.ERROR); // This is now safe
+                });
+
+                break;
+
+            case ALREADY_LOGGED_IN:
+                Platform.runLater(() -> {
+                    showAlert("Login Failed", "User already logged in", Alert.AlertType.ERROR);
+                });
+
+                break;
+
+            case INVALID_DATA:
+                Platform.runLater(() -> {
+                    showAlert("Login Failed", "Invalid login data", Alert.AlertType.ERROR);
+                });
+
+                break;
+
+            case ERROR:
+            default:
+                Platform.runLater(() -> {
+                    showAlert("Server Error", "Server error", Alert.AlertType.ERROR);
+                });
+
+                break;
         }
     }
 
@@ -136,5 +202,17 @@ public class LoginPageController implements Initializable {
             passwordTextField.setManaged(false);
             togglePasswordButton.setText("👁");
         }
+    }
+
+    @Override
+    public void onMessage(Response response) {
+        handleLoginResponse(response);
+    }
+
+    @Override
+    public void onDisconnect() {
+        isSubmited = false;
+        loginButton.setDisable(false);
+        showAlert("Server Offline", "The server is currently unreachable.", Alert.AlertType.ERROR);
     }
 }
