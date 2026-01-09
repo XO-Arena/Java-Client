@@ -1,0 +1,14 @@
+package enums;
+
+public enum ResponseType {
+    LOGIN_SUCCESS,
+    LOGIN_FAILED,
+    REGISTER_SUCCESS,
+    REGISTER_FAILED,
+    ONLINE_PLAYERS,
+    LEADERBOARD_PLAYERS,
+    INVITE_RECEIVED,
+    INVITE_ACCEPTED,
+    INVITE_REJECTED,
+    ERROR
+}
