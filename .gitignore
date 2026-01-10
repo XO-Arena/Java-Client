@@ -20,7 +20,7 @@ out/
 # ========================
 
 # Maven
-target/
+/target/
 
 # Gradle
 .gradle/

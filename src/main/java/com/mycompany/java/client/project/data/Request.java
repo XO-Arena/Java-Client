@@ -11,6 +11,10 @@ public class Request {
         this.type = type;
         this.payload = data;
     }
+    
+    public Request(RequestType type) {
+        this.type = type;
+    }
 
     public RequestType getType() { return type; }
     public JsonElement getPayload() { return payload; }

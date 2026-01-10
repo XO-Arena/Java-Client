@@ -9,6 +9,7 @@ import com.mycompany.java.client.project.data.ServerListener;
 import dto.PlayerDTO;
 import enums.PlayerType;
 import enums.RequestType;
+import static enums.ResponseType.JOIN_GAME;
 import java.io.IOException;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -47,26 +48,24 @@ public class HomePageController implements ServerListener {
     private Button loginButton;
     @FXML
     private Label statusText;
+    private ListView<AnchorPane> recordedGamesList;
+
+    private ServerConnection con;
 
     @FXML
     public void initialize() {
 
         logoImage.setImage(new Image(getClass().getResourceAsStream("/assets/xo.png")));
 
+        con = ServerConnection.getConnection();
+        con.setListener(this);
+
         updateUIState();
 
-        try {
-            ServerConnection conn = ServerConnection.getConnection();
-            conn.setListener(this);
-            conn.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
-            conn.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
-
-        } catch (IOException e) {
-            Platform.runLater(() -> {
-                loginButton.setDisable(true);
-                handleServerOffline();
-            });
-        }
+        ServerConnection conn = ServerConnection.getConnection();
+        conn.setListener(this);
+        conn.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
+        conn.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
 
     }
 
@@ -142,11 +141,7 @@ public class HomePageController implements ServerListener {
     @FXML
     private void navigateToLoginPage(ActionEvent event) {
         if (App.IsLoggedIn()) {
-            try {
-                ServerConnection.getConnection().sendRequest(new Request(RequestType.LOGOUT, null));
-            } catch (IOException ex) {
-                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-            }
+            ServerConnection.getConnection().sendRequest(new Request(RequestType.LOGOUT, null));
             App.setLoggedIn(false);
             updateUIState();
         } else {
@@ -161,12 +156,9 @@ public class HomePageController implements ServerListener {
 
     @FXML
     private void navigateToOnlineGameBoardPage(ActionEvent event) {
-        try {
-            GameBoardController controller = App.setRoot("GameBoardPage").getController();
-            controller.initDummyPlayers(PlayerType.ONLINE);
-        } catch (IOException ex) {
-            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
+        Request request = new Request(RequestType.QUICK_GAME);
+        con.sendRequest(request);
+        showAlert("Looking for a player...", "You will enter the game in a while...", Alert.AlertType.WARNING);
     }
 
     @FXML
@@ -201,7 +193,9 @@ public class HomePageController implements ServerListener {
             case LEADERBOARD:
                 updateLeaderboard(response.getPayload());
                 break;
-
+            case JOIN_GAME:
+                handleGameJoin(response.getPayload());
+                break;
             default:
                 break;
         }
@@ -227,7 +221,7 @@ public class HomePageController implements ServerListener {
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(getClass().getResource("/styles/dialog.css").toExternalForm());
         dialogPane.getStyleClass().add("dialog-pane");
-
+        
         alert.showAndWait();
     }
 
@@ -306,5 +300,14 @@ public class HomePageController implements ServerListener {
         dialogPane.getStyleClass().add("custom-dialog");
 
         alert.showAndWait();
+    }
+
+    private void handleGameJoin(JsonElement json) {
+        try {
+            GameBoardController controller = App.setRoot("GameBoardPage").getController();
+            System.out.println("Join game:\n" + json);
+        } catch (IOException ex) {
+            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
     }
 }

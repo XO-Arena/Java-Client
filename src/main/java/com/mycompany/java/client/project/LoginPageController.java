@@ -20,9 +20,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import util.AlertUtil;
 
 /**
  * FXML Controller class
@@ -63,11 +63,7 @@ public class LoginPageController implements ServerListener, Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         gson = new Gson();
-        try {
-            conn = ServerConnection.getConnection();
-        } catch (IOException ex) {
-            System.getLogger(LoginPageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
+        conn = ServerConnection.getConnection();
         conn.setListener(this);
         passwordTextField.textProperty().bindBidirectional(passwordField.textProperty());
     }
@@ -90,19 +86,6 @@ public class LoginPageController implements ServerListener, Initializable {
         }
     }
 
-    private void showAlert(String title, String content, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-
-        // Apply the CSS to the dialog
-        DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.getStylesheets().add(getClass().getResource("/styles/dialog.css").toExternalForm());
-        dialogPane.getStyleClass().add("dialog-pane");
-
-        alert.showAndWait();
-    }
 
     @FXML
     private void handleLogin(ActionEvent event) {
@@ -113,7 +96,7 @@ public class LoginPageController implements ServerListener, Initializable {
         String password = passwordField.getText().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            showAlert("Validation Error", "Please enter both username and password.", Alert.AlertType.WARNING);
+            AlertUtil.showAlert("Validation Error", "Please enter both username and password.", Alert.AlertType.WARNING, this);
 
             return;
         }
@@ -154,32 +137,20 @@ public class LoginPageController implements ServerListener, Initializable {
             break;
             //LOGIN_FAILED
             case LOGIN_FAILED:
-                Platform.runLater(() -> {
-                    showAlert("Login Failed", "Invalid username or password", Alert.AlertType.ERROR); // This is now safe
-                });
-
+                    AlertUtil.showAlert("Login Failed", "Invalid username or password", Alert.AlertType.ERROR, this); // This is now safe
                 break;
 
             case ALREADY_LOGGED_IN:
-                Platform.runLater(() -> {
-                    showAlert("Login Failed", "User already logged in", Alert.AlertType.ERROR);
-                });
-
+                    AlertUtil.showAlert("Login Failed", "User already logged in", Alert.AlertType.ERROR, this);
                 break;
 
             case INVALID_DATA:
-                Platform.runLater(() -> {
-                    showAlert("Login Failed", "Invalid login data", Alert.AlertType.ERROR);
-                });
-
+                    AlertUtil.showAlert("Login Failed", "Invalid login data", Alert.AlertType.ERROR, this);
                 break;
 
             case ERROR:
             default:
-                Platform.runLater(() -> {
-                    showAlert("Server Error", "Server error", Alert.AlertType.ERROR);
-                });
-
+                AlertUtil.showAlert("Server Error", "Server error", Alert.AlertType.ERROR, this);
                 break;
         }
     }
@@ -209,11 +180,11 @@ public class LoginPageController implements ServerListener, Initializable {
     public void onMessage(Response response) {
         handleLoginResponse(response);
     }
-
+    
     @Override
     public void onDisconnect() {
         isSubmited = false;
         loginButton.setDisable(false);
-        showAlert("Server Offline", "The server is currently unreachable.", Alert.AlertType.ERROR);
+        AlertUtil.showAlert("Server Offline", "The server is currently unreachable.", Alert.AlertType.ERROR, this);
     }
 }
