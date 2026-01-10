@@ -1,22 +1,19 @@
 package com.mycompany.java.client.project;
 
+import enums.UserState;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Circle;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class PlayerItemController {
-    @FXML
-    public void initialize() {
-        playerAvatar.setImage(
-            new Image(getClass().getResourceAsStream(
-                "/assets/avatar.png"
-            ))
-        );
-    }
-    @FXML
+     @FXML
     private Label playerNameLabel;
+    
+    @FXML
+    private Button actionButton;
 
     @FXML
     private Label playerStatusLabel;
@@ -27,18 +24,45 @@ public class PlayerItemController {
     @FXML
     private ImageView playerAvatar;
 
+    @FXML
+    public void initialize() {
+        playerAvatar.setImage(
+            new Image(getClass().getResourceAsStream(
+                "/assets/avatar.png"
+            ))
+        );
+    }
+   
 
-    // Setters
     public void setPlayerName(String name) {
         playerNameLabel.setText(name);
     }
+    
+    public void setButtonText(UserState state) {
+        switch(state){
+            case ONLINE:
+                actionButton.setText("Invite");
+                break;
+            case IN_GAME:
+                actionButton.setText("Watch");
+                break;
+            default:
+                break;
+        }
+    }
 
-    public void setPlayerStatus(String status) {
-        playerStatusLabel.setText(status);
-        if (status.equalsIgnoreCase("Ready")) {
-            statusIndicator.setStyle("-fx-fill: #55ff55;");
-        } else {
-            statusIndicator.setStyle("-fx-fill: #ff5555;");
+    public void setPlayerStatus(UserState state) {
+         switch(state){
+            case ONLINE:
+                playerStatusLabel.setText("ready");
+                statusIndicator.setStyle("-fx-fill: #55ff55;");
+                break;
+            case IN_GAME:
+                actionButton.setText("Watch");
+                statusIndicator.setStyle("-fx-fill: #ff5555;");
+                break;
+            default:
+                break;
         }
     }
 

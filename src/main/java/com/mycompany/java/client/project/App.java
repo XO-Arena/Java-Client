@@ -13,7 +13,7 @@ import static javafx.application.Application.launch;
  * JavaFX App
  */
 public class App extends Application {
-
+    private static boolean loggedIn = false;
     private static Scene scene;
 
     @Override
@@ -34,9 +34,14 @@ public class App extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
     }
-
+    public static void setLoggedIn(boolean mode) {
+        loggedIn = mode;
+    }
+    public static boolean IsLoggedIn() {
+        return loggedIn == true;
+    }
     public static void main(String[] args) {
         launch();
     }
-
+    
 }

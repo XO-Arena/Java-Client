@@ -85,10 +85,14 @@ public class ServerConnection implements Closeable {
         startListenerThread();
     }
 
-    public void changeServer(String ip, int port) throws IOException {
-        ipAddress = ip;
-        portNumber = port;
-        reconnect();
+    public static void changeServer(String ip, int port) {
+        synchronized (lock) {
+            ipAddress = ip;
+            portNumber = port;
+            if (INSTANCE != null && !INSTANCE.isAlive()) {
+                INSTANCE = null;
+            }
+        }
     }
 
     @Override

@@ -1,55 +1,125 @@
 package com.mycompany.java.client.project;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.mycompany.java.client.project.data.Request;
+import com.mycompany.java.client.project.data.Response;
+import com.mycompany.java.client.project.data.ServerConnection;
+import com.mycompany.java.client.project.data.ServerListener;
+import dto.PlayerDTO;
 import enums.PlayerType;
+import enums.RequestType;
 import java.io.IOException;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 
-public class HomePageController {
+public class HomePageController implements ServerListener {
 
     @FXML
     private ImageView logoImage;
     @FXML
-    private ListView<AnchorPane> roomsList;
+    private GridPane sidePanel;
     @FXML
-    private ListView<AnchorPane> recordedGamesList;
+    private ListView<AnchorPane> onlinePlayersList;
+    @FXML
+    private ListView<AnchorPane> leaderboardList;
+    @FXML
+    private Button recordedGamesButton;
+    @FXML
+    private Button PlayVsComputerButton;
+    @FXML
+    private Button localMultiplayerButton;
+    @FXML
+    private Button quickGameButton;
+    @FXML
+    private Button loginButton;
+    @FXML
+    private Label statusText;
 
+    @FXML
     public void initialize() {
 
         logoImage.setImage(new Image(getClass().getResourceAsStream("/assets/xo.png")));
 
-        // إضافة البيانات
-        addDummyPlayers();
-        addDummyLeaderboard();
+        updateUIState();
+
+        try {
+            ServerConnection conn = ServerConnection.getConnection();
+            conn.setListener(this);
+            conn.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
+            conn.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
+
+        } catch (IOException e) {
+            Platform.runLater(() -> {
+                loginButton.setDisable(true);
+                handleServerOffline();
+            });
+        }
+
     }
 
-    private void addDummyPlayers() {
-        for (int i = 1; i <= 3; i++) {
+    private void updateUIState() {
+        Platform.runLater(() -> {
+            if (App.IsLoggedIn()) {
+                loginButton.setText("Logout");
+                loginButton.getStyleClass().removeAll("login-button");
+                loginButton.getStyleClass().add("logout-button");
+
+                statusText.setText("status: Online");
+                statusText.getStyleClass().removeAll("status-offline");
+                statusText.getStyleClass().add("status-online");
+
+                sidePanel.setVisible(true);
+                sidePanel.setManaged(true);
+                quickGameButton.setDisable(false);
+            } else {
+                loginButton.setText("Login");
+                loginButton.getStyleClass().removeAll("logout-button");
+                loginButton.getStyleClass().add("login-button");
+
+                statusText.setText("status: Offline");
+                statusText.getStyleClass().removeAll("status-online");
+                statusText.getStyleClass().add("status-offline");
+
+                handleServerOffline();
+            }
+        });
+    }
+
+    private void updateOnlinePlayersList(JsonElement payload) {
+        PlayerDTO[] availablePlayers = new Gson().fromJson(payload, PlayerDTO[].class);
+        for (PlayerDTO availablePlayer : availablePlayers) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("PlayerItem.fxml"));
                 AnchorPane playerItem = loader.load();
-
                 PlayerItemController controller = loader.getController();
-                controller.setPlayerName("Player " + i);
-                controller.setPlayerStatus("Ready");
-                playerItem.setPrefWidth(roomsList.getWidth() - 10);
-                roomsList.getItems().add(playerItem);
+                controller.setPlayerName(availablePlayer.getUsername());
+                controller.setPlayerStatus(availablePlayer.getState());
+                controller.setButtonText(availablePlayer.getState());
+                playerItem.setPrefWidth(onlinePlayersList.getPrefWidth() - 10);
+
+                onlinePlayersList.getItems().add(playerItem);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void addDummyLeaderboard() {
-        String[] topPlayers = {"Ahmed", "Sara", "John", "Esraa"};
-        String[] scores = {"2500 XP", "1800 XP", "1200 XP", "1000 px"};
-
-        for (int i = 0; i < topPlayers.length; i++) {
+    private void updateLeaderboard(JsonElement payload) {
+        PlayerDTO[] players = new Gson().fromJson(payload, PlayerDTO[].class);
+        for (int i = 0; i < players.length; i++) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("LeaderboardItem.fxml"));
                 AnchorPane leaderboardItem = loader.load();
@@ -58,38 +128,47 @@ public class HomePageController {
 
                 int rank = i + 1;
                 controller.setRank("#" + rank);
-                controller.setPlayerName(topPlayers[i]);
-                controller.setScore(scores[i]);
-                leaderboardItem.setPrefWidth(recordedGamesList.getWidth() - 10);
+                controller.setPlayerName(players[i].getUsername());
+                controller.setScore(players[i].getScore() + "px");
+                leaderboardItem.setPrefWidth(leaderboardList.getPrefWidth() - 10);
 
-                recordedGamesList.getItems().add(leaderboardItem);
+                leaderboardList.getItems().add(leaderboardItem);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    
-    
     @FXML
     private void navigateToLoginPage(ActionEvent event) {
-        try {
-            App.setRoot("loginPage");
-        } catch (IOException ex) {
-            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        if (App.IsLoggedIn()) {
+            try {
+                ServerConnection.getConnection().sendRequest(new Request(RequestType.LOGOUT, null));
+            } catch (IOException ex) {
+                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+            App.setLoggedIn(false);
+            updateUIState();
+        } else {
+            try {
+                ServerConnection.getConnection();
+                App.setRoot("loginPage");
+            } catch (IOException e) {
+                showAlert("Server Offline", "Cannot connect to server", Alert.AlertType.ERROR);
+            }
         }
     }
 
     @FXML
     private void navigateToOnlineGameBoardPage(ActionEvent event) {
         try {
-                GameBoardController controller = App.setRoot("GameBoardPage").getController();
-                controller.initDummyPlayers(PlayerType.ONLINE);
-            } catch (IOException ex) {
-                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-            }
+            GameBoardController controller = App.setRoot("GameBoardPage").getController();
+            controller.initDummyPlayers(PlayerType.ONLINE);
+        } catch (IOException ex) {
+            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
     }
-    
+
     @FXML
     private void navigateToLocalMultiplayer(ActionEvent event) {
         try {
@@ -108,4 +187,124 @@ public class HomePageController {
         }
     }
 
+    @Override
+    public void onMessage(Response response) {
+        if (response.getType() == null) {
+            return;
+        }
+        switch (response.getType()) {
+
+            case ONLINE_PLAYERS:
+                updateOnlinePlayersList(response.getPayload());
+                break;
+
+            case LEADERBOARD:
+                updateLeaderboard(response.getPayload());
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onDisconnect() {
+        App.setLoggedIn(false);
+        loginButton.setDisable(true);
+        updateUIState();
+        handleServerOffline();
+    }
+
+    private void showAlert(String title, String content, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+
+        javafx.stage.Stage stage = (javafx.stage.Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/xo.png")));
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/styles/dialog.css").toExternalForm());
+        dialogPane.getStyleClass().add("dialog-pane");
+
+        alert.showAndWait();
+    }
+
+    private void handleServerOffline() {
+
+        Platform.runLater(() -> {
+            sidePanel.setVisible(false);
+            sidePanel.setManaged(false);
+            quickGameButton.setDisable(true);
+        });
+    }
+
+    @FXML
+    private void onChangeIP(ActionEvent event) {
+        TextInputDialog dialog = new TextInputDialog("127.0.0.1");
+        dialog.setTitle("Server Settings");
+        dialog.setHeaderText("Server Configuration");
+        dialog.setContentText("Enter Server IP:");
+
+        javafx.stage.Stage stage = (javafx.stage.Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/xo.png")));
+
+        ImageView dialogLogo = new ImageView(new Image(getClass().getResourceAsStream("/assets/xo.png")));
+        dialogLogo.setFitHeight(50);
+        dialogLogo.setFitWidth(50);
+        dialog.setGraphic(dialogLogo);
+
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/styles/main.css").toExternalForm());
+        dialogPane.getStyleClass().add("custom-dialog");
+
+        dialog.showAndWait().ifPresent(this::attemptConnection);
+    }
+
+    private void attemptConnection(String ip) {
+        new Thread(() -> {
+            try {
+                ServerConnection.changeServer(ip, 4646);
+                ServerConnection conn = ServerConnection.getConnection();
+                conn.reconnect();
+                conn.setListener(this);
+
+                Platform.runLater(() -> {
+                    loginButton.setDisable(false);
+                    updateUIState();
+                    showSuccessAlert("Connected", "Successfully connected to " + ip);
+                });
+
+            } catch (IOException e) {
+                Platform.runLater(() -> {
+                    loginButton.setDisable(true);
+                    App.setLoggedIn(false);
+                    updateUIState();
+                    showAlert("Connection Failed", "Server at " + ip + " is unreachable.", Alert.AlertType.ERROR);
+                });
+            }
+        }).start();
+    }
+
+    private void showSuccessAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+
+        javafx.stage.Stage stage = (javafx.stage.Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/xo.png")));
+
+        ImageView successIcon = new ImageView(new Image(getClass().getResourceAsStream("/assets/xo.png")));
+        successIcon.setFitHeight(40);
+        successIcon.setFitWidth(40);
+        alert.setGraphic(successIcon);
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/styles/main.css").toExternalForm());
+        dialogPane.getStyleClass().add("custom-dialog");
+
+        alert.showAndWait();
+    }
 }
