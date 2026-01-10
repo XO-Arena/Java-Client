@@ -56,11 +56,7 @@ public class RegisterPageController implements Initializable, ServerListener {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         gson = new Gson();
-        try {
-            conn = ServerConnection.getConnection();
-        } catch (IOException ex) {
-            System.getLogger(LoginPageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
+        conn = ServerConnection.getConnection();
         conn.setListener(this);
         genderComboBox.getItems().setAll(UserGender.values());
     }

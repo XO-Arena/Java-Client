@@ -9,11 +9,13 @@ import com.mycompany.java.client.project.data.ServerListener;
 import dto.PlayerDTO;
 import enums.PlayerType;
 import enums.RequestType;
+import static enums.ResponseType.JOIN_GAME;
 import java.io.IOException;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
@@ -24,6 +26,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import util.DialogUtil;
 
 public class HomePageController implements ServerListener {
 
@@ -47,26 +54,25 @@ public class HomePageController implements ServerListener {
     private Button loginButton;
     @FXML
     private Label statusText;
+    private ListView<AnchorPane> recordedGamesList;
+
+    private ServerConnection con;
+    private Stage currentDialogStage;
 
     @FXML
     public void initialize() {
 
         logoImage.setImage(new Image(getClass().getResourceAsStream("/assets/xo.png")));
 
+        con = ServerConnection.getConnection();
+        con.setListener(this);
+
         updateUIState();
 
-        try {
-            ServerConnection conn = ServerConnection.getConnection();
-            conn.setListener(this);
-            conn.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
-            conn.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
-
-        } catch (IOException e) {
-            Platform.runLater(() -> {
-                loginButton.setDisable(true);
-                handleServerOffline();
-            });
-        }
+        ServerConnection conn = ServerConnection.getConnection();
+        conn.setListener(this);
+        conn.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
+        conn.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
 
     }
 
@@ -99,54 +105,63 @@ public class HomePageController implements ServerListener {
     }
 
     private void updateOnlinePlayersList(JsonElement payload) {
-        PlayerDTO[] availablePlayers = new Gson().fromJson(payload, PlayerDTO[].class);
-        for (PlayerDTO availablePlayer : availablePlayers) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("PlayerItem.fxml"));
-                AnchorPane playerItem = loader.load();
-                PlayerItemController controller = loader.getController();
-                controller.setPlayerName(availablePlayer.getUsername());
-                controller.setPlayerStatus(availablePlayer.getState());
-                controller.setButtonText(availablePlayer.getState());
-                playerItem.setPrefWidth(onlinePlayersList.getPrefWidth() - 10);
+        // Clear list first to avoid duplicates if needed, assuming payload is full list
+        Platform.runLater(() -> {
+            onlinePlayersList.getItems().clear();
+            PlayerDTO[] availablePlayers = new Gson().fromJson(payload, PlayerDTO[].class);
+            for (PlayerDTO availablePlayer : availablePlayers) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("PlayerItem.fxml"));
+                    AnchorPane playerItem = loader.load();
+                    PlayerItemController controller = loader.getController();
+                    controller.setPlayerName(availablePlayer.getUsername());
+                    controller.setPlayerStatus(availablePlayer.getState());
+                    controller.setButtonText(availablePlayer.getState());
 
-                onlinePlayersList.getItems().add(playerItem);
-            } catch (IOException e) {
-                e.printStackTrace();
+                    controller.setOnInviteHandler(this::handleInvite);
+
+                    playerItem.setPrefWidth(onlinePlayersList.getPrefWidth() - 10);
+
+                    onlinePlayersList.getItems().add(playerItem);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
+        });
+    }
+
+    private void handleInvite(String playerName) {
     }
 
     private void updateLeaderboard(JsonElement payload) {
-        PlayerDTO[] players = new Gson().fromJson(payload, PlayerDTO[].class);
-        for (int i = 0; i < players.length; i++) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("LeaderboardItem.fxml"));
-                AnchorPane leaderboardItem = loader.load();
+        Platform.runLater(() -> {
+            leaderboardList.getItems().clear();
+            PlayerDTO[] players = new Gson().fromJson(payload, PlayerDTO[].class);
+            for (int i = 0; i < players.length; i++) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("LeaderboardItem.fxml"));
+                    AnchorPane leaderboardItem = loader.load();
 
-                LeaderboardItemController controller = loader.getController();
+                    LeaderboardItemController controller = loader.getController();
 
-                int rank = i + 1;
-                controller.setRank("#" + rank);
-                controller.setPlayerName(players[i].getUsername());
-                controller.setScore(players[i].getScore() + "px");
-                leaderboardItem.setPrefWidth(leaderboardList.getPrefWidth() - 10);
+                    int rank = i + 1;
+                    controller.setRank("#" + rank);
+                    controller.setPlayerName(players[i].getUsername());
+                    controller.setScore(players[i].getScore() + "px");
+                    leaderboardItem.setPrefWidth(leaderboardList.getPrefWidth() - 10);
 
-                leaderboardList.getItems().add(leaderboardItem);
-            } catch (IOException e) {
-                e.printStackTrace();
+                    leaderboardList.getItems().add(leaderboardItem);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
+        });
     }
 
     @FXML
     private void navigateToLoginPage(ActionEvent event) {
         if (App.IsLoggedIn()) {
-            try {
-                ServerConnection.getConnection().sendRequest(new Request(RequestType.LOGOUT, null));
-            } catch (IOException ex) {
-                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-            }
+            ServerConnection.getConnection().sendRequest(new Request(RequestType.LOGOUT, null));
             App.setLoggedIn(false);
             updateUIState();
         } else {
@@ -161,12 +176,17 @@ public class HomePageController implements ServerListener {
 
     @FXML
     private void navigateToOnlineGameBoardPage(ActionEvent event) {
-        try {
-            GameBoardController controller = App.setRoot("GameBoardPage").getController();
-            controller.initDummyPlayers(PlayerType.ONLINE);
-        } catch (IOException ex) {
-            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
+        Request request = new Request(RequestType.QUICK_GAME);
+        con.sendRequest(request);
+        DialogUtil.showBrandedDialog("Quick Game",
+                "Looking for a player...\nYou will enter the game in a while...",
+                false, true,
+                "", "Cancel",
+                null,
+                () -> {
+                    con.sendRequest(new Request(RequestType.LEAVE_QUEUE));
+                }
+        );
     }
 
     @FXML
@@ -201,7 +221,17 @@ public class HomePageController implements ServerListener {
             case LEADERBOARD:
                 updateLeaderboard(response.getPayload());
                 break;
-
+            case JOIN_GAME:
+                DialogUtil.closeCurrentDialog();
+                handleGameJoin(response.getPayload());
+                break;
+            case INVITE_RECEIVED:
+                break;
+            case INVITE_REJECTED:
+                break;
+            case INVITE_ACCEPTED:
+                // Do nothing, wait for JOIN_GAME
+                break;
             default:
                 break;
         }
@@ -306,5 +336,14 @@ public class HomePageController implements ServerListener {
         dialogPane.getStyleClass().add("custom-dialog");
 
         alert.showAndWait();
+    }
+
+    private void handleGameJoin(JsonElement json) {
+        try {
+            GameBoardController controller = App.setRoot("GameBoardPage").getController();
+            System.out.println("Join game:\n" + json);
+        } catch (IOException ex) {
+            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
     }
 }

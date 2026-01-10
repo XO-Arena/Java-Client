@@ -24,6 +24,8 @@ public class PlayerItemController {
     @FXML
     private ImageView playerAvatar;
 
+    private java.util.function.Consumer<String> onInviteHandler;
+
     @FXML
     public void initialize() {
         playerAvatar.setImage(
@@ -31,6 +33,16 @@ public class PlayerItemController {
                 "/assets/avatar.png"
             ))
         );
+        
+        actionButton.setOnAction(event -> {
+            if ("Invite".equals(actionButton.getText()) && onInviteHandler != null) {
+                onInviteHandler.accept(playerNameLabel.getText());
+            }
+        });
+    }
+
+    public void setOnInviteHandler(java.util.function.Consumer<String> handler) {
+        this.onInviteHandler = handler;
     }
    
 
