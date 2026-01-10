@@ -6,6 +6,7 @@ F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\com\mycompany\
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\models\Board.java
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\com\mycompany\java\client\project\LocalMultiplayerController.java
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\enums\Difficulty.java
+F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\com\mycompany\java\client\project\GameRecord.java
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\models\ComputerMoveProvider.java
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\models\User.java
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\enums\RequestType.java
@@ -27,7 +28,9 @@ F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\dto\LoginDTO.j
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\enums\GameResult.java
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\com\mycompany\java\client\project\RegisterPageController.java
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\com\mycompany\java\client\project\GameBoardController.java
+F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\com\mycompany\java\client\project\RecordedGamesController.java
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\enums\UserState.java
+F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\com\mycompany\java\client\project\GameCardItemController.java
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\enums\ResponseType.java
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\models\GameSession.java
 F:\ITI_Journey\XO_Arena_Project\XOAreana_ClientSide\src\main\java\enums\SessionType.java
