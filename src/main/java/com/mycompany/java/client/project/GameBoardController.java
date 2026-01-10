@@ -26,6 +26,7 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.TextField;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -75,6 +76,8 @@ public class GameBoardController {
     private Label player2Score;
     @FXML
     private StackPane player2Container;
+    @FXML
+    private TextField label_turn;
 
     public void initialize() {
         initButtonsMap();
@@ -372,12 +375,19 @@ public class GameBoardController {
 
         Player current = session.getCurrentPlayer();
 
+        label_turn.getStyleClass().removeAll("turn-x", "turn-o");
+
         if (current == player1) {
             player1Container.getStyleClass().add("p1-glow");
+            label_turn.setText("PLAYER X TURN");
+            label_turn.getStyleClass().add("turn-x");
         } else if (current == player2) {
             player2Container.getStyleClass().add("p2-glow");
+            label_turn.setText("PLAYER O TURN");
+            label_turn.getStyleClass().add("turn-o");
         }
     }
+
 
     private void disableBoard() {
         for (Button btn : buttonsMap.values()) {

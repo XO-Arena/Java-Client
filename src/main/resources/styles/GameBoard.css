@@ -88,41 +88,33 @@
 /* =========================================
    PLAYER AVATAR & TURN HIGHLIGHT
 ========================================= */
-/* حاوية الدور (Container) */
 .avatar-turn-container {
-    -fx-padding: 5;
-    -fx-background-radius: 60;
-    -fx-border-radius: 60;
-    -fx-border-width: 3;
+    -fx-padding: 8;
+    -fx-background-radius: 40;
+    -fx-border-radius: 40;
+    -fx-border-width: 2;
     -fx-border-color: transparent;
+    -fx-alignment: center;
+    -fx-cursor: hand;
 }
 
-.avatar-fancy {
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 120, 255, 0.9), 26, 0.7, 0, 0);
-}
-
-.avatar-fancy-p2 {
-    -fx-effect: dropshadow(three-pass-box, rgba(220, 20, 60, 0.9), 24, 0.7, 0, 0);
-}
 .p1-glow {
     -fx-background-color: linear-gradient(
         to bottom right,
-        #00c6ff,
-        #0072ff,
-        #001f54
+        #00d4ff,
+        #007aff,
+        #002060
         );
-
-    -fx-effect: dropshadow(three-pass-box, rgba(0,170,255,0.9), 26, 0.7, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,180,255,0.45), 10, 0.45, 0, 0);
 }
 .p2-glow {
     -fx-background-color: linear-gradient(
         to bottom right,
-        #ff4b5c,
+        #ff5e7e,
         #b11226,
         #3a0008
         );
-
-    -fx-effect: dropshadow(three-pass-box, rgba(220,20,60,0.9), 26, 0.7, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(255,100,140,0.45), 10, 0.45, 0, 0);
 }
 
 /* =========================================
@@ -149,4 +141,41 @@
 
 .leave-button:hover {
     -fx-background-color: rgba(255,68,68,0.25);
+}
+
+.turn-label {
+    -fx-font-family: "Segoe UI", "Orbitron", "Arial";
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+
+    -fx-text-fill: #9fd3ff;
+
+    -fx-background-color: rgba(0, 0, 0, 0.25);
+    -fx-background-radius: 12px;
+    -fx-padding: 6 12 6 12;
+
+    -fx-effect: dropshadow(three-pass-box, rgba(0,80,160,0.3), 10, 0.4, 0, 0);
+
+    -fx-letter-spacing: 1.5px;
+}
+
+.turn-x {
+    -fx-text-fill: #3EA8FF;
+
+    -fx-effect: dropshadow(three-pass-box, rgba(62,168,255,0.7), 14, 0.5, 0, 0);
+}
+
+.turn-o {
+    -fx-text-fill: #FF6B85;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,107,133,0.7), 14, 0.5, 0, 0);
+}
+
+.turn-label {
+    -fx-font-family: "Segoe UI", "Orbitron", "Arial";
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(0, 0, 0, 0.25);
+    -fx-background-radius: 12px;
+    -fx-padding: 6 12 6 12;
+    -fx-letter-spacing: 1.5px;
 }

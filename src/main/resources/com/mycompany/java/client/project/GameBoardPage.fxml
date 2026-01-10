@@ -82,7 +82,7 @@
                     </HBox>
                 </VBox>
             </HBox>
-         <TextField alignment="CENTER" prefHeight="26.0" prefWidth="374.0" text=" Player-X Turn" VBox.vgrow="ALWAYS" />
+            <TextField fx:id="label_turn" alignment="CENTER" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="26.0" prefWidth="374.0" styleClass="turn-label" text=" Player-X Turn" VBox.vgrow="NEVER" />
 
             <StackPane fx:id="gameArea" VBox.vgrow="ALWAYS">
                 <GridPane fx:id="gridPane" alignment="CENTER" hgap="10" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="400.0" styleClass="game-grid" vgap="10">
