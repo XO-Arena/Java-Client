@@ -22,7 +22,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import util.AlertUtil;
+import util.DialogUtil;
 
 /**
  * FXML Controller class
@@ -96,7 +96,7 @@ public class LoginPageController implements ServerListener, Initializable {
         String password = passwordField.getText().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            AlertUtil.showAlert("Validation Error", "Please enter both username and password.", Alert.AlertType.WARNING, this);
+            DialogUtil.showAlert("Validation Error", "Please enter both username and password.", Alert.AlertType.WARNING, this);
 
             return;
         }
@@ -137,20 +137,20 @@ public class LoginPageController implements ServerListener, Initializable {
             break;
             //LOGIN_FAILED
             case LOGIN_FAILED:
-                    AlertUtil.showAlert("Login Failed", "Invalid username or password", Alert.AlertType.ERROR, this); // This is now safe
+                    DialogUtil.showAlert("Login Failed", "Invalid username or password", Alert.AlertType.ERROR, this); // This is now safe
                 break;
 
             case ALREADY_LOGGED_IN:
-                    AlertUtil.showAlert("Login Failed", "User already logged in", Alert.AlertType.ERROR, this);
+                    DialogUtil.showAlert("Login Failed", "User already logged in", Alert.AlertType.ERROR, this);
                 break;
 
             case INVALID_DATA:
-                    AlertUtil.showAlert("Login Failed", "Invalid login data", Alert.AlertType.ERROR, this);
+                    DialogUtil.showAlert("Login Failed", "Invalid login data", Alert.AlertType.ERROR, this);
                 break;
 
             case ERROR:
             default:
-                AlertUtil.showAlert("Server Error", "Server error", Alert.AlertType.ERROR, this);
+                DialogUtil.showAlert("Server Error", "Server error", Alert.AlertType.ERROR, this);
                 break;
         }
     }
@@ -185,6 +185,6 @@ public class LoginPageController implements ServerListener, Initializable {
     public void onDisconnect() {
         isSubmited = false;
         loginButton.setDisable(false);
-        AlertUtil.showAlert("Server Offline", "The server is currently unreachable.", Alert.AlertType.ERROR, this);
+        DialogUtil.showAlert("Server Offline", "The server is currently unreachable.", Alert.AlertType.ERROR, this);
     }
 }

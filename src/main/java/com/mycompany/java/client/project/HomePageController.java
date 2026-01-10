@@ -15,6 +15,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
@@ -25,6 +26,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import util.DialogUtil;
 
 public class HomePageController implements ServerListener {
 
@@ -51,6 +57,7 @@ public class HomePageController implements ServerListener {
     private ListView<AnchorPane> recordedGamesList;
 
     private ServerConnection con;
+    private Stage currentDialogStage;
 
     @FXML
     public void initialize() {
@@ -98,44 +105,57 @@ public class HomePageController implements ServerListener {
     }
 
     private void updateOnlinePlayersList(JsonElement payload) {
-        PlayerDTO[] availablePlayers = new Gson().fromJson(payload, PlayerDTO[].class);
-        for (PlayerDTO availablePlayer : availablePlayers) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("PlayerItem.fxml"));
-                AnchorPane playerItem = loader.load();
-                PlayerItemController controller = loader.getController();
-                controller.setPlayerName(availablePlayer.getUsername());
-                controller.setPlayerStatus(availablePlayer.getState());
-                controller.setButtonText(availablePlayer.getState());
-                playerItem.setPrefWidth(onlinePlayersList.getPrefWidth() - 10);
+        // Clear list first to avoid duplicates if needed, assuming payload is full list
+        Platform.runLater(() -> {
+            onlinePlayersList.getItems().clear();
+            PlayerDTO[] availablePlayers = new Gson().fromJson(payload, PlayerDTO[].class);
+            for (PlayerDTO availablePlayer : availablePlayers) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("PlayerItem.fxml"));
+                    AnchorPane playerItem = loader.load();
+                    PlayerItemController controller = loader.getController();
+                    controller.setPlayerName(availablePlayer.getUsername());
+                    controller.setPlayerStatus(availablePlayer.getState());
+                    controller.setButtonText(availablePlayer.getState());
 
-                onlinePlayersList.getItems().add(playerItem);
-            } catch (IOException e) {
-                e.printStackTrace();
+                    controller.setOnInviteHandler(this::handleInvite);
+
+                    playerItem.setPrefWidth(onlinePlayersList.getPrefWidth() - 10);
+
+                    onlinePlayersList.getItems().add(playerItem);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
+        });
+    }
+
+    private void handleInvite(String playerName) {
     }
 
     private void updateLeaderboard(JsonElement payload) {
-        PlayerDTO[] players = new Gson().fromJson(payload, PlayerDTO[].class);
-        for (int i = 0; i < players.length; i++) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("LeaderboardItem.fxml"));
-                AnchorPane leaderboardItem = loader.load();
+        Platform.runLater(() -> {
+            leaderboardList.getItems().clear();
+            PlayerDTO[] players = new Gson().fromJson(payload, PlayerDTO[].class);
+            for (int i = 0; i < players.length; i++) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("LeaderboardItem.fxml"));
+                    AnchorPane leaderboardItem = loader.load();
 
-                LeaderboardItemController controller = loader.getController();
+                    LeaderboardItemController controller = loader.getController();
 
-                int rank = i + 1;
-                controller.setRank("#" + rank);
-                controller.setPlayerName(players[i].getUsername());
-                controller.setScore(players[i].getScore() + "px");
-                leaderboardItem.setPrefWidth(leaderboardList.getPrefWidth() - 10);
+                    int rank = i + 1;
+                    controller.setRank("#" + rank);
+                    controller.setPlayerName(players[i].getUsername());
+                    controller.setScore(players[i].getScore() + "px");
+                    leaderboardItem.setPrefWidth(leaderboardList.getPrefWidth() - 10);
 
-                leaderboardList.getItems().add(leaderboardItem);
-            } catch (IOException e) {
-                e.printStackTrace();
+                    leaderboardList.getItems().add(leaderboardItem);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
+        });
     }
 
     @FXML
@@ -158,7 +178,15 @@ public class HomePageController implements ServerListener {
     private void navigateToOnlineGameBoardPage(ActionEvent event) {
         Request request = new Request(RequestType.QUICK_GAME);
         con.sendRequest(request);
-        showAlert("Looking for a player...", "You will enter the game in a while...", Alert.AlertType.WARNING);
+        DialogUtil.showBrandedDialog("Quick Game",
+                "Looking for a player...\nYou will enter the game in a while...",
+                false, true,
+                "", "Cancel",
+                null,
+                () -> {
+                    con.sendRequest(new Request(RequestType.LEAVE_QUEUE));
+                }
+        );
     }
 
     @FXML
@@ -194,7 +222,15 @@ public class HomePageController implements ServerListener {
                 updateLeaderboard(response.getPayload());
                 break;
             case JOIN_GAME:
+                DialogUtil.closeCurrentDialog();
                 handleGameJoin(response.getPayload());
+                break;
+            case INVITE_RECEIVED:
+                break;
+            case INVITE_REJECTED:
+                break;
+            case INVITE_ACCEPTED:
+                // Do nothing, wait for JOIN_GAME
                 break;
             default:
                 break;
@@ -221,7 +257,7 @@ public class HomePageController implements ServerListener {
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(getClass().getResource("/styles/dialog.css").toExternalForm());
         dialogPane.getStyleClass().add("dialog-pane");
-        
+
         alert.showAndWait();
     }
 
