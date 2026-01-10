@@ -4,6 +4,11 @@
  */
 package com.mycompany.java.client.project;
 
+import enums.PlayerSymbol;
+import enums.PlayerType;
+import enums.UserGender;
+import models.Player;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -45,6 +50,11 @@ public class LocalMultiplayerController implements Initializable {
 
     @FXML
     private void handleBack(ActionEvent event) {
+        try {
+            App.setRoot("HomePage");
+        } catch (IOException ex) {
+            System.getLogger(LocalMultiplayerController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
     }
 
     @FXML
@@ -53,6 +63,15 @@ public class LocalMultiplayerController implements Initializable {
 
     @FXML
     private void handleStart(ActionEvent event) {
+        try {
+            GameBoardController controller = App.setRoot("GameBoardPage").getController();
+            controller.initPlayers(
+                    new Player(player1NameField.getText(), UserGender.MALE, 300, PlayerType.LOCAL, PlayerSymbol.X),
+                    new Player(player2NameField.getText(), UserGender.MALE, 300, PlayerType.LOCAL, PlayerSymbol.O)
+            );
+        } catch (IOException ex) {
+            System.getLogger(LocalMultiplayerController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
     }
     
 }

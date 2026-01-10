@@ -1,6 +1,6 @@
-package Enums;
+package enums;
 
-public enum PlayerState{
+public enum UserState{
     ONLINE,
     OFFLINE,
     IN_GAME,

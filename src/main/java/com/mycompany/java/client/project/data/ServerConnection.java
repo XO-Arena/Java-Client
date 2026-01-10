@@ -1,62 +1,100 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.java.client.project.data;
 
+
+import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.PrintWriter;
+
 import java.net.Socket;
 
-public class ServerConnection implements Closeable, AutoCloseable {
-    private String ipAddress;
-    private int portNumber;
-    private Socket s;
-    private BufferedReader br;
-    private PrintStream ps;
-    
-    public ServerConnection(String ipAddress, int port) throws IOException {
-        this.ipAddress = ipAddress;
-        portNumber = port;
-        connectToServer();
+public class ServerConnection implements Closeable {
+
+    private static String ipAddress = "127.0.0.1";
+    private static int portNumber = 4646;
+    private static ServerConnection INSTANCE;
+    private static final Object lock = new Object();
+
+    private Socket socket;
+
+    private BufferedReader reader;
+    private PrintWriter writer;
+    private final Gson gson;
+    private ServerListener listener;
+    private Thread listenerThread;
+
+    private ServerConnection() throws IOException {
+        gson = new Gson();
+        connect();
+        startListenerThread();
     }
-    
-    private void connectToServer() throws IOException {
-        s = new Socket(ipAddress, portNumber);
-        br = new BufferedReader(new InputStreamReader(s.getInputStream()));
-        ps = new PrintStream(s.getOutputStream());
+
+    public static ServerConnection getConnection() throws IOException {
+        synchronized (lock) {
+            if (INSTANCE == null) {
+                INSTANCE = new ServerConnection();
+            }
+            return INSTANCE;
+        }
     }
-    
+
+    private void connect() throws IOException {
+        socket = new Socket(ipAddress, portNumber);
+        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        writer = new PrintWriter(socket.getOutputStream(), true);
+    }
+
+    public void setListener(ServerListener listener) {
+        this.listener = listener;
+    }
+
+    public void sendRequest(Request request) {
+        String json = gson.toJson(request);
+        writer.println(json);
+    }
+
+    private void startListenerThread() {
+        listenerThread = new Thread(() -> {
+            try {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    Response response = gson.fromJson(line, Response.class);
+                    if (listener != null) {
+                        listener.onMessage(response);
+                    }
+                }
+            } catch (IOException e) {
+                if (listener != null) {
+                    listener.onDisconnect();
+                }
+            }
+        });
+        listenerThread.setDaemon(true);
+        listenerThread.start();
+    }
+
+    public boolean isAlive() {
+        return socket != null && socket.isConnected() && !socket.isClosed();
+    }
+
     public void reconnect() throws IOException {
         close();
-        connectToServer();
+        connect();
+        startListenerThread();
     }
-    
-    public boolean isAlive() {
-        return s.isConnected();
-    }
-    
-    public void changeServer(String ipAddress, Integer port) throws IOException {
-        if (ipAddress != null) this.ipAddress = ipAddress;
-        if (port != null) portNumber = port;
+
+    public void changeServer(String ip, int port) throws IOException {
+        ipAddress = ip;
+        portNumber = port;
         reconnect();
-    }
-    
-    public String getMessage() throws IOException {
-        return br.readLine();
-    }
-    
-    public void sendMessage(String message) throws IOException {
-        ps.write(message.getBytes());
     }
 
     @Override
     public void close() throws IOException {
-        if (s != null) s.close();
-        if (br != null) br.close();
-        if (ps != null) ps.close();
+        if (writer != null) writer.close();
+        if (reader != null) reader.close();
+        if (socket != null) socket.close();
     }
 }
