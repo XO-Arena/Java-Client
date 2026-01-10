@@ -1,4 +1,4 @@
-.root, .main-container {
+/*.root, .main-container {
     -fx-background-color: #0d0d17;
 }
 
@@ -23,15 +23,15 @@
 
 .x-style {
     -fx-text-fill: #2e5bff !important;
-    /*-fx-effect: dropshadow(gaussian, #2e5bff, 15, 0.5, 0, 0);*/
+    -fx-effect: dropshadow(gaussian, #2e5bff, 15, 0.5, 0, 0);
 }
 
 .o-style {
     -fx-text-fill: #ff5e7e !important;
-    /*-fx-effect: dropshadow(gaussian, #ff5e7e, 15, 0.5, 0, 0);*/
+    -fx-effect: dropshadow(gaussian, #ff5e7e, 15, 0.5, 0, 0);
 }
 
-    /* Match Statistics (Side Panels)*/
+     Match Statistics (Side Panels)
      
    .stats-container {
     -fx-background-color: #0b0b1a;
@@ -78,9 +78,9 @@
     -fx-background-color: rgba(255, 68, 68, 0.05);
 }
 
-/* =========================================
+ =========================================
    4. Spectators List
-   ========================================= */
+   ========================================= 
 .spectators-container {
     -fx-background-color: #0b0b1a;
     -fx-border-color: transparent transparent transparent #1a1a2e;
@@ -126,7 +126,7 @@
     -fx-effect: dropshadow(three-pass-box, #2e5bff, 25, 0.5, 0, 0);
 }
 
-/* Pink neon glow for Player 2 avatar */
+ Pink neon glow for Player 2 avatar 
 .avatar-fancy-p2 {
     -fx-effect: dropshadow(three-pass-box, rgba(255, 94, 126, 0.8), 15, 0.3, 0, 0);
 }
@@ -140,4 +140,167 @@
     -fx-background-color: linear-gradient(to bottom right, #2e5bff, #4facfe);
     -fx-text-fill: white;
     -fx-effect: dropshadow(gaussian, rgba(46,91,255,0.8), 18, 0.4, 0, 0);
+}*/
+/* =========================================
+   ROOT & MAIN CONTAINER
+========================================= */
+.root, .main-container {
+    -fx-background-image: url("../assets/bg2.jpg");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+}
+
+/* =========================================
+   GAME GRID
+========================================= */
+.game-grid {
+    -fx-background-color: rgba(20, 20, 50, 0.4);
+    -fx-background-radius: 25;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.7), 30, 0.5, 0, 0);
+}
+
+/* =========================================
+   GAME BUTTONS
+========================================= */
+.game-button {
+    -fx-background-color: rgba(35, 35, 70, 0.7);
+    -fx-background-radius: 18;
+    -fx-font-size: 42px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.game-button:hover {
+    -fx-background-color: rgba(60, 60, 110, 0.4);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* =========================================
+   X & O STYLES
+========================================= */
+.x-style {
+    -fx-text-fill: #2e5bff;
+    -fx-effect: dropshadow(gaussian, rgba(46,91,255,0.9), 10, 0.8, 0, 0);
+}
+
+.o-style {
+    -fx-text-fill: #ff5e7e;
+    -fx-effect: dropshadow(gaussian, rgba(255,94,126,0.9), 10, 0.8, 0, 0);
+}
+
+/* =========================================
+   WINNING CELLS
+========================================= */
+.winning-cell-p1 {
+    -fx-background-color: linear-gradient(to bottom right, #1c3a8a, #3b5de0);
+    -fx-effect: dropshadow(gaussian, rgba(46,91,255,1), 38, 0.5, 0, 0);
+    -fx-scale-x: 1.5;
+    -fx-scale-y: 1.5;
+}
+
+.winning-cell-p2 {
+    -fx-background-color: linear-gradient(to bottom right, #ff5e7e, #ff7a95);
+    -fx-effect: dropshadow(gaussian, rgba(255,94,126,1), 38, 0.5, 0, 0);
+    -fx-scale-x: 1.5;
+    -fx-scale-y: 1.5;
+}
+
+/* =========================================
+   LEFT PANEL (STATS)
+========================================= */
+.stats-container {
+    -fx-background-color: rgba(10, 10, 25, 0.45);
+    -fx-border-color: transparent rgba(46,91,255,0.5) transparent transparent;
+    -fx-border-width: 2;
+}
+
+.stat-card {
+    -fx-background-color: rgba(25, 25, 50, 0.75);
+    -fx-background-radius: 14;
+    -fx-padding: 14;
+}
+
+.stat-p1 {
+    -fx-border-color: #2e5bff;
+    -fx-effect: dropshadow(three-pass-box, rgba(46,91,255,0.6), 12, 0.6, 0, 0);
+}
+
+.stat-p2 {
+    -fx-border-color: #ff5e7e;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,94,126,0.6), 12, 0.6, 0, 0);
+}
+
+/* =========================================
+   LEAVE BUTTON
+========================================= */
+.leave-button {
+    -fx-background-color: rgba(255,68,68,0.12);
+    -fx-text-fill: #ff5a5a;
+    -fx-border-color: rgba(255,68,68,0.5);
+    -fx-border-radius: 8;
+}
+
+.leave-button:hover {
+    -fx-background-color: rgba(255,68,68,0.25);
+}
+
+/* =========================================
+   PLAYER CARDS
+========================================= */
+.avatar-card {
+    -fx-background-color: rgba(20, 20, 40, 0.65);
+    -fx-background-radius: 18;
+    -fx-padding: 14;
+    -fx-border-radius: 18;
+    -fx-border-width: 2;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 18, 0.4, 0, 0);
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.avatar-card.inactive {
+    -fx-opacity: 0.45;
+    -fx-effect: none;
+}
+
+.avatar-card.active-p1 {
+    -fx-border-color: #2e5bff;
+    -fx-effect: dropshadow(three-pass-box, rgba(46,91,255,1), 35, 0.75, 0, 0);
+}
+
+.avatar-card.active-p2 {
+    -fx-border-color: #ff5e7e;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,94,126,1), 35, 0.75, 0, 0);
+}
+
+/* =========================================
+   AVATAR IMAGE
+========================================= */
+.avatar-img {
+    -fx-background-radius: 50%;
+    -fx-border-radius: 55%;
+}
+
+/* =========================================
+   SPECTATORS PANEL
+========================================= */
+.spectators-container {
+    -fx-background-color: rgba(10, 10, 25, 0.45);
+    -fx-border-color: transparent transparent transparent rgba(255,94,126,0.5);
+    -fx-border-width: 2;
+}
+
+.dark-list-view {
+    -fx-background-color: transparent;
+}
+
+.dark-list-view .list-cell {
+    -fx-background-color: rgba(22,22,45,0.75);
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
 }

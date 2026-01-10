@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import javafx.application.Platform;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
@@ -33,10 +34,11 @@ import javafx.scene.shape.StrokeLineCap;
 import javax.imageio.ImageIO;
 
 public class GameBoardController {
+
     @FXML
     private Button btn00, btn01, btn02,
-                   btn10, btn11, btn12,
-                   btn20, btn21, btn22;
+            btn10, btn11, btn12,
+            btn20, btn21, btn22;
 
     @FXML
     private Label player1Wins, player2Wins, drawsCount;
@@ -50,7 +52,6 @@ public class GameBoardController {
 
     @FXML
     private ListView<String> spectatorsList;
-
 
     private Map<String, Button> buttonsMap;
     private GameSession session;
@@ -66,10 +67,8 @@ public class GameBoardController {
     private Label player2Score1;
     @FXML
     private Pane gridOverlay;
-    
-    private Line winLine;
 
-    
+    private Line winLine;
 
     public void initialize() {
         initButtonsMap();
@@ -92,17 +91,17 @@ public class GameBoardController {
 
         player1 = player;
         player2 = opponent;
-        
+
         session = new GameSession(player1, player2, player2.getType().getSessionType());
 
         player1Name.setText(player1.getUsername());
         player2Name.setText(player2.getUsername());
-        
+
         updateBoardUI();
         updateScoreUI();
         highlightCurrentPlayer();
     }
-    
+
     public void initDummyPlayers(PlayerType type) {
         initPlayers(
                 new Player(
@@ -121,7 +120,7 @@ public class GameBoardController {
                 )
         );
     }
-        
+
     private void endTurn() {
         updateBoardUI();
         handleResult();
@@ -131,11 +130,15 @@ public class GameBoardController {
     @FXML
     private void handleMove(ActionEvent event) {
 
-        if (session.isGameEnded()) return;
+        if (session.isGameEnded()) {
+            return;
+        }
 
         Player current = session.getCurrentPlayer();
-        
-        if (current.getType() != PlayerType.LOCAL) return;
+
+        if (current.getType() != PlayerType.LOCAL) {
+            return;
+        }
 
         Button clickedBtn = (Button) event.getSource();
         String id = clickedBtn.getId();
@@ -144,14 +147,18 @@ public class GameBoardController {
         int col = Character.getNumericValue(id.charAt(4));
 
         boolean played = session.playMove(row, col);
-        if (!played) return;
-        
+        if (!played) {
+            return;
+        }
+
         endTurn();
     }
 
     private void handleNextTurn() {
 
-        if (session.isGameEnded()) return;
+        if (session.isGameEnded()) {
+            return;
+        }
 
         highlightCurrentPlayer();
 
@@ -191,8 +198,6 @@ public class GameBoardController {
         endTurn();
     }
 
-    
-
     private void updateBoardUI() {
 
         PlayerSymbol[][] cells = session.getGame().getBoard().getCells();
@@ -226,11 +231,10 @@ public class GameBoardController {
         drawsCount.setText(String.valueOf(session.getDrawCount()));
     }
 
-    
     private void handleResult() {
 
         GameResult result = session.getLastResult();
-        
+
         switch (result) {
 
             case NONE:
@@ -251,11 +255,11 @@ public class GameBoardController {
         }
         Platform.runLater(this::takeBoardScreenshot);
     }
-    
+
     private void takeBoardScreenshot() {
         try {
             WritableImage image = gameArea.snapshot(new SnapshotParameters(), null);
-            
+
             File file = new File("board.png");
             ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
         } catch (IOException ex) {
@@ -265,52 +269,97 @@ public class GameBoardController {
 
     private void highlightWinningCells() {
         String winCode = session.getGame().getBoard().getWinCode();
-        if (winCode == null) return;
+        if (winCode == null) {
+            return;
+        }
+
+        String winningClassStyleName = ".winning-cell-p1";
+        if (session.getLastResult() != GameResult.X_WIN) {
+
+            winningClassStyleName = ".winning-cell-p2";
+        }
+
         System.out.println("WinCode: " + winCode);
-        
+
         List<Button> winningButtons = new ArrayList<>();
-        for(int i = 0; i < winCode.length(); i += 2) {
+        for (int i = 0; i < winCode.length(); i += 2) {
             Button cell = buttonsMap.get(winCode.substring(i, i + 2));
-            cell.getStyleClass().add("winning-cell");
+            cell.getStyleClass().add(winningClassStyleName);
             winningButtons.add(cell);
         }
-        
-//        drawWinningLine(winningButtons);
+
+        drawWinningLine(winningButtons);
     }
-    
+
+//    private void drawWinningLine(List<Button> cells) {
+//        if (cells.size() < 2) return;
+//
+//        Button first = cells.get(0);
+//        Button last  = cells.get(cells.size() - 1);
+//
+//        Bounds start = first.getBoundsInParent();
+//        Bounds end   = last.getBoundsInParent();
+//
+//        double startX = start.getMinX() + start.getWidth() / 2;
+//        double startY = start.getMinY() + start.getHeight() / 2;
+//        double endX   = end.getMinX()   + end.getWidth() / 2;
+//        double endY   = end.getMinY()   + end.getHeight() / 2;
+//
+//        Line line = new Line(startX, startY, endX, endY);
+//        line.setStrokeWidth(6);
+//        line.setStrokeLineCap(StrokeLineCap.ROUND);
+//        line.setMouseTransparent(true);
+//
+//        line.setStroke(
+//            session.getGame().checkResult() == GameResult.X_WIN
+//                ? Color.web("#2e5bff")
+//                : Color.web("#ff5e7e")
+//        );
+//
+//        gridOverlay.getChildren().add(line);
+//    }
     private void drawWinningLine(List<Button> cells) {
-        if (cells.size() < 2) return;
+        if (cells.size() < 2) {
+            return;
+        }
 
-        Button first = cells.get(0);
-        Button last  = cells.get(cells.size() - 1);
+        // إزالة أي خطوط سابقة
+        gridOverlay.getChildren().removeIf(node -> node instanceof Line);
 
-        Bounds start = first.getBoundsInParent();
-        Bounds end   = last.getBoundsInParent();
+        Platform.runLater(() -> {
+            Button first = cells.get(0);
+            Button last = cells.get(cells.size() - 1);
 
-        double startX = start.getMinX() + start.getWidth() / 2;
-        double startY = start.getMinY() + start.getHeight() / 2;
-        double endX   = end.getMinX()   + end.getWidth() / 2;
-        double endY   = end.getMinY()   + end.getHeight() / 2;
+            // تحويل المركز لكل زر لإحداثيات overlay
+            Point2D startPoint = first.localToScene(first.getWidth() / 2, first.getHeight() / 2);
+            Point2D endPoint = last.localToScene(last.getWidth() / 2, last.getHeight() / 2);
 
-        Line line = new Line(startX, startY, endX, endY);
-        line.setStrokeWidth(6);
-        line.setStrokeLineCap(StrokeLineCap.ROUND);
-        line.setMouseTransparent(true);
+            Point2D startInOverlay = gridOverlay.sceneToLocal(startPoint);
+            Point2D endInOverlay = gridOverlay.sceneToLocal(endPoint);
 
-        line.setStroke(
-            session.getGame().checkResult() == GameResult.X_WIN
-                ? Color.web("#2e5bff")
-                : Color.web("#ff5e7e")
-        );
+            Line line = new Line(startInOverlay.getX(), startInOverlay.getY(),
+                    endInOverlay.getX(), endInOverlay.getY());
+            line.setStrokeWidth(6);
+            line.setStrokeLineCap(StrokeLineCap.ROUND);
+            line.setMouseTransparent(true);
 
-        gridOverlay.getChildren().add(line);
+            GameResult result = session.getGame().checkResult();
+            if (result == GameResult.X_WIN) {
+                line.setStroke(Color.web("#2e5bff"));
+            } else if (result == GameResult.O_WIN) {
+                line.setStroke(Color.web("#ff5e7e"));
+            } else {
+                return;
+            }
+
+            gridOverlay.getChildren().add(line);
+        });
     }
-
 
     private void highlightCurrentPlayer() {
-    
+
         player1Avatar.getStyleClass().remove("avatar-fancy");
-        
+
         player2Avatar.getStyleClass().remove("avatar-fancy-p2");
 
         Player current = session.getCurrentPlayer();
@@ -327,7 +376,6 @@ public class GameBoardController {
             btn.setDisable(true);
         }
     }
-
 
     private void showAlert(String message) {
         System.out.println(message);
