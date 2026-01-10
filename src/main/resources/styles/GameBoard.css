@@ -2,7 +2,7 @@
    ROOT & MAIN CONTAINER
 ========================================= */
 .root, .main-container {
-    -fx-background-image: url("../assets/bg2.jpg");
+    -fx-background-image: url("../assets/bg1.jpg");
     -fx-background-size: cover;
     -fx-background-position: center center;
     -fx-background-repeat: no-repeat;
@@ -99,22 +99,12 @@
 }
 
 .p1-glow {
-    -fx-background-color: linear-gradient(
-        to bottom right,
-        #00d4ff,
-        #007aff,
-        #002060
-        );
-    -fx-effect: dropshadow(three-pass-box, rgba(0,180,255,0.45), 10, 0.45, 0, 0);
+   
+    -fx-effect: dropshadow(three-pass-box, rgba(0,180,255,0.45), 26, 0.45, 0, 0);
 }
 .p2-glow {
-    -fx-background-color: linear-gradient(
-        to bottom right,
-        #ff5e7e,
-        #b11226,
-        #3a0008
-        );
-    -fx-effect: dropshadow(three-pass-box, rgba(255,100,140,0.45), 10, 0.45, 0, 0);
+
+    -fx-effect: dropshadow(three-pass-box, rgba(255,100,140,0.45), 26, 0.45, 0, 0);
 }
 
 /* =========================================
