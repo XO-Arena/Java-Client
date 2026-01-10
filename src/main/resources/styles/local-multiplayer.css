@@ -11,6 +11,7 @@
 .title-label {
     -fx-text-fill: white;
     -fx-font-weight: bold;
+    -fx-font-size: 24px;
 }
 
 /* =========================================
@@ -47,6 +48,9 @@
     -fx-border-radius: 20;
 }
 
+.player-label{
+    -fx-font-size: 14px;
+}
 /* =========================================
    6. Player Name Text Fields
    ========================================= */
@@ -94,6 +98,7 @@
    ========================================= */
 .symbol-label {
     -fx-font-weight: bold;
+    -fx-font-size: 32px;
 }
 
 .x-symbol {
@@ -112,6 +117,7 @@
 .vs-label {
     -fx-text-fill: #5a5a7a;
     -fx-font-weight: bold;
+    -fx-font-size: 22px;
 }
 
 /* =========================================
@@ -126,6 +132,7 @@
     -fx-background-radius: 50%;
     -fx-cursor: hand;
     -fx-font-weight: bold;
+    -fx-font-size: 16px;
 }
 
 .swap-button:hover {
@@ -152,13 +159,14 @@
     -fx-padding: 15 40;
     -fx-cursor: hand;
     -fx-font-weight: bold;
+    -fx-font-size: 18px;
 }
 
 .start-button:hover {
     -fx-background-color: rgba(46, 91, 255, 0.15);
     -fx-border-color: #4d7bff;
     -fx-border-width: 3;
-    -fx-effect: dropshadow(three-pass-box, rgba(46, 91, 255, 0.6), 20, 0.5, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(46, 91, 255, 0.6), 0, 0.5, 0, 0);
 }
 
 .start-button:pressed {
