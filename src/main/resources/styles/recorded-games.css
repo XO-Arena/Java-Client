@@ -1,0 +1,202 @@
+.root {
+    -fx-background-color: #0f172a;
+    -fx-font-family: "Segoe UI";
+}
+.page-title {
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+.back-button {
+    -fx-background-color: #1e293b;
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-border-color: #475569;
+    -fx-border-width: 2;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-cursor: hand;
+    -fx-padding: 10 18 10 18;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);
+}
+.back-button:hover {
+    -fx-text-fill: #e5e7eb;
+    -fx-border-color: #64748b;
+    -fx-background-color: #334155;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 3);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+.back-button:pressed {
+    -fx-background-color: #475569;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 6, 0, 0, 1);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+.games-container {
+    -fx-background-color: #0f172a;
+}
+
+.games-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background: transparent;
+}
+.games-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+.games-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+.games-scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: rgba(203, 213, 225, 0.3);
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+.games-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(148, 163, 184, 0.6);
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+.games-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(100, 116, 139, 0.8);
+}
+.games-scroll-pane .scroll-bar:vertical .increment-button, .games-scroll-pane .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+
+.games-list {
+    -fx-background-color: transparent;
+}
+
+.game-card {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #475569;
+    -fx-border-width: 2;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 16 20 16 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 3);
+}
+
+.game-card:hover {
+    -fx-border-color: #2563eb;
+    -fx-background-color: #1e293b;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.35), 14, 0, 0, 4);
+    -fx-translate-y: -2;
+}
+
+
+.player-name-primary {
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+}
+
+.player-name-secondary {
+    -fx-text-fill: #93c5fd;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+}
+
+.vs-label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+}
+
+
+.game-info-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+}
+
+.winner-label {
+    -fx-text-fill: #22c55e;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.draw-label {
+    -fx-text-fill: #eab308;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.separator {
+    -fx-text-fill: #475569;
+    -fx-opacity: 0.6;
+}
+
+
+.play-button {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-background-radius: 50;
+    -fx-border-radius: 50;
+    -fx-min-width: 46;
+    -fx-min-height: 46;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.4), 10, 0, 0, 3);
+}
+
+.play-button:hover {
+    -fx-background-color: #1d4ed8;
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+}
+
+.play-button:pressed {
+    -fx-background-color: #1e40af;
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
+
+
+.empty-state-title {
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+}
+
+.empty-state-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+    -fx-text-alignment: center;
+}
+
+
+/* Micro-interactions and Animations */
+.game-card,
+.play-button,
+.back-button {
+    -fx-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    .page-title {
+        -fx-font-size: 20px;
+    }
+
+    .player-name-primary,
+    .player-name-secondary {
+        -fx-font-size: 14px;
+    }
+
+    .game-info-label,
+    .winner-label,
+    .draw-label {
+        -fx-font-size: 11px;
+    }
+
+    .play-button {
+        -fx-min-width: 42;
+        -fx-min-height: 42;
+        -fx-max-width: 42;
+        -fx-max-height: 42;
+    }
+}
