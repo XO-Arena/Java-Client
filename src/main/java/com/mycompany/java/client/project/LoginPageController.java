@@ -143,6 +143,7 @@ public class LoginPageController implements ServerListener, Initializable {
                 Platform.runLater(() -> {
                     //showAlert("Login Success", "Login Successfully", Alert.AlertType.INFORMATION); // This is now safe
                     try {
+                        App.setLoggedIn(true);
                         App.setRoot("homePage");
                     } catch (IOException ex) {
                         System.getLogger(LoginPageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
