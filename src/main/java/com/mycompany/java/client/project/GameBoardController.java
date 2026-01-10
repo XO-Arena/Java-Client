@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
@@ -297,47 +298,73 @@ public class GameBoardController {
     }
 
     private void drawWinningLine(List<Button> cells) {
+
         if (cells.size() < 2) {
             return;
         }
 
-        gridOverlay.getChildren().removeIf(node -> node instanceof Line);
+        gridOverlay.getChildren().removeIf(n -> n instanceof Line);
 
         Platform.runLater(() -> {
+
             Button first = cells.get(0);
             Button last = cells.get(cells.size() - 1);
-            Point2D startPoint = first.localToScene(first.getWidth() / 2, first.getHeight() / 2);
-            Point2D endPoint = last.localToScene(last.getWidth() / 2, last.getHeight() / 2);
 
-            Point2D startInOverlay = gridOverlay.sceneToLocal(startPoint);
-            Point2D endInOverlay = gridOverlay.sceneToLocal(endPoint);
-
-            Line line = new Line(startInOverlay.getX(), startInOverlay.getY(),
-                    endInOverlay.getX(), endInOverlay.getY());
+            Line line = new Line();
             line.setStrokeWidth(6);
             line.setStrokeLineCap(StrokeLineCap.ROUND);
             line.setMouseTransparent(true);
 
+            line.startXProperty().bind(
+                    Bindings.createDoubleBinding(() -> {
+                        Point2D p = first.localToScene(first.getWidth() / 2, first.getHeight() / 2);
+                        return gridOverlay.sceneToLocal(p).getX();
+                    },
+                            first.layoutBoundsProperty(),
+                            first.localToSceneTransformProperty(),
+                            gridOverlay.layoutBoundsProperty()
+                    ));
+
+            line.startYProperty().bind(
+                    Bindings.createDoubleBinding(() -> {
+                        Point2D p = first.localToScene(first.getWidth() / 2, first.getHeight() / 2);
+                        return gridOverlay.sceneToLocal(p).getY();
+                    },
+                            first.layoutBoundsProperty(),
+                            first.localToSceneTransformProperty(),
+                            gridOverlay.layoutBoundsProperty()
+                    ));
+
+            line.endXProperty().bind(
+                    Bindings.createDoubleBinding(() -> {
+                        Point2D p = last.localToScene(last.getWidth() / 2, last.getHeight() / 2);
+                        return gridOverlay.sceneToLocal(p).getX();
+                    },
+                            last.layoutBoundsProperty(),
+                            last.localToSceneTransformProperty(),
+                            gridOverlay.layoutBoundsProperty()
+                    ));
+
+            line.endYProperty().bind(
+                    Bindings.createDoubleBinding(() -> {
+                        Point2D p = last.localToScene(last.getWidth() / 2, last.getHeight() / 2);
+                        return gridOverlay.sceneToLocal(p).getY();
+                    },
+                            last.layoutBoundsProperty(),
+                            last.localToSceneTransformProperty(),
+                            gridOverlay.layoutBoundsProperty()
+                    ));
+
             GameResult result = session.getGame().checkResult();
-            if (null == result) {
-                return;
-            } else {
-                switch (result) {
-                    case X_WIN:
-                        line.setStroke(Color.web("#2E5BFFE6"));
-                        break;
-                    case O_WIN:
-                        line.setStroke(Color.web("#FF5E7EE6"));
-                        break;
-                    default:
-                        return;
-                }
+            if (result == GameResult.X_WIN) {
+                line.setStroke(Color.web("#2E5BFFE6"));
+            } else if (result == GameResult.O_WIN) {
+                line.setStroke(Color.web("#FF5E7EE6"));
             }
 
             gridOverlay.getChildren().add(line);
         });
     }
-
 
     private void highlightCurrentPlayer() {
         player1Container.getStyleClass().removeAll("p1-glow", "p2-glow");
