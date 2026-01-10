@@ -20,18 +20,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeLineCap;
 import javax.imageio.ImageIO;
+
+import javafx.util.Duration;
+import javafx.scene.layout.Pane;
 
 public class GameBoardController {
 
@@ -44,8 +47,6 @@ public class GameBoardController {
     private Label player1Wins, player2Wins, drawsCount;
     @FXML
     private Label player1Name, player2Name;
-    @FXML
-    private Label player1Rank, player2Rank;
 
     @FXML
     private Circle player1Avatar, player2Avatar;
@@ -64,11 +65,15 @@ public class GameBoardController {
     @FXML
     private GridPane gridPane;
     @FXML
-    private Label player2Score1;
-    @FXML
     private Pane gridOverlay;
 
     private Line winLine;
+    @FXML
+    private StackPane player1Container;
+    @FXML
+    private Label player2Score;
+    @FXML
+    private StackPane player2Container;
 
     public void initialize() {
         initButtonsMap();
@@ -273,10 +278,10 @@ public class GameBoardController {
             return;
         }
 
-        String winningClassStyleName = ".winning-cell-p1";
+        String winningClassStyleName = "winning-cell-p1";
         if (session.getLastResult() != GameResult.X_WIN) {
 
-            winningClassStyleName = ".winning-cell-p2";
+            winningClassStyleName = "winning-cell-p2";
         }
 
         System.out.println("WinCode: " + winCode);
@@ -291,46 +296,16 @@ public class GameBoardController {
         drawWinningLine(winningButtons);
     }
 
-//    private void drawWinningLine(List<Button> cells) {
-//        if (cells.size() < 2) return;
-//
-//        Button first = cells.get(0);
-//        Button last  = cells.get(cells.size() - 1);
-//
-//        Bounds start = first.getBoundsInParent();
-//        Bounds end   = last.getBoundsInParent();
-//
-//        double startX = start.getMinX() + start.getWidth() / 2;
-//        double startY = start.getMinY() + start.getHeight() / 2;
-//        double endX   = end.getMinX()   + end.getWidth() / 2;
-//        double endY   = end.getMinY()   + end.getHeight() / 2;
-//
-//        Line line = new Line(startX, startY, endX, endY);
-//        line.setStrokeWidth(6);
-//        line.setStrokeLineCap(StrokeLineCap.ROUND);
-//        line.setMouseTransparent(true);
-//
-//        line.setStroke(
-//            session.getGame().checkResult() == GameResult.X_WIN
-//                ? Color.web("#2e5bff")
-//                : Color.web("#ff5e7e")
-//        );
-//
-//        gridOverlay.getChildren().add(line);
-//    }
     private void drawWinningLine(List<Button> cells) {
         if (cells.size() < 2) {
             return;
         }
 
-        // إزالة أي خطوط سابقة
         gridOverlay.getChildren().removeIf(node -> node instanceof Line);
 
         Platform.runLater(() -> {
             Button first = cells.get(0);
             Button last = cells.get(cells.size() - 1);
-
-            // تحويل المركز لكل زر لإحداثيات overlay
             Point2D startPoint = first.localToScene(first.getWidth() / 2, first.getHeight() / 2);
             Point2D endPoint = last.localToScene(last.getWidth() / 2, last.getHeight() / 2);
 
@@ -344,30 +319,36 @@ public class GameBoardController {
             line.setMouseTransparent(true);
 
             GameResult result = session.getGame().checkResult();
-            if (result == GameResult.X_WIN) {
-                line.setStroke(Color.web("#2e5bff"));
-            } else if (result == GameResult.O_WIN) {
-                line.setStroke(Color.web("#ff5e7e"));
-            } else {
+            if (null == result) {
                 return;
+            } else {
+                switch (result) {
+                    case X_WIN:
+                        line.setStroke(Color.web("#2E5BFFE6"));
+                        break;
+                    case O_WIN:
+                        line.setStroke(Color.web("#FF5E7EE6"));
+                        break;
+                    default:
+                        return;
+                }
             }
 
             gridOverlay.getChildren().add(line);
         });
     }
 
+
     private void highlightCurrentPlayer() {
-
-        player1Avatar.getStyleClass().remove("avatar-fancy");
-
-        player2Avatar.getStyleClass().remove("avatar-fancy-p2");
+        player1Container.getStyleClass().removeAll("p1-glow", "p2-glow");
+        player2Container.getStyleClass().removeAll("p1-glow", "p2-glow");
 
         Player current = session.getCurrentPlayer();
 
         if (current == player1) {
-            player1Avatar.getStyleClass().add("avatar-fancy");
-        } else {
-            player2Avatar.getStyleClass().add("avatar-fancy-p2");
+            player1Container.getStyleClass().add("p1-glow");
+        } else if (current == player2) {
+            player2Container.getStyleClass().add("p2-glow");
         }
     }
 
