@@ -60,10 +60,10 @@ public class HomePageController implements ServerListener {
         logoImage.setImage(new Image(getClass().getResourceAsStream("/assets/xo.png")));
 
         try {
-            ServerConnection conn = ServerConnection.getConnection();
-            conn.setListener(this);
-            conn.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
-            conn.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
+            con = ServerConnection.getConnection();
+            con.setListener(this);
+            con.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
+            con.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
         } catch (IOException e) {
             Platform.runLater(() -> {
                 loginButton.setDisable(true);

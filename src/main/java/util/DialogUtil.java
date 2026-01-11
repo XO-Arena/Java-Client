@@ -5,7 +5,6 @@
 package util;
 
 import com.mycompany.java.client.project.BrandedDialogController;
-import com.mycompany.java.client.project.LoginPageController;
 import java.io.IOException;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -26,7 +25,7 @@ public class DialogUtil {
 
     private static Stage currentDialogStage;
 
-    public static void showAlert(String title, String content, Alert.AlertType type, LoginPageController loginPageController) {
+    public static void showAlert(String title, String content, Alert.AlertType type, Object object) {
         Platform.runLater(() -> {
             Alert alert = new Alert(type);
             alert.setTitle(title);
@@ -34,7 +33,7 @@ public class DialogUtil {
             alert.setContentText(content);
             // Apply the CSS to the dialog
             DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(loginPageController.getClass().getResource("/styles/dialog.css").toExternalForm());
+            dialogPane.getStylesheets().add(object.getClass().getResource("/styles/dialog.css").toExternalForm());
             dialogPane.getStyleClass().add("dialog-pane");
             alert.showAndWait();
         });
