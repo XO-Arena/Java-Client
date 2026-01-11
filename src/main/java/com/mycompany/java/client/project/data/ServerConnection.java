@@ -49,9 +49,11 @@ public class ServerConnection implements Closeable {
         this.listener = listener;
     }
 
-    public void sendRequest(Request request) {
+    public boolean sendRequest(Request request) {
+        if (!isAlive()) return false;
         String json = gson.toJson(request);
         writer.println(json);
+        return true;
     }
     
     private void startListenerThread() {
