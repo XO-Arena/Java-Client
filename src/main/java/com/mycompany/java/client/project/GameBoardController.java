@@ -35,6 +35,13 @@ import javafx.scene.shape.StrokeLineCap;
 import javax.imageio.ImageIO;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class GameBoardController {
 
@@ -126,7 +133,7 @@ public class GameBoardController {
         updateScoreUI();
         highlightCurrentPlayer();
     }
-    
+
     // is that important too ??
     public void initDummyPlayers(PlayerType type) {
         initPlayers(
@@ -429,7 +436,7 @@ public class GameBoardController {
             btn.setDisable(true);
         }
     }
-    
+
     private void resetBoard() {
         // Clear the winning line if it exists
         if (gridOverlay != null) {
@@ -443,6 +450,7 @@ public class GameBoardController {
             btn.getStyleClass().removeAll("x-style", "o-style", "win-cell", "winning-cell-p1", "winning-cell-p2");
         }
     }
+
     // is it important ??
     private void showAlert(String message) {
         System.out.println(message);
@@ -450,11 +458,45 @@ public class GameBoardController {
 
     @FXML
     private void leaveGame(ActionEvent event) {
-        // TODO: handle the alert dialog not enter sudinly 
         try {
-            App.setRoot("homePage");
+            // Load the branded dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("brandedDialog.fxml"));
+            Parent dialogRoot = loader.load();
+            BrandedDialogController dialogController = loader.getController();
+
+            // Configure the dialog
+            dialogController.setTitle("Leave Game");
+            dialogController.setContent("Are you sure you want to leave this match?");
+            dialogController.setPrimaryButtonText("Leave");
+            dialogController.setSecondaryButtonText("Cancel");
+
+            // Set actions
+            dialogController.setOnPrimaryAction(() -> {
+                try {
+                    App.setRoot("homePage");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            });
+
+            // Secondary action can be null - just closes dialog
+            dialogController.setOnSecondaryAction(null);
+
+            // Create and show the dialog stage
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialogStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+
+            // Get the current stage as owner
+            Stage ownerStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            dialogStage.initOwner(ownerStage);
+
+            dialogStage.setScene(new javafx.scene.Scene(dialogRoot));
+            dialogStage.showAndWait();
+
         } catch (IOException ex) {
             ex.printStackTrace();
+            System.err.println("Error loading dialog: " + ex.getMessage());
         }
     }
 }
