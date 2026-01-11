@@ -59,16 +59,19 @@ public class HomePageController implements ServerListener {
 
         logoImage.setImage(new Image(getClass().getResourceAsStream("/assets/xo.png")));
 
-        con = ServerConnection.getConnection();
-        con.setListener(this);
+        try {
+            ServerConnection conn = ServerConnection.getConnection();
+            conn.setListener(this);
+            conn.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
+            conn.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
+        } catch (IOException e) {
+            Platform.runLater(() -> {
+                loginButton.setDisable(true);
+                handleServerOffline();
+            });
+        }
 
         updateUIState();
-
-        ServerConnection conn = ServerConnection.getConnection();
-        conn.setListener(this);
-        conn.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
-        conn.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
-
     }
 
     private void updateUIState() {
@@ -156,7 +159,11 @@ public class HomePageController implements ServerListener {
     @FXML
     private void navigateToLoginPage(ActionEvent event) {
         if (App.IsLoggedIn()) {
-            ServerConnection.getConnection().sendRequest(new Request(RequestType.LOGOUT, null));
+            try {
+                ServerConnection.getConnection().sendRequest(new Request(RequestType.LOGOUT, null));
+            } catch (IOException ex) {
+                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
             App.setLoggedIn(false);
             updateUIState();
         } else {

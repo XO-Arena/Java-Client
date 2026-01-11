@@ -63,7 +63,11 @@ public class LoginPageController implements ServerListener, Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         gson = new Gson();
-        conn = ServerConnection.getConnection();
+        try {
+            conn = ServerConnection.getConnection();
+        } catch (IOException ex) {
+            System.getLogger(LoginPageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
         conn.setListener(this);
         passwordTextField.textProperty().bindBidirectional(passwordField.textProperty());
     }

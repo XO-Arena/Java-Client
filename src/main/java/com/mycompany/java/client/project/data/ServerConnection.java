@@ -1,6 +1,5 @@
 package com.mycompany.java.client.project.data;
 
-
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -54,7 +53,7 @@ public class ServerConnection implements Closeable {
         String json = gson.toJson(request);
         writer.println(json);
     }
-
+    
     private void startListenerThread() {
         listenerThread = new Thread(() -> {
             try {
