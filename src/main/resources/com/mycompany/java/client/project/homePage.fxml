@@ -45,7 +45,7 @@
                                 <Button fx:id="quickGameButton" maxWidth="Infinity" onAction="#navigateToOnlineGameBoardPage" text="Quick Game" />
                                 <Button fx:id="localMultiplayerButton" maxWidth="Infinity" onAction="#navigateToLocalMultiplayer" text="Local Multiplayer" />
                                 <Button fx:id="PlayVsComputerButton" maxWidth="Infinity" onAction="#onPlayVsPcClicked" text="Play vs Computer" />
-                                <Button fx:id="recordedGamesButton" maxWidth="Infinity" text="Recorded Games" />
+                                <Button fx:id="recordedGamesButton" maxWidth="Infinity" onAction="#navigateToRecordedGames" text="Recorded Games" />
                             </children>
                         </VBox>
                         <HBox prefHeight="25.0" prefWidth="490.0">

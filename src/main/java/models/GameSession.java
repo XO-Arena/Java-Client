@@ -44,6 +44,14 @@ public class GameSession {
                 break;
         }
     }
+    public void startNewGame() {
+        this.game = new Game();
+        this.lastResult = GameResult.NONE;
+        if (sessionType == SessionType.AI) {
+            AIPlayer aiPlayer = (AIPlayer) player2;
+            moveProvider = new ComputerMoveProvider(game.getBoard(), aiPlayer.getDifficulty(), player2.getSymbol());
+        }
+    }
     
     public Game getGame(){return this.game;}
     public int getPlayer1Wins(){return this.player1Wins;}

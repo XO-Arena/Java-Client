@@ -199,7 +199,16 @@ public class HomePageController implements ServerListener {
             System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
-
+    
+    @FXML
+    private void navigateToRecordedGames(ActionEvent event) {
+        try {
+            App.setRoot("recordedGames");
+        } catch (IOException ex) {
+            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }
+    
     @FXML
     private void onPlayVsPcClicked(ActionEvent event) {
         try {

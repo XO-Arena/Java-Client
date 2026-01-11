@@ -31,9 +31,7 @@
         
         <!-- Title -->
         <Label text="Local Multiplayer" styleClass="title-label">
-            <font>
-                <Font name="System Bold" size="32" />
-            </font>
+            
         </Label>
         
         <!-- Players Container -->
@@ -45,35 +43,26 @@
                         stroke="#ff5e7e" strokeWidth="3" fill="#1e1e30" />
                 
                 <Label text="Player 2" styleClass="player-label" textFill="#ff5e7e">
-                    <font>
-                        <Font size="16" />
-                    </font>
+                   
                 </Label>
                 
                 <TextField fx:id="player2NameField" promptText="Enter name" 
                            styleClass="player-name-field" maxWidth="180" />
                 
                 <Label text="O" styleClass="symbol-label, o-symbol">
-                    <font>
-                        <Font name="System Bold" size="48" />
-                    </font>
+                    
                 </Label>
             </VBox>
             
             <!-- VS Separator -->
             <VBox alignment="CENTER" spacing="15">
                 <Label text="vs" styleClass="vs-label">
-                    <font>
-                        <Font name="System Bold" size="28" />
-                    </font>
+
                 </Label>
                 
                 <!-- Swap Button -->
                 <Button fx:id="swapButton" onAction="#handleSwap" styleClass="swap-button" 
-                        text="⇄" maxWidth="60" maxHeight="60" minWidth="60" minHeight="60">
-                    <font>
-                        <Font size="24" />
-                    </font>
+                        text="⇄" maxWidth="70" maxHeight="70" minWidth="70" minHeight="70">
                 </Button>
             </VBox>
             
@@ -83,18 +72,14 @@
                         stroke="#2e5bff" strokeWidth="3" fill="#1e1e30" />
                 
                 <Label text="Player 1" styleClass="player-label" textFill="#2e5bff">
-                    <font>
-                        <Font size="16" />
-                    </font>
+
                 </Label>
                 
                 <TextField fx:id="player1NameField" promptText="Enter name" 
                            styleClass="player-name-field" maxWidth="180" />
                 
                 <Label text="X" styleClass="symbol-label, x-symbol">
-                    <font>
-                        <Font name="System Bold" size="48" />
-                    </font>
+
                 </Label>
             </VBox>
             
@@ -103,9 +88,6 @@
         <!-- Start Button -->
         <Button fx:id="startButton" onAction="#handleStart" text="Let's Go" 
                 styleClass="start-button" maxWidth="300" minHeight="50">
-            <font>
-                <Font name="System Bold" size="18" />
-            </font>
         </Button>
         
     </VBox>
