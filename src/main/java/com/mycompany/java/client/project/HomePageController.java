@@ -179,16 +179,28 @@ public class HomePageController implements ServerListener {
     @FXML
     private void navigateToOnlineGameBoardPage(ActionEvent event) {
         Request request = new Request(RequestType.QUICK_GAME);
-        con.sendRequest(request);
-        DialogUtil.showBrandedDialog("Quick Game",
-                "Looking for a player...\nYou will enter the game in a while...",
-                false, true,
-                "", "Cancel",
-                null,
-                () -> {
-                    con.sendRequest(new Request(RequestType.LEAVE_QUEUE));
-                }
-        );
+        if (con.sendRequest(request)) {
+            DialogUtil.showBrandedDialog("Quick Game",
+                    "Looking for a player...\nYou will enter the game in a while...",
+                    false, true,
+                    "", "Cancel",
+                    null,
+                    () -> {
+                        con.sendRequest(new Request(RequestType.LEAVE_QUEUE));
+                    }
+            );
+        } else {
+            DialogUtil.showBrandedDialog("Connection failed",
+                    "Unable to connect to the server.",
+                    true, true,
+                    "Retry", "Cancel",
+                    () -> {
+                        navigateToOnlineGameBoardPage(event);
+                    },
+                    () -> {
+
+                    });
+        }
     }
 
     @FXML
