@@ -22,6 +22,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import models.User;
 import util.DialogUtil;
 
 /**
@@ -90,7 +91,6 @@ public class LoginPageController implements ServerListener, Initializable {
         }
     }
 
-
     @FXML
     private void handleLogin(ActionEvent event) {
         if (isSubmited) {
@@ -128,6 +128,13 @@ public class LoginPageController implements ServerListener, Initializable {
         switch (response.getType()) {
             case LOGIN_SUCCESS: {
                 Platform.runLater(() -> {
+                    User user = gson.fromJson(
+                            response.getPayload(),
+                            User.class
+                    );
+
+                    // to save in app
+                    App.setCurrentUser(user);
                     //showAlert("Login Success", "Login Successfully", Alert.AlertType.INFORMATION); // This is now safe
                     try {
                         App.setLoggedIn(true);
@@ -141,15 +148,15 @@ public class LoginPageController implements ServerListener, Initializable {
             break;
             //LOGIN_FAILED
             case LOGIN_FAILED:
-                    DialogUtil.showAlert("Login Failed", "Invalid username or password", Alert.AlertType.ERROR, this); // This is now safe
+                DialogUtil.showAlert("Login Failed", "Invalid username or password", Alert.AlertType.ERROR, this); // This is now safe
                 break;
 
             case ALREADY_LOGGED_IN:
-                    DialogUtil.showAlert("Login Failed", "User already logged in", Alert.AlertType.ERROR, this);
+                DialogUtil.showAlert("Login Failed", "User already logged in", Alert.AlertType.ERROR, this);
                 break;
 
             case INVALID_DATA:
-                    DialogUtil.showAlert("Login Failed", "Invalid login data", Alert.AlertType.ERROR, this);
+                DialogUtil.showAlert("Login Failed", "Invalid login data", Alert.AlertType.ERROR, this);
                 break;
 
             case ERROR:
@@ -182,9 +189,12 @@ public class LoginPageController implements ServerListener, Initializable {
 
     @Override
     public void onMessage(Response response) {
+        // to check it is not null and return the user
+        // why toJsonTree because it is a response
+        System.out.println("RECEIVED FROM SERVER: " + gson.toJson(response));
         handleLoginResponse(response);
     }
-    
+
     @Override
     public void onDisconnect() {
         isSubmited = false;
