@@ -42,6 +42,7 @@ import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import util.DialogUtil;
 
 public class GameBoardController {
 
@@ -458,45 +459,27 @@ public class GameBoardController {
 
     @FXML
     private void leaveGame(ActionEvent event) {
-        try {
-            // Load the branded dialog
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("brandedDialog.fxml"));
-            Parent dialogRoot = loader.load();
-            BrandedDialogController dialogController = loader.getController();
 
-            // Configure the dialog
-            dialogController.setTitle("Leave Game");
-            dialogController.setContent("Are you sure you want to leave this match?");
-            dialogController.setPrimaryButtonText("Leave");
-            dialogController.setSecondaryButtonText("Cancel");
+        DialogUtil.showBrandedDialog(
+                "Leave Game",
+                "Are you sure you want to leave this match?",
+                true, // show primary
+                true, // show secondary
 
-            // Set actions
-            dialogController.setOnPrimaryAction(() -> {
-                try {
-                    App.setRoot("homePage");
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                "Leave",
+                "Cancel",
+                () -> { // Primary action
+                    try {
+                        DialogUtil.closeCurrentDialog();
+                        App.setRoot("homePage");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                },
+                () -> { // Secondary action
+                    DialogUtil.closeCurrentDialog();
                 }
-            });
-
-            // Secondary action can be null - just closes dialog
-            dialogController.setOnSecondaryAction(null);
-
-            // Create and show the dialog stage
-            Stage dialogStage = new Stage();
-            dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            dialogStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
-
-            // Get the current stage as owner
-            Stage ownerStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            dialogStage.initOwner(ownerStage);
-
-            dialogStage.setScene(new javafx.scene.Scene(dialogRoot));
-            dialogStage.showAndWait();
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            System.err.println("Error loading dialog: " + ex.getMessage());
-        }
+        );
     }
+
 }
