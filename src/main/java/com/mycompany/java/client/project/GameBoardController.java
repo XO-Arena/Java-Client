@@ -452,11 +452,6 @@ public class GameBoardController {
         }
     }
 
-    // is it important ??
-    private void showAlert(String message) {
-        System.out.println(message);
-    }
-
     @FXML
     private void leaveGame(ActionEvent event) {
 
@@ -471,6 +466,7 @@ public class GameBoardController {
                 () -> { // Primary action
                     try {
                         DialogUtil.closeCurrentDialog();
+                        session.leaveMatch();
                         App.setRoot("homePage");
                     } catch (IOException e) {
                         e.printStackTrace();

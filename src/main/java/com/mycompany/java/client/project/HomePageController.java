@@ -7,9 +7,11 @@ import com.mycompany.java.client.project.data.Response;
 import com.mycompany.java.client.project.data.ServerConnection;
 import com.mycompany.java.client.project.data.ServerListener;
 import dto.PlayerDTO;
+import dto.UserDTO;
 import enums.RequestType;
 import static enums.ResponseType.JOIN_GAME;
 import java.io.IOException;
+import java.util.List;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,6 +27,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import models.Player;
 import util.DialogUtil;
 
 public class HomePageController implements ServerListener {
@@ -53,11 +56,13 @@ public class HomePageController implements ServerListener {
 
     private ServerConnection con;
     private Stage currentDialogStage;
+    private Gson gson;
 
     @FXML
     public void initialize() {
 
         logoImage.setImage(new Image(getClass().getResourceAsStream("/assets/xo.png")));
+        gson = new Gson();
 
         try {
             con = ServerConnection.getConnection();
@@ -106,8 +111,8 @@ public class HomePageController implements ServerListener {
         // Clear list first to avoid duplicates if needed, assuming payload is full list
         Platform.runLater(() -> {
             onlinePlayersList.getItems().clear();
-            PlayerDTO[] availablePlayers = new Gson().fromJson(payload, PlayerDTO[].class);
-            for (PlayerDTO availablePlayer : availablePlayers) {
+            UserDTO[] availablePlayers = gson.fromJson(payload, UserDTO[].class);
+            for (UserDTO availablePlayer : availablePlayers) {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("PlayerItem.fxml"));
                     AnchorPane playerItem = loader.load();
@@ -134,7 +139,7 @@ public class HomePageController implements ServerListener {
     private void updateLeaderboard(JsonElement payload) {
         Platform.runLater(() -> {
             leaderboardList.getItems().clear();
-            PlayerDTO[] players = new Gson().fromJson(payload, PlayerDTO[].class);
+            UserDTO[] players = gson.fromJson(payload, UserDTO[].class);
             for (int i = 0; i < players.length; i++) {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("LeaderboardItem.fxml"));
@@ -364,6 +369,8 @@ public class HomePageController implements ServerListener {
     private void handleGameJoin(JsonElement json) {
         try {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
+            PlayerDTO[] playerDTO = gson.fromJson(json, PlayerDTO[].class);
+            controller.initPlayers(Player.fromPlayerDto(playerDTO[0]), Player.fromPlayerDto(playerDTO[1]));
             System.out.println("Join game:\n" + json);
         } catch (IOException ex) {
             System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
