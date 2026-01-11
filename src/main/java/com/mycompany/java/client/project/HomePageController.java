@@ -7,7 +7,6 @@ import com.mycompany.java.client.project.data.Response;
 import com.mycompany.java.client.project.data.ServerConnection;
 import com.mycompany.java.client.project.data.ServerListener;
 import dto.PlayerDTO;
-import enums.PlayerType;
 import enums.RequestType;
 import static enums.ResponseType.JOIN_GAME;
 import java.io.IOException;
@@ -15,7 +14,6 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
@@ -26,10 +24,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import util.DialogUtil;
 
 public class HomePageController implements ServerListener {
@@ -64,16 +59,19 @@ public class HomePageController implements ServerListener {
 
         logoImage.setImage(new Image(getClass().getResourceAsStream("/assets/xo.png")));
 
-        con = ServerConnection.getConnection();
-        con.setListener(this);
+        try {
+            ServerConnection conn = ServerConnection.getConnection();
+            conn.setListener(this);
+            conn.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
+            conn.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
+        } catch (IOException e) {
+            Platform.runLater(() -> {
+                loginButton.setDisable(true);
+                handleServerOffline();
+            });
+        }
 
         updateUIState();
-
-        ServerConnection conn = ServerConnection.getConnection();
-        conn.setListener(this);
-        conn.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
-        conn.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
-
     }
 
     private void updateUIState() {
@@ -161,7 +159,11 @@ public class HomePageController implements ServerListener {
     @FXML
     private void navigateToLoginPage(ActionEvent event) {
         if (App.IsLoggedIn()) {
-            ServerConnection.getConnection().sendRequest(new Request(RequestType.LOGOUT, null));
+            try {
+                ServerConnection.getConnection().sendRequest(new Request(RequestType.LOGOUT, null));
+            } catch (IOException ex) {
+                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
             App.setLoggedIn(false);
             updateUIState();
         } else {
