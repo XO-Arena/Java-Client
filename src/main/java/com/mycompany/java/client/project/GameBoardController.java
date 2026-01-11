@@ -20,11 +20,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javafx.animation.ScaleTransition;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.TextField;
 import javafx.scene.image.WritableImage;
@@ -34,9 +33,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeLineCap;
 import javax.imageio.ImageIO;
-
-import javafx.util.Duration;
 import javafx.scene.layout.Pane;
+import javafx.util.Duration;
 
 public class GameBoardController {
 
@@ -111,6 +109,25 @@ public class GameBoardController {
         highlightCurrentPlayer();
     }
 
+    public void continueSession(GameSession existingSession, Player p1, Player p2) {
+        this.session = existingSession;
+        this.player1 = p1;
+        this.player2 = p2;
+
+        // Start a new game in the same session
+        session.startNewGame();
+
+        player1Name.setText(player1.getUsername());
+        player2Name.setText(player2.getUsername());
+
+        // Reset the board UI
+        resetBoard();
+        updateBoardUI();
+        updateScoreUI();
+        highlightCurrentPlayer();
+    }
+    
+    // is that important too ??
     public void initDummyPlayers(PlayerType type) {
         initPlayers(
                 new Player(
@@ -260,6 +277,7 @@ public class GameBoardController {
             case DRAW:
                 disableBoard();
                 updateScoreUI();
+                navigateToGameResult();
                 break;
         }
         Platform.runLater(this::takeBoardScreenshot);
@@ -298,6 +316,24 @@ public class GameBoardController {
         }
 
         drawWinningLine(winningButtons);
+        // TODO: navigate to the game result 
+        // now we want to navigate the names with its score 
+        navigateToGameResult();
+    }
+
+    private void navigateToGameResult() {
+
+        // make a little delay to show the winning line
+        PauseTransition pause = new PauseTransition(Duration.seconds(2));
+        pause.setOnFinished(e -> {
+            try {
+                GameResultController controller = App.setRoot("gameResult").getController();
+                controller.initGameResult(session, player1, player2);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+        pause.play();
     }
 
     private void drawWinningLine(List<Button> cells) {
@@ -388,19 +424,33 @@ public class GameBoardController {
         }
     }
 
-
     private void disableBoard() {
         for (Button btn : buttonsMap.values()) {
             btn.setDisable(true);
         }
     }
+    
+    private void resetBoard() {
+        // Clear the winning line if it exists
+        if (gridOverlay != null) {
+            gridOverlay.getChildren().removeIf(n -> n instanceof Line);
+        }
 
+        // Re-enable and clear all buttons
+        for (Button btn : buttonsMap.values()) {
+            btn.setDisable(false);
+            btn.setText("");
+            btn.getStyleClass().removeAll("x-style", "o-style", "win-cell", "winning-cell-p1", "winning-cell-p2");
+        }
+    }
+    // is it important ??
     private void showAlert(String message) {
         System.out.println(message);
     }
 
     @FXML
     private void leaveGame(ActionEvent event) {
+        // TODO: handle the alert dialog not enter sudinly 
         try {
             App.setRoot("homePage");
         } catch (IOException ex) {
