@@ -1,17 +1,20 @@
 package com.mycompany.java.client.project;
 
 import enums.UserState;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Circle;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 
 public class PlayerItemController {
-     @FXML
+
+    @FXML
     private Label playerNameLabel;
-    
+
     @FXML
     private Button actionButton;
 
@@ -24,34 +27,38 @@ public class PlayerItemController {
     @FXML
     private ImageView playerAvatar;
 
-    private java.util.function.Consumer<String> onInviteHandler;
-
+    private HomePageController homeController;
     @FXML
+    private AnchorPane playerItemContainer;
+
     public void initialize() {
         playerAvatar.setImage(
-            new Image(getClass().getResourceAsStream(
-                "/assets/avatar.png"
-            ))
+                new Image(getClass().getResourceAsStream(
+                        "/assets/avatar.png"
+                ))
         );
         
-        actionButton.setOnAction(event -> {
-            if ("Invite".equals(actionButton.getText()) && onInviteHandler != null) {
-                onInviteHandler.accept(playerNameLabel.getText());
-            }
-        });
+    }
+    
+    
+    public void setHomeController(HomePageController controller) {
+        this.homeController = controller;
     }
 
-    public void setOnInviteHandler(java.util.function.Consumer<String> handler) {
-        this.onInviteHandler = handler;
+    public void setActionButtonName(String actionButtonName) {
+        actionButton.setText(actionButtonName);
     }
-   
+
+    public Button getActionButton() {
+        return actionButton;
+    }
 
     public void setPlayerName(String name) {
         playerNameLabel.setText(name);
     }
-    
+
     public void setButtonText(UserState state) {
-        switch(state){
+        switch (state) {
             case ONLINE:
                 actionButton.setText("Invite");
                 break;
@@ -64,7 +71,7 @@ public class PlayerItemController {
     }
 
     public void setPlayerStatus(UserState state) {
-         switch(state){
+        switch (state) {
             case ONLINE:
                 playerStatusLabel.setText("ready");
                 statusIndicator.setStyle("-fx-fill: #55ff55;");
@@ -78,5 +85,13 @@ public class PlayerItemController {
         }
     }
 
-   
+    @FXML
+    private void handleActionButton(ActionEvent event) {
+        String targetPlayer = playerNameLabel.getText();
+        System.out.println("hunter");
+        if (homeController != null) {
+            homeController.sendInvite(targetPlayer, this);
+        }
+    }
+
 }

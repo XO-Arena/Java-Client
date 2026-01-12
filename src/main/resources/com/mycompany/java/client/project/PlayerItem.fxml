@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 
-<AnchorPane fx:id="playerItemContainer" stylesheets="@/styles/playeritem.css" prefWidth="280.0" styleClass="player-item-card" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.java.client.project.PlayerItemController">
+<AnchorPane fx:id="playerItemContainer" prefWidth="280.0" styleClass="player-item-card" stylesheets="@/styles/playeritem.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.java.client.project.PlayerItemController">
    <children>
       <HBox alignment="CENTER_LEFT" spacing="12.0" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="8.0">
          <children>
@@ -27,7 +27,7 @@
                </children>
             </VBox>
 
-            <Button fx:id="actionButton" mnemonicParsing="false" styleClass="item-action-button" text="Watch" />
+            <Button fx:id="actionButton" mnemonicParsing="false" onAction="#handleActionButton" styleClass="item-action-button" text="Watch" />
             
          </children>
       </HBox>
