@@ -36,6 +36,8 @@ public class GameCardItemController implements Initializable {
     
     private GameRecord gameRecord;
     private Consumer<GameRecord> onPlayCallback;
+    @FXML
+    private Button deleteButton;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -97,5 +99,9 @@ public class GameCardItemController implements Initializable {
      */
     public GameRecord getGameRecord() {
         return gameRecord;
+    }
+
+    @FXML
+    private void handleDelete(ActionEvent event) {
     }
 }

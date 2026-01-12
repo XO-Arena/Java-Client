@@ -154,6 +154,31 @@
     -fx-scale-x: 1.0;
     -fx-scale-y: 1.0;
 }
+.delete-button {
+    -fx-background-color: #ef4444;   /* Red - Delete */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 50;
+    -fx-border-radius: 50;
+    -fx-min-width: 46;
+    -fx-min-height: 46;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.45), 10, 0, 0, 3);
+}
+
+/* Hover */
+.delete-button:hover {
+    -fx-background-color: #dc2626;   /* Darker red */
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+}
+
+/* Pressed */
+.delete-button:pressed {
+    -fx-background-color: #b91c1c;   /* Deep red */
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
 
 
 .empty-state-title {

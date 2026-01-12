@@ -6,34 +6,38 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
 
-<HBox xmlns="http://javafx.com/javafx/19" 
-      xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="com.mycompany.java.client.project.GameCardItemController"
-      styleClass="game-card" 
-      alignment="CENTER_LEFT" 
-      spacing="20.0">
+<HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="game-card" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.java.client.project.GameCardItemController">
     
     <VBox spacing="8.0" HBox.hgrow="ALWAYS">
-        <HBox spacing="10.0" alignment="CENTER_LEFT">
-            <Label fx:id="player1Label" text="Player 1" styleClass="player-name-primary" />
-            <Label text="vs" styleClass="vs-label" />
-            <Label fx:id="player2Label" text="Player 2" styleClass="player-name-secondary" />
+        <HBox alignment="CENTER_LEFT" spacing="10.0">
+            <Label fx:id="player1Label" styleClass="player-name-primary" text="Player 1" />
+            <Label styleClass="vs-label" text="vs" />
+            <Label fx:id="player2Label" styleClass="player-name-secondary" text="Player 2" />
         </HBox>
         
-        <HBox spacing="15.0" alignment="CENTER_LEFT">
-            <Label text="Winner:" styleClass="game-info-label" />
-            <Label fx:id="winnerLabel" text="Winner" styleClass="winner-label" />
-            <Label text="•" styleClass="separator" />
-            <Label fx:id="dateLabel" text="Date" styleClass="game-info-label" />
-            <Label text="•" styleClass="separator" />
-            <Label fx:id="movesLabel" text="0 moves" styleClass="game-info-label" />
+        <HBox alignment="CENTER_LEFT" spacing="15.0">
+            <Label styleClass="game-info-label" text="Winner:" />
+            <Label fx:id="winnerLabel" styleClass="winner-label" text="Winner" />
+            <Label styleClass="separator" text="•" />
+            <Label fx:id="dateLabel" styleClass="game-info-label" text="Date" />
+            <Label styleClass="separator" text="•" />
+            <Label fx:id="movesLabel" styleClass="game-info-label" text="0 moves" />
         </HBox>
     </VBox>
     
-    <Button fx:id="playButton" styleClass="play-button" onAction="#handlePlay">
+    <Button fx:id="playButton" onAction="#handlePlay" styleClass="play-button">
         <graphic>
             <SVGPath content="M8 5v14l11-7z" fill="white" scaleX="1.5" scaleY="1.5" />
         </graphic>
     </Button>
+   <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#handleDelete" styleClass="delete-button">
+
+    <graphic>
+        <SVGPath
+            content="M3 6h18 M8 6v12 M12 6v12 M16 6v12 M5 6l1-2h12l1 2 M6 6v14c0 1 1 2 2 2h8c1 0 2-1 2-2V6" fill="white" scaleX="1.2" scaleY="1.2"/>
+    </graphic>
+
+</Button>
+
     
 </HBox>
