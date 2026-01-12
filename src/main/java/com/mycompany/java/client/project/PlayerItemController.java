@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.shape.Circle;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 
 public class PlayerItemController {
 
@@ -27,8 +28,9 @@ public class PlayerItemController {
     private ImageView playerAvatar;
 
     private HomePageController homeController;
-
     @FXML
+    private AnchorPane playerItemContainer;
+
     public void initialize() {
         playerAvatar.setImage(
                 new Image(getClass().getResourceAsStream(
@@ -86,7 +88,7 @@ public class PlayerItemController {
     @FXML
     private void handleActionButton(ActionEvent event) {
         String targetPlayer = playerNameLabel.getText();
-
+        System.out.println("hunter");
         if (homeController != null) {
             homeController.sendInvite(targetPlayer, this);
         }
