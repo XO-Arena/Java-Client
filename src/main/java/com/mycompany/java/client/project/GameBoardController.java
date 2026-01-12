@@ -1,8 +1,19 @@
 package com.mycompany.java.client.project;
 
+import com.google.gson.Gson;
+import com.mycompany.java.client.project.data.Request;
+import com.mycompany.java.client.project.data.Response;
+import com.mycompany.java.client.project.data.ServerConnection;
+import com.mycompany.java.client.project.data.ServerListener;
+import dto.GameSessionDTO;
+import dto.MoveDTO;
 import enums.GameResult;
 import enums.PlayerSymbol;
 import enums.PlayerType;
+import enums.RequestType;
+import enums.ResponseType;
+import enums.SessionStatus;
+import enums.SessionType;
 import enums.UserGender;
 import models.GameSession;
 import models.Move;
@@ -44,7 +55,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import util.DialogUtil;
 
-public class GameBoardController {
+public class GameBoardController implements ServerListener {
 
     @FXML
     private Button btn00, btn01, btn02,
@@ -85,6 +96,8 @@ public class GameBoardController {
     @FXML
     private TextField label_turn;
 
+    private PauseTransition navigationPause;
+
     public void initialize() {
         initButtonsMap();
     }
@@ -108,6 +121,21 @@ public class GameBoardController {
         player2 = opponent;
 
         session = new GameSession(player1, player2, player2.getType().getSessionType());
+
+        player1Name.setText(player1.getUsername());
+        player2Name.setText(player2.getUsername());
+
+        updateBoardUI();
+        updateScoreUI();
+        highlightCurrentPlayer();
+    }
+
+    public void initPlayers(Player player, Player opponent, enums.SessionType type) {
+
+        player1 = player;
+        player2 = opponent;
+
+        session = new GameSession(player1, player2, type);
 
         player1Name.setText(player1.getUsername());
         player2Name.setText(player2.getUsername());
@@ -179,6 +207,17 @@ public class GameBoardController {
 
         int row = Character.getNumericValue(id.charAt(3));
         int col = Character.getNumericValue(id.charAt(4));
+
+        if (session.getSessionType() == enums.SessionType.ONLINE) {
+            try {
+                MoveDTO moveDTO = new MoveDTO(session.getSessionId(), row, col, current.getSymbol());
+                Request req = new Request(RequestType.MAKE_MOVE, new Gson().toJsonTree(moveDTO));
+                ServerConnection.getConnection().sendRequest(req);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
 
         boolean played = session.playMove(row, col);
         if (!played) {
@@ -254,6 +293,9 @@ public class GameBoardController {
                     btn.setText("O");
                     btn.getStyleClass().add("o-style");
                     btn.setDisable(true);
+                } else {
+                    btn.setText("");
+                    btn.setDisable(false);
                 }
             }
         }
@@ -332,8 +374,8 @@ public class GameBoardController {
     private void navigateToGameResult() {
 
         // make a little delay to show the winning line
-        PauseTransition pause = new PauseTransition(Duration.seconds(2));
-        pause.setOnFinished(e -> {
+        navigationPause = new PauseTransition(Duration.seconds(2));
+        navigationPause.setOnFinished(e -> {
             try {
                 GameResultController controller = App.setRoot("gameResult").getController();
                 controller.initGameResult(session, player1, player2);
@@ -341,7 +383,7 @@ public class GameBoardController {
                 ex.printStackTrace();
             }
         });
-        pause.play();
+        navigationPause.play();
     }
 
     private void drawWinningLine(List<Button> cells) {
@@ -452,11 +494,6 @@ public class GameBoardController {
         }
     }
 
-    // is it important ??
-    private void showAlert(String message) {
-        System.out.println(message);
-    }
-
     @FXML
     private void leaveGame(ActionEvent event) {
 
@@ -470,7 +507,13 @@ public class GameBoardController {
                 "Cancel",
                 () -> { // Primary action
                     try {
+                        if (navigationPause != null) {
+                            navigationPause.stop();
+                        }
+                        ServerConnection.getConnection().setListener(null);
+
                         DialogUtil.closeCurrentDialog();
+                        session.leaveMatch();
                         App.setRoot("homePage");
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -480,6 +523,112 @@ public class GameBoardController {
                     DialogUtil.closeCurrentDialog();
                 }
         );
+    }
+
+    public void initOnlineGame(GameSessionDTO dto) {
+        Player p1 = Player.fromPlayerDto(dto.getPlayer1());
+        Player p2 = Player.fromPlayerDto(dto.getPlayer2());
+
+        String myUsername = App.getCurrentUser().getUsername();
+        if (p1.getUsername().equals(myUsername)) {
+            p1.setType(PlayerType.LOCAL);
+            p2.setType(PlayerType.ONLINE);
+        } else {
+            p1.setType(PlayerType.ONLINE);
+            p2.setType(PlayerType.LOCAL);
+        }
+
+        initPlayers(p1, p2, enums.SessionType.ONLINE);
+        session.setSessionId(dto.getSessionId());
+
+        // Update session with scores from DTO
+        session.setPlayer1Wins(dto.getPlayer1Wins());
+        session.setPlayer2Wins(dto.getPlayer2Wins());
+        session.setDrawCount(dto.getDraws());
+        updateScoreUI();
+
+        try {
+            ServerConnection.getConnection().setListener(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onMessage(Response response) {
+        if (response.getType() != null) {
+            switch (response.getType()) {
+                case GAME_UPDATE: {
+                    GameSessionDTO dto = new Gson().fromJson(response.getPayload(), GameSessionDTO.class);
+                    Platform.runLater(() -> updateSession(dto));
+                    break;
+                }
+                case GAME_ENDED: {
+                    GameSessionDTO dto = new Gson().fromJson(response.getPayload(), GameSessionDTO.class);
+                    Platform.runLater(() -> updateSession(dto));
+                    break;
+                }
+                case ERROR:
+                    System.out.println("Server Error: " + response.getPayload());
+                    // Optional: Show alert to user?
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void onDisconnect() {
+        if (session.getSessionType() == SessionType.ONLINE) {
+            Platform.runLater(() -> {
+                DialogUtil.showBrandedDialog("Disconnected", "Lost connection to server.", true, false, "OK", "", () -> {
+                    try {
+                        App.setLoggedIn(false);
+                        App.setCurrentUser(null);
+                        App.setRoot("homePage");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }, null);
+            });
+        }
+    }
+
+    private void updateSession(GameSessionDTO dto) {
+        session.getGame().getBoard().setCells(dto.getBoard().getCells());
+        session.getGame().getBoard().setWinCode(dto.getBoard().getWinCode());
+
+        session.setPlayer1Wins(dto.getPlayer1Wins());
+        session.setPlayer2Wins(dto.getPlayer2Wins());
+        session.setDrawCount(dto.getDraws());
+        session.getGame().setCurrentPlayer(dto.getCurrentTurn());
+
+        if (dto.getStatus() == SessionStatus.FINISHED) {
+            session.getGame().setHasEnded(true);
+        }
+
+        updateBoardUI();
+        updateScoreUI();
+        highlightCurrentPlayer();
+
+        if (dto.getStatus() == SessionStatus.FINISHED || dto.getResult() != GameResult.NONE) {
+            session.setLastResult(dto.getResult());
+
+            if (dto.getResult() != GameResult.NONE) {
+                if (dto.getResult() == GameResult.X_WIN || dto.getResult() == GameResult.O_WIN) {
+                    highlightWinningCells();
+                }
+                disableBoard();
+                updateScoreUI();
+
+                if (dto.getBoard().getWinCode() == null && dto.getResult() != GameResult.DRAW) {
+                    navigateToGameResult();
+                } else if (dto.getResult() == GameResult.DRAW) {
+                    navigateToGameResult();
+                }
+            }
+        }
     }
 
 }

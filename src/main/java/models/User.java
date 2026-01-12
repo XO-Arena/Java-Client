@@ -1,5 +1,6 @@
 package models;
 
+import dto.UserDTO;
 import enums.UserGender;
 import enums.UserState;
 
@@ -14,6 +15,17 @@ public class User {
         this.username = username;
         this.gender = gender;
         this.score = score;
+    }
+    
+    public User(String username, UserGender gender, int score, UserState state) {
+        this.username = username;
+        this.gender = gender;
+        this.score = score;
+        this.state = state;
+    }
+    
+    public static User fromUserDTO(UserDTO userDTO) {
+        return new User(userDTO.getUsername(), userDTO.getGender(), userDTO.getScore(), userDTO.getState());
     }
 
     public String getUsername() {

@@ -1,8 +1,12 @@
 package models;
 
+import com.mycompany.java.client.project.data.Request;
+import com.mycompany.java.client.project.data.ServerConnection;
 import enums.GameResult;
 import enums.PlayerSymbol;
+import enums.RequestType;
 import enums.SessionType;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +24,10 @@ public class GameSession {
     private GameResult lastResult;
     private List<Player> spectatorsList;
     private MoveProvider moveProvider;
+    
+    private String sessionId;
+    
+    private ServerConnection con;
 
     public GameSession(Player player1, Player player2, SessionType type) {
         this.player1 = player1;
@@ -30,6 +38,14 @@ public class GameSession {
         this.player1Wins = this.player2Wins = this.drawCount = 0;
 
         this.spectatorsList = new ArrayList<>();
+        
+        if (sessionType == SessionType.ONLINE) {
+            try {
+                con = ServerConnection.getConnection();
+            } catch (IOException ex) {
+                System.getLogger(GameSession.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        }
         
         switch(type) {
             case LOCAL:
@@ -56,6 +72,33 @@ public class GameSession {
     public Game getGame(){return this.game;}
     public int getPlayer1Wins(){return this.player1Wins;}
     public int getPlayer2Wins(){return this.player2Wins;}
+
+    public void setPlayer1Wins(int player1Wins) {
+        this.player1Wins = player1Wins;
+    }
+
+    public void setPlayer2Wins(int player2Wins) {
+        this.player2Wins = player2Wins;
+    }
+
+    public void setDrawCount(int drawCount) {
+        this.drawCount = drawCount;
+    }
+    
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+    
+    public void leaveMatch() {
+        if (con != null) {
+            com.google.gson.JsonPrimitive payload = new com.google.gson.JsonPrimitive(sessionId);
+            con.sendRequest(new Request(RequestType.LEAVE_GAME, payload));
+        }
+    }
     
     public boolean playMove(int row ,int col) {
 
@@ -133,6 +176,10 @@ public class GameSession {
 
     public GameResult getLastResult() {
         return lastResult;
+    }
+    
+    public void setLastResult(GameResult result) {
+        this.lastResult = result;
     }
 
     public boolean isGameEnded() {

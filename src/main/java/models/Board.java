@@ -24,6 +24,14 @@ public class Board {
         return cells;
     }
 
+    public void setCells(PlayerSymbol[][] cells) {
+        this.cells = cells;
+    }
+    
+    public void setWinCode(String winCode) {
+        this.winCode = winCode;
+    }
+
     public boolean isEmpty(int row, int col) {
         return cells[row][col] == null;
     }

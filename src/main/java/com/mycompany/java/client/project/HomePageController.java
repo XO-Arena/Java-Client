@@ -7,9 +7,12 @@ import com.mycompany.java.client.project.data.Response;
 import com.mycompany.java.client.project.data.ServerConnection;
 import com.mycompany.java.client.project.data.ServerListener;
 import dto.PlayerDTO;
+import dto.UserDTO;
+import dto.GameSessionDTO;
 import enums.RequestType;
 import static enums.ResponseType.JOIN_GAME;
 import java.io.IOException;
+import java.util.List;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,6 +28,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import models.Player;
 import util.DialogUtil;
 
 public class HomePageController implements ServerListener {
@@ -53,11 +57,13 @@ public class HomePageController implements ServerListener {
 
     private ServerConnection con;
     private Stage currentDialogStage;
+    private Gson gson;
 
     @FXML
     public void initialize() {
 
         logoImage.setImage(new Image(getClass().getResourceAsStream("/assets/xo.png")));
+        gson = new Gson();
 
         try {
             con = ServerConnection.getConnection();
@@ -106,8 +112,8 @@ public class HomePageController implements ServerListener {
         // Clear list first to avoid duplicates if needed, assuming payload is full list
         Platform.runLater(() -> {
             onlinePlayersList.getItems().clear();
-            PlayerDTO[] availablePlayers = new Gson().fromJson(payload, PlayerDTO[].class);
-            for (PlayerDTO availablePlayer : availablePlayers) {
+            UserDTO[] availablePlayers = gson.fromJson(payload, UserDTO[].class);
+            for (UserDTO availablePlayer : availablePlayers) {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("PlayerItem.fxml"));
                     AnchorPane playerItem = loader.load();
@@ -134,7 +140,7 @@ public class HomePageController implements ServerListener {
     private void updateLeaderboard(JsonElement payload) {
         Platform.runLater(() -> {
             leaderboardList.getItems().clear();
-            PlayerDTO[] players = new Gson().fromJson(payload, PlayerDTO[].class);
+            UserDTO[] players = gson.fromJson(payload, UserDTO[].class);
             for (int i = 0; i < players.length; i++) {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("LeaderboardItem.fxml"));
@@ -179,16 +185,28 @@ public class HomePageController implements ServerListener {
     @FXML
     private void navigateToOnlineGameBoardPage(ActionEvent event) {
         Request request = new Request(RequestType.QUICK_GAME);
-        con.sendRequest(request);
-        DialogUtil.showBrandedDialog("Quick Game",
-                "Looking for a player...\nYou will enter the game in a while...",
-                false, true,
-                "", "Cancel",
-                null,
-                () -> {
-                    con.sendRequest(new Request(RequestType.LEAVE_QUEUE));
-                }
-        );
+        if (con.sendRequest(request)) {
+            DialogUtil.showBrandedDialog("Quick Game",
+                    "Looking for a player...\nYou will enter the game in a while...",
+                    false, true,
+                    "", "Cancel",
+                    null,
+                    () -> {
+                        con.sendRequest(new Request(RequestType.LEAVE_QUEUE));
+                    }
+            );
+        } else {
+            DialogUtil.showBrandedDialog("Connection failed",
+                    "Unable to connect to the server.",
+                    true, true,
+                    "Retry", "Cancel",
+                    () -> {
+                        navigateToOnlineGameBoardPage(event);
+                    },
+                    () -> {
+
+                    });
+        }
     }
 
     @FXML
@@ -235,6 +253,10 @@ public class HomePageController implements ServerListener {
             case JOIN_GAME:
                 DialogUtil.closeCurrentDialog();
                 handleGameJoin(response.getPayload());
+                break;
+            case GAME_STARTED:
+                DialogUtil.closeCurrentDialog();
+                handleGameStarted(response.getPayload());
                 break;
             case INVITE_RECEIVED:
                 break;
@@ -352,7 +374,19 @@ public class HomePageController implements ServerListener {
     private void handleGameJoin(JsonElement json) {
         try {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
+            PlayerDTO[] playerDTO = gson.fromJson(json, PlayerDTO[].class);
+            controller.initPlayers(Player.fromPlayerDto(playerDTO[0]), Player.fromPlayerDto(playerDTO[1]));
             System.out.println("Join game:\n" + json);
+        } catch (IOException ex) {
+            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }
+    
+    private void handleGameStarted(JsonElement json) {
+        try {
+            GameBoardController controller = App.setRoot("GameBoardPage").getController();
+            GameSessionDTO dto = gson.fromJson(json, GameSessionDTO.class);
+            controller.initOnlineGame(dto);
         } catch (IOException ex) {
             System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
