@@ -661,6 +661,14 @@ public class GameBoardController implements ServerListener {
         session.setPlayer2Wins(dto.getPlayer2Wins());
         session.setDrawCount(dto.getDraws());
         session.getGame().setCurrentPlayer(dto.getCurrentTurn());
+        
+        String currentUser = App.getCurrentUser().getUsername();
+        boolean isP1 = session.getPlayer1().getUsername().equals(currentUser);
+        if (isP1) {
+            session.setOpponentLeft(dto.isPlayer2Left());
+        } else {
+            session.setOpponentLeft(dto.isPlayer1Left());
+        }
 
         if (dto.getStatus() == SessionStatus.FINISHED) {
             session.getGame().setHasEnded(true);
