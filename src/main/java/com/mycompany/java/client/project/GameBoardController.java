@@ -539,6 +539,12 @@ public class GameBoardController implements ServerListener {
 
         initPlayers(p1, p2, enums.SessionType.ONLINE);
         session.setSessionId(dto.getSessionId());
+        
+        // Update session with scores from DTO
+        session.setPlayer1Wins(dto.getPlayer1Wins());
+        session.setPlayer2Wins(dto.getPlayer2Wins());
+        session.setDrawCount(dto.getDraws());
+        updateScoreUI();
 
         try {
             ServerConnection.getConnection().setListener(this);

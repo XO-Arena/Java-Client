@@ -1,18 +1,28 @@
 package com.mycompany.java.client.project;
 
+import com.google.gson.Gson;
+import com.mycompany.java.client.project.data.Request;
+import com.mycompany.java.client.project.data.Response;
+import com.mycompany.java.client.project.data.ServerConnection;
+import com.mycompany.java.client.project.data.ServerListener;
+import dto.GameSessionDTO;
 import enums.GameResult;
-import enums.PlayerSymbol;
+import enums.RequestType;
+import enums.ResponseType;
+import enums.SessionType;
 import models.GameSession;
 import models.Player;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import util.DialogUtil;
 
@@ -21,8 +31,7 @@ import util.DialogUtil;
  *
  * @author mohan
  */
-public class GameResultController implements Initializable {
-
+public class GameResultController implements Initializable, ServerListener {
     @FXML
     private Circle player1Avatar;
     @FXML
@@ -59,6 +68,15 @@ public class GameResultController implements Initializable {
         this.session = gameSession;
         this.player1 = p1;
         this.player2 = p2;
+        
+        if (session.getSessionType() == SessionType.ONLINE) {
+             try {
+                ServerConnection.getConnection().setListener(this);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        
         displayPlayerInfo();
         displayGameResult();
     }
@@ -96,6 +114,20 @@ public class GameResultController implements Initializable {
 
     @FXML
     private void handleRematch(ActionEvent event) {
+        if (session.getSessionType() == SessionType.ONLINE) {
+            Button btn = (Button) event.getSource();
+            btn.setDisable(true);
+            btn.setText("Waiting...");
+            
+            try {
+                Request req = new Request(RequestType.REMATCH_REQUEST, new Gson().toJsonTree(session.getSessionId()));
+                ServerConnection.getConnection().sendRequest(req);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            return;
+        }
+        
         try {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
             // send the current session to increase the wins and loses
@@ -134,5 +166,34 @@ public class GameResultController implements Initializable {
                 }
         );
 
+    }
+
+    @Override
+    public void onMessage(Response response) {
+        if (response.getType() == ResponseType.REMATCH_REQUESTED) {
+            Platform.runLater(() -> {
+                 Pane parent = (Pane) player1Name.getScene().getRoot();
+                 Label msg = new Label("Opponent wants a rematch!");
+                 msg.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10px; -fx-background-radius: 5px;");
+                 msg.setLayoutX(parent.getWidth() / 2 - 100);
+                 msg.setLayoutY(parent.getHeight() - 100);
+                 parent.getChildren().add(msg);
+            });
+        } else if (response.getType() == ResponseType.GAME_STARTED || response.getType() == ResponseType.GAME_UPDATE) {
+             GameSessionDTO dto = new Gson().fromJson(response.getPayload(), GameSessionDTO.class);
+             Platform.runLater(() -> {
+                 try {
+                    GameBoardController controller = App.setRoot("GameBoardPage").getController();
+                    controller.initOnlineGame(dto);
+                 } catch (IOException ex) {
+                    ex.printStackTrace();
+                 }
+             });
+        }
+    }
+
+    @Override
+    public void onDisconnect() {
+        // Handle disconnect if needed
     }
 }

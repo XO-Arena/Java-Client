@@ -12,5 +12,6 @@ public enum RequestType {
     GET_LEADERBOARD, 
     GET_ONLINE_PLAYERS,
     LEAVE_QUEUE,
-    LOGOUT
+    LOGOUT,
+    REMATCH_REQUEST
 }
