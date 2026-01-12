@@ -23,6 +23,10 @@ public class Game {
         return currentPlayer;
     }
 
+    public void setCurrentPlayer(PlayerSymbol currentPlayer) {
+        this.currentPlayer = currentPlayer;
+    }
+
     public boolean playMove(int row, int col) {
 
         if (!board.isEmpty(row, col)) {

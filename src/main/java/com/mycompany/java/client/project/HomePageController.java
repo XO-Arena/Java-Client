@@ -8,6 +8,7 @@ import com.mycompany.java.client.project.data.ServerConnection;
 import com.mycompany.java.client.project.data.ServerListener;
 import dto.PlayerDTO;
 import dto.UserDTO;
+import dto.GameSessionDTO;
 import enums.RequestType;
 import static enums.ResponseType.JOIN_GAME;
 import java.io.IOException;
@@ -253,6 +254,10 @@ public class HomePageController implements ServerListener {
                 DialogUtil.closeCurrentDialog();
                 handleGameJoin(response.getPayload());
                 break;
+            case GAME_STARTED:
+                DialogUtil.closeCurrentDialog();
+                handleGameStarted(response.getPayload());
+                break;
             case INVITE_RECEIVED:
                 break;
             case INVITE_REJECTED:
@@ -372,6 +377,16 @@ public class HomePageController implements ServerListener {
             PlayerDTO[] playerDTO = gson.fromJson(json, PlayerDTO[].class);
             controller.initPlayers(Player.fromPlayerDto(playerDTO[0]), Player.fromPlayerDto(playerDTO[1]));
             System.out.println("Join game:\n" + json);
+        } catch (IOException ex) {
+            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }
+    
+    private void handleGameStarted(JsonElement json) {
+        try {
+            GameBoardController controller = App.setRoot("GameBoardPage").getController();
+            GameSessionDTO dto = gson.fromJson(json, GameSessionDTO.class);
+            controller.initOnlineGame(dto);
         } catch (IOException ex) {
             System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }

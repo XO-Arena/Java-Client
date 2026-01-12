@@ -29,6 +29,10 @@ public class Player extends User {
     public PlayerType getType() {
         return this.type;
     }
+    
+    public void setType(PlayerType type) {
+        this.type = type;
+    }
 
     public PlayerSymbol getSymbol() {
         return symbol;
