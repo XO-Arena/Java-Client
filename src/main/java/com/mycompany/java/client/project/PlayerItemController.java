@@ -24,7 +24,7 @@ public class PlayerItemController {
     @FXML
     private ImageView playerAvatar;
 
-    private java.util.function.Consumer<String> onInviteHandler;
+    private HomePageController homeController;
 
     @FXML
     public void initialize() {
@@ -34,17 +34,21 @@ public class PlayerItemController {
             ))
         );
         
-        actionButton.setOnAction(event -> {
-            if ("Invite".equals(actionButton.getText()) && onInviteHandler != null) {
-                onInviteHandler.accept(playerNameLabel.getText());
-            }
-        });
+    }
+    
+    
+    public void setHomeController(HomePageController controller) {
+        this.homeController = controller;
     }
 
-    public void setOnInviteHandler(java.util.function.Consumer<String> handler) {
-        this.onInviteHandler = handler;
+    public void setActionButtonName(String actionButtonName) {
+        actionButton.setText(actionButtonName);
     }
-   
+
+    public Button getActionButton() {
+        return actionButton;
+    }
+
 
     public void setPlayerName(String name) {
         playerNameLabel.setText(name);

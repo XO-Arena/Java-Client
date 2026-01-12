@@ -6,6 +6,7 @@ import com.mycompany.java.client.project.data.Request;
 import com.mycompany.java.client.project.data.Response;
 import com.mycompany.java.client.project.data.ServerConnection;
 import com.mycompany.java.client.project.data.ServerListener;
+import dto.InvitationDTO;
 import dto.PlayerDTO;
 import dto.UserDTO;
 import dto.GameSessionDTO;
@@ -13,22 +14,29 @@ import enums.RequestType;
 import static enums.ResponseType.JOIN_GAME;
 import java.io.IOException;
 import java.util.List;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.Player;
+import javafx.util.Duration;
+import services.InvitationService;
 import util.DialogUtil;
 
 public class HomePageController implements ServerListener {
@@ -55,9 +63,10 @@ public class HomePageController implements ServerListener {
     private Label statusText;
     private ListView<AnchorPane> recordedGamesList;
 
+    private Gson gson;
     private ServerConnection con;
     private Stage currentDialogStage;
-    private Gson gson;
+    private InvitationService invitationService;
 
     @FXML
     public void initialize() {
@@ -67,6 +76,8 @@ public class HomePageController implements ServerListener {
 
         try {
             con = ServerConnection.getConnection();
+            gson = new Gson();
+            this.invitationService = new InvitationService(con, gson, this::showLoadingAndTransition);
             con.setListener(this);
             con.sendRequest(new Request(RequestType.GET_ONLINE_PLAYERS, null));
             con.sendRequest(new Request(RequestType.GET_LEADERBOARD, null));
@@ -121,8 +132,7 @@ public class HomePageController implements ServerListener {
                     controller.setPlayerName(availablePlayer.getUsername());
                     controller.setPlayerStatus(availablePlayer.getState());
                     controller.setButtonText(availablePlayer.getState());
-
-                    controller.setOnInviteHandler(this::handleInvite);
+                    controller.setHomeController(this);
 
                     playerItem.setPrefWidth(onlinePlayersList.getPrefWidth() - 10);
 
@@ -217,7 +227,7 @@ public class HomePageController implements ServerListener {
             System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
-    
+
     @FXML
     private void navigateToRecordedGames(ActionEvent event) {
         try {
@@ -226,7 +236,7 @@ public class HomePageController implements ServerListener {
             System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
-    
+
     @FXML
     private void onPlayVsPcClicked(ActionEvent event) {
         try {
@@ -258,12 +268,18 @@ public class HomePageController implements ServerListener {
                 DialogUtil.closeCurrentDialog();
                 handleGameStarted(response.getPayload());
                 break;
-            case INVITE_RECEIVED:
+                
+            case GAME_INVITE:
+                invitationService.handleReceivedInvite(response.getPayload());
                 break;
-            case INVITE_REJECTED:
-                break;
+
             case INVITE_ACCEPTED:
-                // Do nothing, wait for JOIN_GAME
+                invitationService.onInvitationAccepted(response.getPayload());
+                break;
+
+            case INVITE_REJECTED:
+                Stage stage = (Stage) onlinePlayersList.getScene().getWindow();
+                invitationService.onInvitationRejected(stage);
                 break;
             default:
                 break;
@@ -382,6 +398,8 @@ public class HomePageController implements ServerListener {
         }
     }
     
+    
+    
     private void handleGameStarted(JsonElement json) {
         try {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
@@ -391,4 +409,68 @@ public class HomePageController implements ServerListener {
             System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
+    
+    public void sendInvite(String receiverName, PlayerItemController itemController) {
+        Stage stage = (Stage) onlinePlayersList.getScene().getWindow();
+        String currentUsername = "hunter";
+
+        invitationService.initiateInvitation(receiverName, currentUsername, itemController, stage);
+    }
+
+    private void showLoadingAndTransition(InvitationDTO gameInfo) {
+        Platform.runLater(() -> {
+            Alert loadingAlert = new Alert(Alert.AlertType.NONE);
+            loadingAlert.setTitle("Starting Game");
+
+            ProgressIndicator progressIndicator = new ProgressIndicator();
+            progressIndicator.setStyle("-fx-progress-color: #22c55e;");
+            progressIndicator.setPrefSize(60, 60);
+
+            Label statusLabel = new Label("Joining match against " + gameInfo.getSenderUsername() + "...");
+            statusLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
+
+            VBox loadingVBox = new VBox(25, progressIndicator, statusLabel);
+            loadingVBox.setAlignment(javafx.geometry.Pos.CENTER);
+            loadingVBox.setPadding(new javafx.geometry.Insets(40));
+            loadingVBox.setStyle("-fx-background-color: #0f172a; -fx-background-radius: 15;");
+
+            loadingAlert.getDialogPane().setContent(loadingVBox);
+            loadingAlert.getDialogPane().getStylesheets().add(getClass().getResource("/styles/dialog.css").toExternalForm());
+            loadingAlert.getDialogPane().getStyleClass().add("custom-waiting-pane");
+
+            loadingAlert.show();
+
+            PauseTransition pause = new PauseTransition(Duration.seconds(2));
+            pause.setOnFinished(e -> {
+                loadingAlert.setResult(ButtonType.OK);
+                loadingAlert.hide();
+                loadingAlert.close();
+
+                navigateToGameBoard(gameInfo);
+            });
+            pause.play();
+        });
+    }
+
+    private void navigateToGameBoard(InvitationDTO gameInfo) {
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("GameBoardPage.fxml"));
+                Parent root = loader.load();
+
+                GameBoardController controller = loader.getController();
+
+                if (controller != null) {
+//                    controller.initGameData(gameInfo);
+                }
+
+                App.setRoot(root);
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                System.err.println("Error navigating to GameBoard: " + ex.getMessage());
+            }
+        });
+    }
+
 }

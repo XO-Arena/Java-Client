@@ -7,6 +7,7 @@ import com.mycompany.java.client.project.data.ServerConnection;
 import com.mycompany.java.client.project.data.ServerListener;
 import dto.GameSessionDTO;
 import dto.MoveDTO;
+import dto.InvitationDTO;
 import enums.GameResult;
 import enums.PlayerSymbol;
 import enums.PlayerType;
@@ -115,7 +116,7 @@ public class GameBoardController implements ServerListener {
         buttonsMap.put("22", btn22);
     }
 
-    public void initPlayers(Player player, Player opponent) {
+public void initPlayers(Player player, Player opponent) {
 
         player1 = player;
         player2 = opponent;
@@ -144,7 +145,7 @@ public class GameBoardController implements ServerListener {
         updateScoreUI();
         highlightCurrentPlayer();
     }
-
+        
     public void continueSession(GameSession existingSession, Player p1, Player p2) {
         this.session = existingSession;
         this.player1 = p1;
