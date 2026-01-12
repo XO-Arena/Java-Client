@@ -417,7 +417,7 @@ public class HomePageController implements ServerListener {
     
     public void sendInvite(String receiverName, PlayerItemController itemController) {
         Stage stage = (Stage) onlinePlayersList.getScene().getWindow();
-        String currentUsername = "hunter";
+        String currentUsername = App.getCurrentUser().getUsername();
 
         invitationService.initiateInvitation(receiverName, currentUsername, itemController, stage);
     }
