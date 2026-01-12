@@ -13,6 +13,7 @@ import enums.PlayerType;
 import enums.RequestType;
 import enums.ResponseType;
 import enums.SessionStatus;
+import enums.SessionType;
 import enums.UserGender;
 import models.GameSession;
 import models.Move;
@@ -539,7 +540,7 @@ public class GameBoardController implements ServerListener {
 
         initPlayers(p1, p2, enums.SessionType.ONLINE);
         session.setSessionId(dto.getSessionId());
-        
+
         // Update session with scores from DTO
         session.setPlayer1Wins(dto.getPlayer1Wins());
         session.setPlayer2Wins(dto.getPlayer2Wins());
@@ -579,15 +580,19 @@ public class GameBoardController implements ServerListener {
 
     @Override
     public void onDisconnect() {
-        Platform.runLater(() -> {
-            DialogUtil.showBrandedDialog("Disconnected", "Lost connection to server.", true, false, "OK", "", () -> {
-                try {
-                    App.setRoot("homePage");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }, null);
-        });
+        if (session.getSessionType() == SessionType.ONLINE) {
+            Platform.runLater(() -> {
+                DialogUtil.showBrandedDialog("Disconnected", "Lost connection to server.", true, false, "OK", "", () -> {
+                    try {
+                        App.setLoggedIn(false);
+                        App.setCurrentUser(null);
+                        App.setRoot("homePage");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }, null);
+            });
+        }
     }
 
     private void updateSession(GameSessionDTO dto) {
