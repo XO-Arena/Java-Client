@@ -10,9 +10,11 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Circle;
+import util.DialogUtil;
 
 /**
  * FXML Controller class
@@ -20,16 +22,13 @@ import javafx.scene.shape.Circle;
  * @author mohan
  */
 public class GameResultController implements Initializable {
+
     @FXML
     private Circle player1Avatar;
     @FXML
     private ImageView player1Crown;
     @FXML
     private Label player1Name;
-    @FXML
-    private Label player1Score;
-    @FXML
-    private Label player1ScoreChange;
     @FXML
     private Label player1Symbol;
     @FXML
@@ -39,15 +38,13 @@ public class GameResultController implements Initializable {
     @FXML
     private Label player2Name;
     @FXML
-    private Label player2Score;
-    @FXML
-    private Label player2ScoreChange;
-    @FXML
     private Label player2Symbol;
 
     private GameSession session;
     private Player player1;
     private Player player2;
+    @FXML
+    private Button leaveButton;
 
     /**
      * Initializes the controller class.
@@ -70,12 +67,12 @@ public class GameResultController implements Initializable {
         player1Name.setText(player1.getUsername());
         player2Name.setText(player2.getUsername());
         player1Symbol.setText(player1.getSymbol().toString());
-        player2Symbol.setText(player2.getSymbol().toString());   
+        player2Symbol.setText(player2.getSymbol().toString());
     }
 
     private void displayGameResult() {
         GameResult result = session.getLastResult();
-        
+
         player1Crown.setVisible(false);
         player2Crown.setVisible(false);
 
@@ -111,5 +108,31 @@ public class GameResultController implements Initializable {
 
     @FXML
     private void handleSaveGame(ActionEvent event) {
+    }
+
+    @FXML
+    private void handleLeaveMatch(ActionEvent event) {
+
+        DialogUtil.showBrandedDialog(
+                "Leave Game",
+                "Are you sure you want to leave this match?",
+                true, // show primary
+                true, // show secondary
+
+                "Leave",
+                "Cancel",
+                () -> { // Primary action
+                    try {
+                        DialogUtil.closeCurrentDialog();
+                        App.setRoot("homePage");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                },
+                () -> { // Secondary action
+                    DialogUtil.closeCurrentDialog();
+                }
+        );
+
     }
 }
