@@ -1,6 +1,7 @@
 package com.mycompany.java.client.project;
 
 import enums.UserState;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -9,9 +10,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class PlayerItemController {
-     @FXML
+
+    @FXML
     private Label playerNameLabel;
-    
+
     @FXML
     private Button actionButton;
 
@@ -29,9 +31,9 @@ public class PlayerItemController {
     @FXML
     public void initialize() {
         playerAvatar.setImage(
-            new Image(getClass().getResourceAsStream(
-                "/assets/avatar.png"
-            ))
+                new Image(getClass().getResourceAsStream(
+                        "/assets/avatar.png"
+                ))
         );
         
     }
@@ -49,13 +51,12 @@ public class PlayerItemController {
         return actionButton;
     }
 
-
     public void setPlayerName(String name) {
         playerNameLabel.setText(name);
     }
-    
+
     public void setButtonText(UserState state) {
-        switch(state){
+        switch (state) {
             case ONLINE:
                 actionButton.setText("Invite");
                 break;
@@ -68,7 +69,7 @@ public class PlayerItemController {
     }
 
     public void setPlayerStatus(UserState state) {
-         switch(state){
+        switch (state) {
             case ONLINE:
                 playerStatusLabel.setText("ready");
                 statusIndicator.setStyle("-fx-fill: #55ff55;");
@@ -82,5 +83,13 @@ public class PlayerItemController {
         }
     }
 
-   
+    @FXML
+    private void handleActionButton(ActionEvent event) {
+        String targetPlayer = playerNameLabel.getText();
+
+        if (homeController != null) {
+            homeController.sendInvite(targetPlayer, this);
+        }
+    }
+
 }
