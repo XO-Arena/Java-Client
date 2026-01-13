@@ -9,8 +9,7 @@ import com.mycompany.java.client.project.data.ServerConnection;
 import dto.InvitationDTO;
 import enums.InvitationStatus;
 import enums.RequestType;
-import java.util.Optional;
-
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -32,20 +31,19 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import util.GameTimer;
 
-/**
- *
- * @author Ahmed_El_Sayyad
- */
 public class InvitationService {
 
     private final ServerConnection conn;
     private final Gson gson;
     private final Consumer<InvitationDTO> onGameStart;
+
     private Alert inviteAlert;
     private Alert waitingAlert;
     private PlayerItemController pendingController;
     private static final int TIMEOUT_SECONDS = 10;
     private GameTimer gameTimer;
+
+    private final AtomicBoolean invitationHandled = new AtomicBoolean(false);
 
     public InvitationService(ServerConnection conn, Gson gson, Consumer<InvitationDTO> onGameStart) {
         this.conn = conn;
@@ -56,57 +54,17 @@ public class InvitationService {
     public void initiateInvitation(String receiverName, String currentUsername, PlayerItemController sourceController, Stage stage) {
         this.pendingController = sourceController;
         updateUIForPendingState();
+        invitationHandled.set(false);
+
         try {
             InvitationDTO inviteDTO = new InvitationDTO(currentUsername, receiverName, InvitationStatus.REQUEST);
             Request request = new Request(RequestType.INVITE, gson.toJsonTree(inviteDTO));
             conn.sendRequest(request);
+
             showWaitingPopup(receiverName, stage);
         } catch (Exception e) {
             handleInvitationFailure("Connection error: " + e.getMessage(), stage);
         }
-    }
-
-    public void handleReceivedInvite(JsonElement payload, Stage stage) {
-        InvitationDTO inviteDTO = gson.fromJson(payload, InvitationDTO.class);
-        Platform.runLater(() -> showInviteDialog(inviteDTO, stage));
-    }
-
-    public void onInvitationAccepted(JsonElement payload) {
-        InvitationDTO gameInfo = gson.fromJson(payload, InvitationDTO.class);
-
-        Platform.runLater(() -> {
-            stopInvitationProcess();
-            if (onGameStart != null) {
-                onGameStart.accept(gameInfo);
-            }
-        });
-    }
-
-    public void onInvitationRejected(Stage stage) {
-        Platform.runLater(() -> {
-            stopInvitationProcess();
-            showToast("Challenge Rejected.", stage);
-        });
-    }
-
-    public void stopInvitationProcess() {
-        if (gameTimer != null) {
-            gameTimer.stop();
-        }
-
-        Platform.runLater(() -> {
-            if (waitingAlert != null && waitingAlert.isShowing()) {
-                waitingAlert.close();
-            }
-            if (inviteAlert != null && inviteAlert.isShowing()) {
-                inviteAlert.close();
-            }
-            resetInviteButtons();
-        });
-    }
-
-    private void sendInvitationResponse(InvitationDTO dto, RequestType type) {
-        conn.sendRequest(new Request(type, gson.toJsonTree(dto)));
     }
 
     private void handleInvitationFailure(String message, Stage stage) {
@@ -114,12 +72,47 @@ public class InvitationService {
         showToast(message, stage);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////
-    
-    private void showWaitingPopup(String receiver, Stage stage) {
-        if (gameTimer != null) {
-            gameTimer.stop();
+    public void handleReceivedInvite(JsonElement payload, Stage stage) {
+        InvitationDTO inviteDTO = gson.fromJson(payload, InvitationDTO.class);
+        invitationHandled.set(false);
+        Platform.runLater(() -> showInviteDialog(inviteDTO, stage));
+    }
+
+    public void onInvitationAccepted(JsonElement payload) {
+        InvitationDTO gameInfo = gson.fromJson(payload, InvitationDTO.class);
+
+        if (invitationHandled.compareAndSet(false, true)) {
+            Platform.runLater(() -> {
+                stopInvitationProcess();
+                if (onGameStart != null) {
+                    onGameStart.accept(gameInfo);
+                }
+            });
         }
+    }
+
+    public void onInvitationRejected(Stage stage) {
+        if (invitationHandled.compareAndSet(false, true)) {
+            Platform.runLater(() -> {
+                stopInvitationProcess();
+                showToast("Challenge Rejected.", stage);
+            });
+        }
+    }
+
+    public void handleIncomingCancellation(JsonElement payload, Stage stage) {
+        InvitationDTO inviteDTO = gson.fromJson(payload, InvitationDTO.class);
+        if (invitationHandled.compareAndSet(false, true)) {
+            Platform.runLater(() -> {
+                stopInvitationProcess();
+                showToast("Challenge from " + inviteDTO.getSenderUsername() + " was canceled.", stage);
+            });
+        }
+    }
+
+    private void showWaitingPopup(String receiver, Stage stage) {
+        stopTimer();
+
         Platform.runLater(() -> {
             Label contentLabel = new Label();
             VBox vbox = createStandardVBox("/assets/xo.png", contentLabel);
@@ -133,17 +126,13 @@ public class InvitationService {
 
             gameTimer = new GameTimer(
                     TIMEOUT_SECONDS,
-                    (seconds) -> Platform.runLater(()
-                            -> contentLabel.setText("Waiting for " + receiver + "...\n" + seconds + "s")),
-                    () -> Platform.runLater(() -> {
-                        cancelSentInvitation(receiver);
-//                        showToast("Request to " + receiver + " timed out.", stage);
-                    })
+                    seconds -> Platform.runLater(() -> contentLabel.setText("Waiting for " + receiver + "...\n" + seconds + "s")),
+                    () -> timeoutCancel(receiver)
             );
 
-            waitingAlert.resultProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue == ButtonType.CANCEL) {
-                    cancelSentInvitation(receiver);
+            waitingAlert.resultProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal == ButtonType.CANCEL) {
+                    timeoutCancel(receiver);
                 }
             });
 
@@ -153,78 +142,99 @@ public class InvitationService {
     }
 
     private void showInviteDialog(InvitationDTO inviteDTO, Stage stage) {
-        if (gameTimer != null) {
-            gameTimer.stop();
-        }
+        stopTimer();
+
         Platform.runLater(() -> {
             Label msgLabel = new Label(inviteDTO.getSenderUsername() + " is challenging you!");
             Label timerLabel = new Label();
 
+            VBox vbox = createStandardVBox("/assets/xo.png", msgLabel, timerLabel);
+
+            // Apply style classes to Labels here
             msgLabel.getStyleClass().add("dialog-label-main");
             timerLabel.getStyleClass().add("dialog-label-sub");
-
-            VBox vbox = createStandardVBox("/assets/xo.png", msgLabel, timerLabel);
 
             inviteAlert = new Alert(Alert.AlertType.CONFIRMATION);
             inviteAlert.setTitle("Game Challenge");
             inviteAlert.getDialogPane().setContent(vbox);
 
-            applyStandardStyles(inviteAlert, false);
-
             ButtonType acceptBtn = new ButtonType("Accept", ButtonBar.ButtonData.OK_DONE);
             ButtonType declineBtn = new ButtonType("Decline", ButtonBar.ButtonData.CANCEL_CLOSE);
             inviteAlert.getButtonTypes().setAll(acceptBtn, declineBtn);
 
+            applyStandardStyles(inviteAlert, true);
+
             gameTimer = new GameTimer(
                     TIMEOUT_SECONDS,
-                    (seconds) -> Platform.runLater(()
-                            -> timerLabel.setText("You have " + seconds + "s to respond...")),
-                    () -> Platform.runLater(() -> {
-                        if (inviteAlert.isShowing()) {
-                            inviteAlert.close();
-//                            showToast("timed out to Response to " + inviteDTO.getSenderUsername(), stage);
-
-                            sendInvitationResponse(inviteDTO, RequestType.REJECT);
-                        }
-                    })
+                    seconds -> Platform.runLater(() -> timerLabel.setText("You have " + seconds + "s to respond...")),
+                    () -> autoReject(inviteDTO)
             );
 
+            inviteAlert.resultProperty().addListener((obs, oldVal, newVal) -> {
+                if (!invitationHandled.get()) {
+                    if (newVal == acceptBtn) {
+                        handleAccept(inviteDTO);
+                    } else {
+                        handleReject(inviteDTO);
+                    }
+                }
+            });
+
+            inviteAlert.show();
             gameTimer.start();
-
-            Optional<ButtonType> result = inviteAlert.showAndWait();
-
-            gameTimer.stop();
-
-            if (result.isPresent() && result.get() == acceptBtn) {
-                sendInvitationResponse(inviteDTO, RequestType.ACCEPT);
-            } else if (result.isPresent() && result.get() == declineBtn) {
-                sendInvitationResponse(inviteDTO, RequestType.REJECT);
-            }
         });
     }
 
-    private void cancelSentInvitation(String receiver) {
-
-        InvitationDTO invitationDTO = new InvitationDTO(
-                App.getCurrentUser().getUsername(),
-                receiver,
-                InvitationStatus.CANCELED
-        );
-        sendInvitationResponse(invitationDTO, RequestType.CANCEL);
-
-        stopInvitationProcess();
-
-//        System.out.println("Invitation to " + invitationDTO.getReceiverUsername() + " has been canceled.");
-    }
-
-    public void handleIncomingCancellation(JsonElement payload, Stage stage) {
-        InvitationDTO inviteDTO = gson.fromJson(payload, InvitationDTO.class);
-        String senderName = inviteDTO.getSenderUsername();
-        Platform.runLater(() -> {
+    private void handleAccept(InvitationDTO dto) {
+        if (invitationHandled.compareAndSet(false, true)) {
+            sendInvitationResponse(dto, RequestType.ACCEPT);
             stopInvitationProcess();
+        }
+    }
 
-            showToast("Challenge from " + senderName + " was canceled.", stage);
+    private void handleReject(InvitationDTO dto) {
+        if (invitationHandled.compareAndSet(false, true)) {
+            sendInvitationResponse(dto, RequestType.REJECT);
+            stopInvitationProcess();
+        }
+    }
+
+    private void timeoutCancel(String receiver) {
+        if (invitationHandled.compareAndSet(false, true)) {
+            InvitationDTO dto = new InvitationDTO(App.getCurrentUser().getUsername(), receiver, InvitationStatus.CANCELED);
+            sendInvitationResponse(dto, RequestType.CANCEL);
+            stopInvitationProcess();
+        }
+    }
+
+    private void autoReject(InvitationDTO dto) {
+        if (invitationHandled.compareAndSet(false, true)) {
+            sendInvitationResponse(dto, RequestType.REJECT);
+            stopInvitationProcess();
+        }
+    }
+
+    private void sendInvitationResponse(InvitationDTO dto, RequestType type) {
+        conn.sendRequest(new Request(type, gson.toJsonTree(dto)));
+    }
+
+    private void stopInvitationProcess() {
+        stopTimer();
+        Platform.runLater(() -> {
+            if (waitingAlert != null && waitingAlert.isShowing()) {
+                waitingAlert.close();
+            }
+            if (inviteAlert != null && inviteAlert.isShowing()) {
+                inviteAlert.close();
+            }
+            resetInviteButtons();
         });
+    }
+
+    private void stopTimer() {
+        if (gameTimer != null) {
+            gameTimer.stop();
+        }
     }
 
     private VBox createStandardVBox(String iconPath, Node... nodes) {
@@ -238,11 +248,13 @@ public class InvitationService {
         vbox.getChildren().add(icon);
         vbox.getChildren().addAll(nodes);
 
+        // Apply style classes to Labels if they exist
         for (Node node : nodes) {
             if (node instanceof Label) {
-                node.getStyleClass().add("dialog-label-main");
+                ((Label) node).getStyleClass().add("dialog-label-main");
             }
         }
+
         return vbox;
     }
 
@@ -256,12 +268,15 @@ public class InvitationService {
         pane.setMinSize(450, 350);
         pane.setMaxSize(450, 350);
 
-        pane.getStylesheets().add(getClass().getResource("/styles/dialog.css").toExternalForm());
+        // Ensure CSS file exists in resources/styles/dialog.css
+        if (getClass().getResource("/styles/dialog.css") != null) {
+            pane.getStylesheets().add(getClass().getResource("/styles/dialog.css").toExternalForm());
+        }
+
         pane.getStyleClass().add("dialog-pane");
 
         Stage alertStage = (Stage) pane.getScene().getWindow();
         alertStage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/xo.png")));
-
         alertStage.setResizable(false);
 
         ButtonBar buttonBar = (ButtonBar) pane.lookup(".button-bar");
@@ -277,42 +292,38 @@ public class InvitationService {
 
     private void showToast(String message, Stage stage) {
         Platform.runLater(() -> {
-            try {
-                Stage ownerStage = stage;
-                Stage toastStage = new Stage();
-                toastStage.initOwner(ownerStage);
-                toastStage.initStyle(StageStyle.TRANSPARENT);
+            Stage toastStage = new Stage();
+            toastStage.initOwner(stage);
+            toastStage.initStyle(StageStyle.TRANSPARENT);
 
-                Text text = new Text(message);
-                text.setStyle("-fx-font-size: 14px; -fx-fill: white; -fx-font-weight: bold;");
+            Text text = new Text(message);
+            text.setStyle("-fx-font-size: 14px; -fx-fill: white; -fx-font-weight: bold;");
 
-                StackPane root = new StackPane(text);
-                root.setStyle("-fx-background-radius: 20; -fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 10 20;");
-                root.setOpacity(0);
+            StackPane root = new StackPane(text);
+            root.setStyle("-fx-background-radius: 20; -fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 10 20;");
+            root.setOpacity(0);
 
-                Scene scene = new Scene(root);
-                scene.setFill(null);
-                toastStage.setScene(scene);
+            Scene scene = new Scene(root);
+            scene.setFill(null);
+            toastStage.setScene(scene);
 
-                toastStage.setX(ownerStage.getX() + (ownerStage.getWidth() / 2) - 100);
-                toastStage.setY(ownerStage.getY() + ownerStage.getHeight() - 100);
+            toastStage.setX(stage.getX() + (stage.getWidth() / 2) - 100);
+            toastStage.setY(stage.getY() + stage.getHeight() - 100);
 
-                toastStage.show();
+            toastStage.show();
 
-                FadeTransition fadeIn = new FadeTransition(Duration.millis(500), root);
-                fadeIn.setFromValue(0);
-                fadeIn.setToValue(1);
-                FadeTransition fadeOut = new FadeTransition(Duration.millis(500), root);
-                fadeOut.setFromValue(1);
-                fadeOut.setToValue(0);
-                fadeOut.setDelay(Duration.seconds(2));
-                fadeOut.setOnFinished(e -> toastStage.close());
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(500), root);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
 
-                fadeIn.play();
-                fadeIn.setOnFinished(e -> fadeOut.play());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(500), root);
+            fadeOut.setFromValue(1);
+            fadeOut.setToValue(0);
+            fadeOut.setDelay(Duration.seconds(2));
+            fadeOut.setOnFinished(e -> toastStage.close());
+
+            fadeIn.play();
+            fadeIn.setOnFinished(e -> fadeOut.play());
         });
     }
 
