@@ -28,6 +28,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
@@ -39,6 +40,7 @@ import util.DialogUtil;
  * @author mohan
  */
 public class GameResultController implements Initializable, ServerListener {
+
     @FXML
     private Circle player1Avatar;
     @FXML
@@ -59,18 +61,28 @@ public class GameResultController implements Initializable, ServerListener {
     private Button leaveButton;
     @FXML
     private Button rematchButton;
-    
+
     private GameSession session;
     private Player player1;
     private Player player2;
+
     private String winner;
-    
+
+    private Image crownImage;
+    private Image clownHatImage;
+
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Initialize if needed
+        // Load images
+        try {
+            crownImage = new Image(getClass().getResourceAsStream("/assets/crown.png"));
+            clownHatImage = new Image(getClass().getResourceAsStream("/assets/clown.png"));
+        } catch (Exception e) {
+            System.err.println("Failed to load crown or clown hat images: " + e.getMessage());
+        }
     }
 
     public void initGameResult(GameSession gameSession, Player p1, Player p2) {
@@ -78,21 +90,21 @@ public class GameResultController implements Initializable, ServerListener {
         this.session = gameSession;
         this.player1 = p1;
         this.player2 = p2;
-        
+
         if (session.getSessionType() == SessionType.ONLINE) {
-             try {
+            try {
                 ServerConnection.getConnection().setListener(this);
                 if (session.isOpponentLeft()) {
-                     if (rematchButton != null) {
+                    if (rematchButton != null) {
                         rematchButton.setDisable(true);
                         rematchButton.setText("Opponent Left");
-                     }
+                    }
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
-        
+
         displayPlayerInfo();
         displayGameResult();
     }
@@ -112,12 +124,26 @@ public class GameResultController implements Initializable, ServerListener {
 
         switch (result) {
             case X_WIN:
+                player1Crown.setImage(clownHatImage);
+                player2Crown.setImage(crownImage);
+                player1Crown.setFitWidth(70);  // Set width
+                player1Crown.setFitHeight(70); // Set height
                 player1Crown.setVisible(true);
+                player2Crown.setFitWidth(70);  // Set width
+                player2Crown.setFitHeight(70); // Set height
+                player2Crown.setVisible(true);
                 winner = session.getPlayer1().getUsername();
                 break;
-
             case O_WIN:
+                player2Crown.setImage(clownHatImage);
+                player1Crown.setImage(crownImage);
+                player2Crown.setFitWidth(100);  // Set width
+                player2Crown.setFitHeight(100); // Set height
                 player2Crown.setVisible(true);
+                player1Crown.setFitWidth(100);  // Set width
+                player1Crown.setFitHeight(100); // Set height
+                player1Crown.setVisible(true);
+
                 winner = session.getPlayer2().getUsername();
                 break;
 
@@ -136,7 +162,7 @@ public class GameResultController implements Initializable, ServerListener {
             Button btn = (Button) event.getSource();
             btn.setDisable(true);
             btn.setText("Waiting...");
-            
+
             try {
                 Request req = new Request(RequestType.REMATCH_REQUEST, new Gson().toJsonTree(session.getSessionId()));
                 ServerConnection.getConnection().sendRequest(req);
@@ -145,7 +171,7 @@ public class GameResultController implements Initializable, ServerListener {
             }
             return;
         }
-        
+
         try {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
             // send the current session to increase the wins and loses
@@ -158,7 +184,7 @@ public class GameResultController implements Initializable, ServerListener {
 
     @FXML
     private void handleSaveGame(ActionEvent event) {
-        leaveButton.setDisable(true); 
+        leaveButton.setDisable(true);
         rematchButton.setDisable(true);
         ((Button) event.getSource()).setDisable(true);
         GameRecord record = new GameRecord(
@@ -176,7 +202,7 @@ public class GameResultController implements Initializable, ServerListener {
             DialogUtil.showInfoDialog(
                     "Game Saved",
                     "The game was saved successfully 🎉"
-            ); 
+            );
             ((Button) event.getSource()).setText("Saved!");
             ((Button) event.getSource()).setDisable(true);
         } else {
@@ -185,7 +211,7 @@ public class GameResultController implements Initializable, ServerListener {
                     "Something went wrong while saving the game."
             );
         }
-        leaveButton.setDisable(false); 
+        leaveButton.setDisable(false);
         rematchButton.setDisable(false);
     }
 
@@ -220,36 +246,36 @@ public class GameResultController implements Initializable, ServerListener {
     public void onMessage(Response response) {
         if (response.getType() == ResponseType.REMATCH_REQUESTED) {
             Platform.runLater(() -> {
-                 Pane parent = (Pane) player1Name.getScene().getRoot();
-                 Label msg = new Label("Opponent wants a rematch!");
-                 msg.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10px; -fx-background-radius: 5px;");
-                 msg.setLayoutX(parent.getWidth() / 2 - 100);
-                 msg.setLayoutY(parent.getHeight() - 100);
-                 parent.getChildren().add(msg);
+                Pane parent = (Pane) player1Name.getScene().getRoot();
+                Label msg = new Label("Opponent wants a rematch!");
+                msg.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10px; -fx-background-radius: 5px;");
+                msg.setLayoutX(parent.getWidth() / 2 - 100);
+                msg.setLayoutY(parent.getHeight() - 100);
+                parent.getChildren().add(msg);
             });
         } else if (response.getType() == ResponseType.OPPONENT_LEFT) {
             Platform.runLater(() -> {
-                 if (rematchButton != null) {
+                if (rematchButton != null) {
                     rematchButton.setDisable(true);
                     rematchButton.setText("Opponent Left");
-                 }
-                 Pane parent = (Pane) player1Name.getScene().getRoot();
-                 Label msg = new Label("Opponent has left the game.");
-                 msg.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10px; -fx-background-radius: 5px;");
-                 msg.setLayoutX(parent.getWidth() / 2 - 100);
-                 msg.setLayoutY(parent.getHeight() - 150);
-                 parent.getChildren().add(msg);
+                }
+                Pane parent = (Pane) player1Name.getScene().getRoot();
+                Label msg = new Label("Opponent has left the game.");
+                msg.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10px; -fx-background-radius: 5px;");
+                msg.setLayoutX(parent.getWidth() / 2 - 100);
+                msg.setLayoutY(parent.getHeight() - 150);
+                parent.getChildren().add(msg);
             });
         } else if (response.getType() == ResponseType.GAME_STARTED || response.getType() == ResponseType.GAME_UPDATE) {
-             GameSessionDTO dto = new Gson().fromJson(response.getPayload(), GameSessionDTO.class);
-             Platform.runLater(() -> {
-                 try {
+            GameSessionDTO dto = new Gson().fromJson(response.getPayload(), GameSessionDTO.class);
+            Platform.runLater(() -> {
+                try {
                     GameBoardController controller = App.setRoot("GameBoardPage").getController();
                     controller.initOnlineGame(dto);
-                 } catch (IOException ex) {
+                } catch (IOException ex) {
                     ex.printStackTrace();
-                 }
-             });
+                }
+            });
         }
     }
 
