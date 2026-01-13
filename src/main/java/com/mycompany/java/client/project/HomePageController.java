@@ -253,39 +253,46 @@ public class HomePageController implements ServerListener {
         if (response.getType() == null) {
             return;
         }
-        switch (response.getType()) {
+        Platform.runLater(() -> {
+            Stage currentStage = (Stage) onlinePlayersList.getScene().getWindow();
+            switch (response.getType()) {
 
-            case ONLINE_PLAYERS:
-                updateOnlinePlayersList(response.getPayload());
-                break;
+                case ONLINE_PLAYERS:
+                    updateOnlinePlayersList(response.getPayload());
+                    break;
 
-            case LEADERBOARD:
-                updateLeaderboard(response.getPayload());
-                break;
-            case JOIN_GAME:
-                DialogUtil.closeCurrentDialog();
-                handleGameJoin(response.getPayload());
-                break;
-            case GAME_STARTED:
-                DialogUtil.closeCurrentDialog();
-                handleGameStarted(response.getPayload());
-                break;
-                
-            case GAME_INVITE:
-                invitationService.handleReceivedInvite(response.getPayload());
-                break;
+                case LEADERBOARD:
+                    updateLeaderboard(response.getPayload());
+                    break;
+                case JOIN_GAME:
+                    DialogUtil.closeCurrentDialog();
+                    handleGameJoin(response.getPayload());
+                    break;
+                case GAME_STARTED:
+                    DialogUtil.closeCurrentDialog();
+                    handleGameStarted(response.getPayload());
+                    break;
 
-            case INVITE_ACCEPTED:
-                invitationService.onInvitationAccepted(response.getPayload());
-                break;
+                case GAME_INVITE:
+                    invitationService.handleReceivedInvite(response.getPayload(), currentStage);
+                    break;
 
-            case INVITE_REJECTED:
-                Stage stage = (Stage) onlinePlayersList.getScene().getWindow();
-                invitationService.onInvitationRejected(stage);
-                break;
-            default:
-                break;
-        }
+                case INVITE_ACCEPTED:
+                    invitationService.onInvitationAccepted(response.getPayload());
+                    break;
+
+                case INVITE_REJECTED:
+                    invitationService.onInvitationRejected(currentStage);
+                    break;
+                case INVITE_CANCELED:
+
+                    invitationService.handleIncomingCancellation(response.getPayload(), currentStage);
+
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     @Override
@@ -402,7 +409,6 @@ public class HomePageController implements ServerListener {
             }
         });
     }
-    
     private void handleGameStarted(JsonElement json) {
         Platform.runLater(() -> {
             try {
@@ -414,10 +420,10 @@ public class HomePageController implements ServerListener {
             }
         });
     }
-    
+
     public void sendInvite(String receiverName, PlayerItemController itemController) {
         Stage stage = (Stage) onlinePlayersList.getScene().getWindow();
-        String currentUsername = "hunter";
+        String currentUsername = App.getCurrentUser().getUsername();
 
         invitationService.initiateInvitation(receiverName, currentUsername, itemController, stage);
     }
@@ -451,7 +457,7 @@ public class HomePageController implements ServerListener {
                 loadingAlert.hide();
                 loadingAlert.close();
 
-                navigateToGameBoard(gameInfo);
+//                navigateToGameBoard(gameInfo);
             });
             pause.play();
         });
