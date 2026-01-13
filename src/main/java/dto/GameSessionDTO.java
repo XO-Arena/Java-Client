@@ -121,7 +121,7 @@ public class GameSessionDTO {
         this.player1Wins = player1Wins;
     }
 
-    public int getPlayer2Wins() {
+    public int getPlayer2Wins() { 
         return player2Wins;
     }
 

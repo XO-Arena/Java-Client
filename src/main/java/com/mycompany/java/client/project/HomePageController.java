@@ -61,8 +61,10 @@ public class HomePageController implements ServerListener {
     private Button loginButton;
     @FXML
     private Label statusText;
+     @FXML
+    private Label welcomeText;
+     
     private ListView<AnchorPane> recordedGamesList;
-
     private Gson gson;
     private ServerConnection con;
     private Stage currentDialogStage;
@@ -101,7 +103,7 @@ public class HomePageController implements ServerListener {
                 statusText.setText("status: Online");
                 statusText.getStyleClass().removeAll("status-offline");
                 statusText.getStyleClass().add("status-online");
-
+                welcomeText.setText("Welcome, "+App.getCurrentUser().getUsername()+"!");
                 sidePanel.setVisible(true);
                 sidePanel.setManaged(true);
                 quickGameButton.setDisable(false);

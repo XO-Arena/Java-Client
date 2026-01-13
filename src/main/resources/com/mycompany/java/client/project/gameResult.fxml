@@ -102,7 +102,7 @@
 
         <!-- Buttons -->
         <VBox alignment="CENTER" spacing="12">
-            <Button maxWidth="280" minWidth="280" onAction="#handleRematch" prefHeight="45" styleClass="rematch-button" text="Rematch">
+            <Button fx:id="rematchButton" maxWidth="280" minWidth="280" onAction="#handleRematch" prefHeight="45" styleClass="rematch-button" text="Rematch">
                 <font>
                     <Font name="System Bold" size="14.0" />
                 </font>
