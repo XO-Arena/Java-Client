@@ -11,6 +11,7 @@ import dto.InvitationDTO;
 import enums.GameResult;
 import enums.PlayerSymbol;
 import enums.PlayerType;
+import static enums.PlayerType.ONLINE;
 import enums.RequestType;
 import enums.ResponseType;
 import enums.SessionStatus;
@@ -248,13 +249,10 @@ public class GameBoardController implements ServerListener {
             case COMPUTER:
                 playComputerMove();
                 break;
-
-            case ONLINE:
-                waitForServerMove();
-                break;
             case RECORDED:
-                playRecordedMove();
+                playRecordedMove(); 
             case LOCAL:
+            case ONLINE:
                 break;
         }
     }
@@ -263,17 +261,6 @@ public class GameBoardController implements ServerListener {
 
         Move move = session.getMoveProvider().getNextMove();
         session.playMove(move.row, move.col);
-
-        endTurn();
-    }
-
-    private void waitForServerMove() {
-        System.out.println("Waiting for server move...");
-    }
-
-    public void onServerMove(int row, int col) {
-
-        session.playMove(row, col);
 
         endTurn();
     }
@@ -654,14 +641,14 @@ public class GameBoardController implements ServerListener {
     }
 
     private void updateSession(GameSessionDTO dto) {
-        session.getGame().getBoard().setCells(dto.getBoard().getCells());
+        applyBoardDiff(dto.getBoard().getCells());
         session.getGame().getBoard().setWinCode(dto.getBoard().getWinCode());
 
         session.setPlayer1Wins(dto.getPlayer1Wins());
         session.setPlayer2Wins(dto.getPlayer2Wins());
         session.setDrawCount(dto.getDraws());
         session.getGame().setCurrentPlayer(dto.getCurrentTurn());
-        
+
         String currentUser = App.getCurrentUser().getUsername();
         boolean isP1 = session.getPlayer1().getUsername().equals(currentUser);
         if (isP1) {
@@ -692,6 +679,25 @@ public class GameBoardController implements ServerListener {
                     navigateToGameResult();
                 } else if (dto.getResult() == GameResult.DRAW) {
                     navigateToGameResult();
+                }
+            }
+        }
+    }
+
+    private void applyBoardDiff(PlayerSymbol[][] newCells) {
+
+        PlayerSymbol[][] currentCells
+                = session.getGame().getBoard().getCells();
+
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+
+                PlayerSymbol oldValue = currentCells[r][c];
+                PlayerSymbol newValue = newCells[r][c];
+
+                if (oldValue == null && newValue != null) {
+                    session.getGame().playMove(r, c);
+                    return;
                 }
             }
         }
