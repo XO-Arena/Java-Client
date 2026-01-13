@@ -250,7 +250,7 @@ public class GameBoardController implements ServerListener {
                 playComputerMove();
                 break;
             case RECORDED:
-                playRecordedMove(); 
+                playRecordedMove();
             case LOCAL:
             case ONLINE:
                 break;
@@ -578,9 +578,13 @@ public class GameBoardController implements ServerListener {
         if (p1.getUsername().equals(myUsername)) {
             p1.setType(PlayerType.LOCAL);
             p2.setType(PlayerType.ONLINE);
+            this.player1 = p1; 
+            this.player2 = p2;
         } else {
             p1.setType(PlayerType.ONLINE);
             p2.setType(PlayerType.LOCAL);
+            this.player1 = p2; 
+            this.player2 = p1;
         }
 
         initPlayers(p1, p2, enums.SessionType.ONLINE);
