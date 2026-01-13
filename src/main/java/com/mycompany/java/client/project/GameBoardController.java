@@ -152,7 +152,6 @@ public class GameBoardController implements ServerListener {
         } catch (Exception e) {
             System.err.println("Error loading avatar image: " + imagePath);
             e.printStackTrace();
-            // Set a default color if image fails to load
             circle.setFill(Color.GRAY);
         }
     }
