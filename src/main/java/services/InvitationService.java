@@ -41,6 +41,7 @@ public class InvitationService {
     private final ServerConnection conn;
     private final Gson gson;
     private final Consumer<InvitationDTO> onGameStart;
+    private Alert inviteAlert;
     private Alert waitingAlert;
     private PlayerItemController pendingController;
     private static final int TIMEOUT_SECONDS = 10;
@@ -65,9 +66,9 @@ public class InvitationService {
         }
     }
 
-    public void handleReceivedInvite(JsonElement payload) {
+    public void handleReceivedInvite(JsonElement payload, Stage stage) {
         InvitationDTO inviteDTO = gson.fromJson(payload, InvitationDTO.class);
-        Platform.runLater(() -> showInviteDialog(inviteDTO));
+        Platform.runLater(() -> showInviteDialog(inviteDTO, stage));
     }
 
     public void onInvitationAccepted(JsonElement payload) {
@@ -88,14 +89,32 @@ public class InvitationService {
         });
     }
 
+//    public void stopInvitationProcess() {
+//        if (gameTimer != null) {
+//            gameTimer.stop();
+//        }
+//
+//        Platform.runLater(() -> {
+//            if (waitingAlert != null && waitingAlert.isShowing()) {
+//                waitingAlert.close();
+//            }
+//            resetInviteButtons();
+//        });
+//    }
+// أضف هذا المتغير فوق مع waitingAlert
     public void stopInvitationProcess() {
         if (gameTimer != null) {
             gameTimer.stop();
         }
 
         Platform.runLater(() -> {
+            // إغلاق ديالوج الانتظار
             if (waitingAlert != null && waitingAlert.isShowing()) {
                 waitingAlert.close();
+            }
+            // إغلاق ديالوج الاستقبال
+            if (inviteAlert != null && inviteAlert.isShowing()) {
+                inviteAlert.close();
             }
             resetInviteButtons();
         });
@@ -113,6 +132,9 @@ public class InvitationService {
     ///////////////////////////////////////////////////////////////////////////////
     
  private void showWaitingPopup(String receiver, Stage stage) {
+        if (gameTimer != null) {
+            gameTimer.stop();
+        }
         Platform.runLater(() -> {
             Label contentLabel = new Label();
             VBox vbox = createStandardVBox("/assets/xo.png", contentLabel);
@@ -124,25 +146,19 @@ public class InvitationService {
 
             applyStandardStyles(waitingAlert, true);
 
-            InvitationDTO invitationDTO = new InvitationDTO(
-                    App.getCurrentUser().getUsername(),
-                    receiver,
-                    InvitationStatus.CANCELED
-            );
-
             gameTimer = new GameTimer(
                     TIMEOUT_SECONDS,
                     (seconds) -> Platform.runLater(()
                             -> contentLabel.setText("Waiting for " + receiver + "...\n" + seconds + "s")),
                     () -> Platform.runLater(() -> {
-                        cancelSentInvitation(invitationDTO);
-                        showToast("Request to " + receiver + " timed out.", stage);
+                        cancelSentInvitation(receiver);
+//                        showToast("Request to " + receiver + " timed out.", stage);
                     })
             );
 
             waitingAlert.resultProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue == ButtonType.CANCEL) {
-                    cancelSentInvitation(invitationDTO);
+                    cancelSentInvitation(receiver);
                 }
             });
 
@@ -151,23 +167,10 @@ public class InvitationService {
         });
     }
 
-    private void cancelSentInvitation(InvitationDTO invitationDTO) {
-        sendInvitationResponse(invitationDTO, RequestType.CANCEL);
-
-        stopInvitationProcess();
-
-        System.out.println("Invitation to " + invitationDTO.getReceiverUsername() + " has been canceled.");
-    }
-
-    public void handleIncomingCancellation(String senderName,Stage stage) {
-        Platform.runLater(() -> {
-            stopInvitationProcess();
-
-            showToast("Challenge from " + senderName + " was canceled.", stage);
-        });
-    }
-
-    private void showInviteDialog(InvitationDTO inviteDTO) {
+    private void showInviteDialog(InvitationDTO inviteDTO, Stage stage) {
+        if (gameTimer != null) {
+            gameTimer.stop();
+        }
         Platform.runLater(() -> {
             Label msgLabel = new Label(inviteDTO.getSenderUsername() + " is challenging you!");
             Label timerLabel = new Label();
@@ -177,7 +180,7 @@ public class InvitationService {
 
             VBox vbox = createStandardVBox("/assets/xo.png", msgLabel, timerLabel);
 
-            Alert inviteAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            inviteAlert = new Alert(Alert.AlertType.CONFIRMATION);
             inviteAlert.setTitle("Game Challenge");
             inviteAlert.getDialogPane().setContent(vbox);
 
@@ -194,6 +197,8 @@ public class InvitationService {
                     () -> Platform.runLater(() -> {
                         if (inviteAlert.isShowing()) {
                             inviteAlert.close();
+//                            showToast("timed out to Response to " + inviteDTO.getSenderUsername(), stage);
+
                             sendInvitationResponse(inviteDTO, RequestType.REJECT);
                         }
                     })
@@ -210,6 +215,30 @@ public class InvitationService {
             } else if (result.isPresent() && result.get() == declineBtn) {
                 sendInvitationResponse(inviteDTO, RequestType.REJECT);
             }
+        });
+    }
+
+    private void cancelSentInvitation(String receiver) {
+
+        InvitationDTO invitationDTO = new InvitationDTO(
+                App.getCurrentUser().getUsername(),
+                receiver,
+                InvitationStatus.CANCELED
+        );
+        sendInvitationResponse(invitationDTO, RequestType.CANCEL);
+
+        stopInvitationProcess();
+
+//        System.out.println("Invitation to " + invitationDTO.getReceiverUsername() + " has been canceled.");
+    }
+
+    public void handleIncomingCancellation(JsonElement payload, Stage stage) {
+        InvitationDTO inviteDTO = gson.fromJson(payload, InvitationDTO.class);
+        String senderName = inviteDTO.getSenderUsername();
+        Platform.runLater(() -> {
+            stopInvitationProcess();
+
+            showToast("Challenge from " + senderName + " was canceled.", stage);
         });
     }
 
