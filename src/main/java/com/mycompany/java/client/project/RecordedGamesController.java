@@ -22,8 +22,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import models.AIPlayer;
 import models.Player;
+import util.DialogUtil;
 
 /**
  * FXML Controller class for Recorded Games page
@@ -104,11 +104,12 @@ public class RecordedGamesController implements Initializable {
                             if (record != null) {
                                 gameRecords.add(record);
                             }
-                        } catch (Exception e) {}
+                        } catch (Exception e) {
+                        }
                     });
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
     }
-
 
     private void displayGames() {
         if (gameRecords == null || gameRecords.isEmpty()) {
@@ -163,52 +164,51 @@ public class RecordedGamesController implements Initializable {
 
         } catch (IOException e) {
             System.err.println("Error loading game card: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
     public void handlePlayGame(GameRecord game) {
         try {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
-            controller.initPlayers(new Player(game.getPlayer1(), UserGender.MALE, 300, PlayerType.LOCAL, PlayerSymbol.X),new Player(game.getPlayer2(), UserGender.MALE, 300, PlayerType.RECORDED, PlayerSymbol.O) );
+            controller.initPlayers(new Player(game.getPlayer1(), UserGender.MALE, 300, PlayerType.LOCAL, PlayerSymbol.X), new Player(game.getPlayer2(), UserGender.MALE, 300, PlayerType.RECORDED, PlayerSymbol.O));
             controller.initRecordedGame(game);
         } catch (IOException e) {
-            System.err.println("Error loading game replay: " + e.getMessage());
-            e.printStackTrace();
+            DialogUtil.showErrorDialog(
+                    "Play Failed",
+                    "Something went wrong while play the record."
+            );
         }
     }
-
-    public void addGameRecord(GameRecord game) {
-        if (gameRecords == null) {
-            gameRecords = new ArrayList<>();
-        }
-        gameRecords.add(0, game); // Add to beginning
-        displayGames();
-    }
-
-    /**
-     * Public method to refresh the games list
-     */
-    public void refreshGamesList() {
-        loadRecordedGames();
-        displayGames();
-    }
-
-    /**
-     * Public method to clear all games
-     */
-    public void clearAllGames() {
-        if (gameRecords != null) {
-            gameRecords.clear();
-        }
-        displayGames();
-    }
-
-    /**
-     * Gets the list of game records
-     */
 
     void handleDeleteGame(GameRecord gameRecord) {
-        
+
+        DialogUtil.showBrandedDialog(
+                "Delete Game",
+                "Are you sure you want to delete this recorded game?\nThis action cannot be undone.",
+                true,
+                true,
+                "Delete",
+                "Cancel",
+                () -> {
+                    boolean deleted = deleteGameFile(gameRecord);
+
+                    if (deleted) {
+                        gameRecords.removeIf(g -> g.getId() == gameRecord.getId());
+                        displayGames();
+                    }
+                },
+                DialogUtil::closeCurrentDialog
+        );
+
+    }
+
+    private boolean deleteGameFile(GameRecord gameRecord) {
+        Path filePath = Paths.get("games", gameRecord.getId() + ".json");
+
+        try {
+            return Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            return false;
+        }
     }
 }

@@ -57,11 +57,14 @@ public class GameResultController implements Initializable, ServerListener {
     private Label player2Symbol;
     @FXML
     private Button leaveButton;
-
+    @FXML
+    private Button rematchButton;
+    
     private GameSession session;
     private Player player1;
     private Player player2;
     private String winner;
+    
 
     /**
      * Initializes the controller class.
@@ -151,6 +154,7 @@ public class GameResultController implements Initializable, ServerListener {
     @FXML
     private void handleSaveGame(ActionEvent event) {
         leaveButton.setDisable(true); 
+        rematchButton.setDisable(true);
         ((Button) event.getSource()).setDisable(true);
         GameRecord record = new GameRecord(
                 System.currentTimeMillis(),
@@ -167,8 +171,7 @@ public class GameResultController implements Initializable, ServerListener {
             DialogUtil.showInfoDialog(
                     "Game Saved",
                     "The game was saved successfully 🎉"
-            );
-            leaveButton.setDisable(false); 
+            ); 
             ((Button) event.getSource()).setText("Saved!");
             ((Button) event.getSource()).setDisable(true);
         } else {
@@ -176,8 +179,9 @@ public class GameResultController implements Initializable, ServerListener {
                     "Save Failed",
                     "Something went wrong while saving the game."
             );
-            leaveButton.setDisable(false); 
         }
+        leaveButton.setDisable(false); 
+        rematchButton.setDisable(false);
     }
 
     @FXML
