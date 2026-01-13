@@ -31,6 +31,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import util.DialogUtil;
 
@@ -86,7 +87,6 @@ public class GameResultController implements Initializable, ServerListener {
     }
 
     public void initGameResult(GameSession gameSession, Player p1, Player p2) {
-        // why ? to return the session that or to containu the session with rematch
         this.session = gameSession;
         this.player1 = p1;
         this.player2 = p2;
@@ -105,54 +105,96 @@ public class GameResultController implements Initializable, ServerListener {
             }
         }
 
-        displayPlayerInfo();
         displayGameResult();
-    }
-
-    private void displayPlayerInfo() {
-        player1Name.setText(player1.getUsername());
-        player2Name.setText(player2.getUsername());
-        player1Symbol.setText(player1.getSymbol().toString());
-        player2Symbol.setText(player2.getSymbol().toString());
     }
 
     private void displayGameResult() {
         GameResult result = session.getLastResult();
 
+        // Hide crowns initially
         player1Crown.setVisible(false);
         player2Crown.setVisible(false);
 
+        // Determine winner and loser
+        Player winnerPlayer = null;
+        Player loserPlayer = null;
+
         switch (result) {
             case X_WIN:
-                player1Crown.setImage(clownHatImage);
-                player2Crown.setImage(crownImage);
-                player1Crown.setFitWidth(70);  // Set width
-                player1Crown.setFitHeight(70); // Set height
-                player1Crown.setVisible(true);
-                player2Crown.setFitWidth(70);  // Set width
-                player2Crown.setFitHeight(70); // Set height
-                player2Crown.setVisible(true);
-                winner = session.getPlayer1().getUsername();
+                winnerPlayer = player1;  // X player wins
+                loserPlayer = player2;   // O player loses
+                this.winner = player1.getUsername();
                 break;
-            case O_WIN:
-                player2Crown.setImage(clownHatImage);
-                player1Crown.setImage(crownImage);
-                player2Crown.setFitWidth(100);  // Set width
-                player2Crown.setFitHeight(100); // Set height
-                player2Crown.setVisible(true);
-                player1Crown.setFitWidth(100);  // Set width
-                player1Crown.setFitHeight(100); // Set height
-                player1Crown.setVisible(true);
 
-                winner = session.getPlayer2().getUsername();
+            case O_WIN:
+                winnerPlayer = player2;  // O player wins
+                loserPlayer = player1;   // X player loses
+                this.winner = player2.getUsername();
                 break;
 
             case DRAW:
-                winner = result.name();
-                break;
+                this.winner = "DRAW";
+                // Display both players normally without crowns
+                displayPlayer(player1, player2Name, player1Symbol, player1Avatar, player1Crown, null);
+                displayPlayer(player2, player1Name, player2Symbol, player2Avatar, player2Crown, null);
+                return;
+        }
 
+        // Display winner on left with crown
+        displayPlayer(winnerPlayer, player2Name, player1Symbol, player1Avatar, player1Crown, crownImage);
+
+        // Display loser on right with clown hat
+        displayPlayer(loserPlayer, player1Name, player2Symbol, player2Avatar, player2Crown, clownHatImage);
+    }
+
+    private void displayPlayer(Player player, Label nameLabel, Label symbolLabel,
+            Circle avatarCircle, ImageView crownView, Image crownImage) {
+        // Set player name
+        nameLabel.setText(player.getUsername());
+
+        // Set player symbol
+        symbolLabel.setText(player.getSymbol().toString());
+
+        // Set avatar image in circle
+        setAvatarImage(player, avatarCircle);
+
+        // Set crown/hat if provided
+        if (crownImage != null) {
+            crownView.setImage(crownImage);
+            crownView.setFitWidth(70);
+            crownView.setFitHeight(70);
+            crownView.setVisible(true);
+        } else {
+            crownView.setVisible(false);
+        }
+    }
+
+    private void setAvatarImage(Player player, Circle avatarCircle) {
+        try {
+            // Get avatar path based on player gender
+            String avatarPath = getAvatarPath(player);
+
+            if (avatarPath != null) {
+                Image avatarImage = new Image(getClass().getResourceAsStream(avatarPath));
+                avatarCircle.setFill(new ImagePattern(avatarImage));
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to load avatar for " + player.getUsername() + ": " + e.getMessage());
+            // Keep default fill if image fails to load
+        }
+    }
+
+    private String getAvatarPath(Player player) {
+        // Customize this based on your avatar naming convention
+        // Example: /assets/male_avatar.png or /assets/female_avatar.png
+
+        switch (player.getGender()) {
+            case MALE:
+                return "/assets/boy.png";
+            case FEMALE:
+                return "/assets/girl.png";
             default:
-                break;
+                return "/assets/boy.png";
         }
     }
 
@@ -174,7 +216,6 @@ public class GameResultController implements Initializable, ServerListener {
 
         try {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
-            // send the current session to increase the wins and loses
             controller.continueSession(session, player1, player2);
         } catch (IOException ex) {
             System.getLogger(GameResultController.class.getName())
@@ -187,10 +228,11 @@ public class GameResultController implements Initializable, ServerListener {
         leaveButton.setDisable(true);
         rematchButton.setDisable(true);
         ((Button) event.getSource()).setDisable(true);
+
         GameRecord record = new GameRecord(
                 System.currentTimeMillis(),
-                session.getPlayer1().getUsername(),
-                session.getPlayer2().getUsername(),
+                player1.getUsername(),
+                player2.getUsername(),
                 winner,
                 LocalDate.now().toString(),
                 session.getGame().getMoves()
@@ -217,19 +259,20 @@ public class GameResultController implements Initializable, ServerListener {
 
     @FXML
     private void handleLeaveMatch(ActionEvent event) {
-
         DialogUtil.showBrandedDialog(
                 "Leave Game",
                 "Are you sure you want to leave this match?",
                 true, // show primary
                 true, // show secondary
-
                 "Leave",
                 "Cancel",
                 () -> { // Primary action
                     try {
-                        Request req = new Request(RequestType.LEAVE_GAME, new Gson().toJsonTree(session.getSessionId()));
-                        ServerConnection.getConnection().sendRequest(req);
+                        if (session.getSessionType() == SessionType.ONLINE) {
+                            Request req = new Request(RequestType.LEAVE_GAME, new Gson().toJsonTree(session.getSessionId()));
+                            ServerConnection.getConnection().sendRequest(req);
+                        }
+
                         DialogUtil.closeCurrentDialog();
                         App.setRoot("homePage");
                     } catch (IOException e) {
@@ -240,7 +283,6 @@ public class GameResultController implements Initializable, ServerListener {
                     DialogUtil.closeCurrentDialog();
                 }
         );
-
     }
 
     public void onMessage(Response response) {
@@ -303,5 +345,4 @@ public class GameResultController implements Initializable, ServerListener {
             return false;
         }
     }
-
 }

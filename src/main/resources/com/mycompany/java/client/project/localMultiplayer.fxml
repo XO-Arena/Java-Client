@@ -8,29 +8,24 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
-<?import javafx.scene.text.Font?>
 
-<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" 
-           fx:controller="com.mycompany.java.client.project.LocalMultiplayerController"
-           styleClass="root" stylesheets="@/styles/local-multiplayer.css"
-           prefHeight="600.0" prefWidth="900.0">
+<StackPane prefHeight="600.0" prefWidth="900.0" styleClass="root" stylesheets="@/styles/local-multiplayer.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.java.client.project.LocalMultiplayerController">
     
     <!-- Back Button (Top-Left) -->
-    <Button fx:id="backButton" onAction="#handleBack" styleClass="back-button" text="← Back" 
-            StackPane.alignment="TOP_LEFT">
+    <Button fx:id="backButton" onAction="#handleBack" styleClass="back-button" text="← Back" StackPane.alignment="TOP_LEFT">
         <StackPane.margin>
-            <Insets top="20" left="20" />
+            <Insets left="20" top="20" />
         </StackPane.margin>
     </Button>
     
     <!-- Main Content -->
-    <VBox alignment="CENTER" spacing="50" maxWidth="600">
+    <VBox alignment="CENTER" maxWidth="600" spacing="50">
         <padding>
-            <Insets top="20" bottom="40" left="40" right="40" />
+            <Insets bottom="40" left="40" right="40" top="20" />
         </padding>
         
         <!-- Title -->
-        <Label text="Local Multiplayer" styleClass="title-label">
+        <Label styleClass="title-label" text="Local Multiplayer">
             
         </Label>
         
@@ -39,46 +34,37 @@
             
             <!-- Player 2 (Left Side - O) -->
             <VBox alignment="CENTER" spacing="20" styleClass="player-container">
-                <Circle fx:id="player2Avatar" radius="60" styleClass="avatar-p2" 
-                        stroke="#ff5e7e" strokeWidth="3" fill="#1e1e30" />
+                <Circle fx:id="player2Avatar" fill="#1e1e30" radius="60" stroke="#ff5e7e" strokeWidth="3" styleClass="avatar-p2" />
                 
-                <Label text="Player 2" styleClass="player-label" textFill="#ff5e7e">
+                <Label styleClass="player-label" text="Player 2" textFill="#ff5e7e">
                    
                 </Label>
                 
-                <TextField fx:id="player2NameField" promptText="Enter name" 
-                           styleClass="player-name-field" maxWidth="180" />
+                <TextField fx:id="player2NameField" maxWidth="180" promptText="Enter name" styleClass="player-name-field" />
                 
-                <Label text="O" styleClass="symbol-label, o-symbol">
+                <Label styleClass="symbol-label, o-symbol" text="O">
                     
                 </Label>
             </VBox>
             
             <!-- VS Separator -->
             <VBox alignment="CENTER" spacing="15">
-                <Label text="vs" styleClass="vs-label">
+                <Label alignment="CENTER" prefHeight="600.0" prefWidth="600.0" styleClass="vs-label" text="vs">
 
                 </Label>
-                
-                <!-- Swap Button -->
-                <Button fx:id="swapButton" onAction="#handleSwap" styleClass="swap-button" 
-                        text="⇄" maxWidth="70" maxHeight="70" minWidth="70" minHeight="70">
-                </Button>
             </VBox>
             
             <!-- Player 1 (Right Side - X) -->
             <VBox alignment="CENTER" spacing="20" styleClass="player-container">
-                <Circle fx:id="player1Avatar" radius="60" styleClass="avatar-p1" 
-                        stroke="#2e5bff" strokeWidth="3" fill="#1e1e30" />
+                <Circle fx:id="player1Avatar" fill="#1e1e30" radius="60" stroke="#2e5bff" strokeWidth="3" styleClass="avatar-p1" />
                 
-                <Label text="Player 1" styleClass="player-label" textFill="#2e5bff">
+                <Label styleClass="player-label" text="Player 1" textFill="#2e5bff">
 
                 </Label>
                 
-                <TextField fx:id="player1NameField" promptText="Enter name" 
-                           styleClass="player-name-field" maxWidth="180" />
+                <TextField fx:id="player1NameField" maxWidth="180" promptText="Enter name" styleClass="player-name-field" />
                 
-                <Label text="X" styleClass="symbol-label, x-symbol">
+                <Label styleClass="symbol-label, x-symbol" text="X">
 
                 </Label>
             </VBox>
@@ -86,8 +72,7 @@
         </HBox>
         
         <!-- Start Button -->
-        <Button fx:id="startButton" onAction="#handleStart" text="Let's Go" 
-                styleClass="start-button" maxWidth="300" minHeight="50">
+        <Button fx:id="startButton" maxWidth="300" minHeight="50" onAction="#handleStart" prefHeight="292.0" prefWidth="300.0" styleClass="start-button" text="Let's Go">
         </Button>
         
     </VBox>

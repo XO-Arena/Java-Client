@@ -1,7 +1,7 @@
 .leaderboard-item-card {
-    -fx-background-color: transparent; /* لكي يأخذ لون الـ ListView الخلفي */
+    -fx-background-color: transparent; 
     -fx-border-color: #334155;
-    -fx-border-width: 0 0 1 0; /* خط فاصل بسيط بين العناصر */
+    -fx-border-width: 0 0 1 0; 
 }
 
 .leaderboard-item-card:hover {
@@ -9,13 +9,12 @@
 }
 
 .rank-text {
-    -fx-text-fill: #fbbf24; /* لون ذهبي للمركز الأول */
+    -fx-text-fill: #fbbf24;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
 }
 
 .player-avatar-img {
-    /* لجعل الزوايا مستديرة إذا كانت الصورة مربعة */
     -fx-background-radius: 5;
     -fx-border-radius: 5;
 }
