@@ -26,6 +26,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import util.DialogUtil;
 
 /**
  * FXML Controller class
@@ -172,8 +173,16 @@ public class RegisterPageController implements Initializable, ServerListener {
 
     @Override
     public void onDisconnect() {
-        isSubmited = false;
-        registerButton.setDisable(false);
-        showAlert("Server Offline", "Cannot connect to the server. Please check if it's running.", Alert.AlertType.ERROR);
+         Platform.runLater(() -> {
+                DialogUtil.showBrandedDialog("Disconnected", "Lost connection to server.", true, false, "OK", "", () -> {
+                    try {
+                        App.setLoggedIn(false);
+                        App.setCurrentUser(null);
+                        App.setRoot("homePage");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }, null);
+            });
     }
 }

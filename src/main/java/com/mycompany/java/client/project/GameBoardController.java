@@ -516,7 +516,8 @@ public class GameBoardController implements ServerListener {
                         if (navigationPause != null) {
                             navigationPause.stop();
                         }
-                        ServerConnection.getConnection().setListener(null);
+                        if(session.getSessionType()== SessionType.ONLINE)
+                            ServerConnection.getConnection().setListener(null);
 
                         DialogUtil.closeCurrentDialog();
                         session.leaveMatch();

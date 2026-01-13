@@ -197,8 +197,16 @@ public class LoginPageController implements ServerListener, Initializable {
 
     @Override
     public void onDisconnect() {
-        isSubmited = false;
-        loginButton.setDisable(false);
-        DialogUtil.showAlert("Server Offline", "The server is currently unreachable.", Alert.AlertType.ERROR, this);
+        Platform.runLater(() -> {
+                DialogUtil.showBrandedDialog("Disconnected", "Lost connection to server.", true, false, "OK", "", () -> {
+                    try {
+                        App.setLoggedIn(false);
+                        App.setCurrentUser(null);
+                        App.setRoot("homePage");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }, null);
+            });
     }
 }

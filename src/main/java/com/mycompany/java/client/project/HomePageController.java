@@ -146,8 +146,6 @@ public class HomePageController implements ServerListener {
         });
     }
 
-    private void handleInvite(String playerName) {
-    }
 
     private void updateLeaderboard(JsonElement payload) {
         Platform.runLater(() -> {
@@ -297,10 +295,9 @@ public class HomePageController implements ServerListener {
 
     @Override
     public void onDisconnect() {
-        App.setLoggedIn(false);
         loginButton.setDisable(true);
+        App.setLoggedIn(false);
         updateUIState();
-        handleServerOffline();
     }
 
     private void showAlert(String title, String content, Alert.AlertType type) {
