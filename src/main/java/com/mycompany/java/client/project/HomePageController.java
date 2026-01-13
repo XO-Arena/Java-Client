@@ -253,47 +253,46 @@ public class HomePageController implements ServerListener {
         if (response.getType() == null) {
             return;
         }
-        switch (response.getType()) {
+        Platform.runLater(() -> {
+            Stage currentStage = (Stage) onlinePlayersList.getScene().getWindow();
+            switch (response.getType()) {
 
-            case ONLINE_PLAYERS:
-                updateOnlinePlayersList(response.getPayload());
-                break;
+                case ONLINE_PLAYERS:
+                    updateOnlinePlayersList(response.getPayload());
+                    break;
 
-            case LEADERBOARD:
-                updateLeaderboard(response.getPayload());
-                break;
-            case JOIN_GAME:
-                DialogUtil.closeCurrentDialog();
-                handleGameJoin(response.getPayload());
-                break;
-            case GAME_STARTED:
-                DialogUtil.closeCurrentDialog();
-                handleGameStarted(response.getPayload());
-                break;
+                case LEADERBOARD:
+                    updateLeaderboard(response.getPayload());
+                    break;
+                case JOIN_GAME:
+                    DialogUtil.closeCurrentDialog();
+                    handleGameJoin(response.getPayload());
+                    break;
+                case GAME_STARTED:
+                    DialogUtil.closeCurrentDialog();
+                    handleGameStarted(response.getPayload());
+                    break;
 
-            case GAME_INVITE:
-                invitationService.handleReceivedInvite(response.getPayload());
-                break;
+                case GAME_INVITE:
+                    invitationService.handleReceivedInvite(response.getPayload(), currentStage);
+                    break;
 
-            case INVITE_ACCEPTED:
-                invitationService.onInvitationAccepted(response.getPayload());
-                break;
+                case INVITE_ACCEPTED:
+                    invitationService.onInvitationAccepted(response.getPayload());
+                    break;
 
-            case INVITE_REJECTED:
-                Stage stage = (Stage) onlinePlayersList.getScene().getWindow();
-                invitationService.onInvitationRejected(stage);
-                break;
-            case INVITE_CANCELED:
-                Stage stagee = (Stage) onlinePlayersList.getScene().getWindow();
+                case INVITE_REJECTED:
+                    invitationService.onInvitationRejected(currentStage);
+                    break;
+                case INVITE_CANCELED:
 
-                InvitationDTO inviteDTO = gson.fromJson(response.getPayload(), InvitationDTO.class);
+                    invitationService.handleIncomingCancellation(response.getPayload(), currentStage);
 
-                invitationService.handleIncomingCancellation(inviteDTO.getSenderUsername(), stagee);
-
-                break;
-            default:
-                break;
-        }
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     @Override
