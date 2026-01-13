@@ -50,6 +50,8 @@ import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import models.GameRecord;
 import util.DialogUtil;
+import javafx.scene.image.Image;
+import javafx.scene.paint.ImagePattern;
 
 public class GameBoardController implements ServerListener {
 
@@ -116,6 +118,37 @@ public class GameBoardController implements ServerListener {
         buttonsMap.put("22", btn22);
     }
 
+    private void setAvatarByGender(Circle circle, UserGender gender) {
+        String imagePath;
+        
+        if (gender == null) {
+            imagePath = "/assets/boy.png";
+        } else {
+            switch (gender) {
+                case MALE:
+                    imagePath = "/assets/boy.png";
+                    break;
+                case FEMALE:
+                    imagePath = "/assets/girl.png";
+                    break;
+                default:
+                    imagePath = "/assets/boy.png";
+                    break;
+            }
+        }
+        
+        try {
+            Image image = new Image(getClass().getResourceAsStream(imagePath));
+            ImagePattern pattern = new ImagePattern(image);
+            circle.setFill(pattern);
+        } catch (Exception e) {
+            System.err.println("Error loading avatar image: " + imagePath);
+            e.printStackTrace();
+            // Set a default color if image fails to load
+            circle.setFill(Color.GRAY);
+        }
+    }
+
     public void initPlayers(Player player, Player opponent) {
 
         player1 = player;
@@ -125,6 +158,10 @@ public class GameBoardController implements ServerListener {
 
         player1Name.setText(player1.getUsername());
         player2Name.setText(player2.getUsername());
+        
+        // Set avatar images based on gender
+        setAvatarByGender(player1Avatar, player1.getGender());
+        setAvatarByGender(player2Avatar, player2.getGender());
 
         updateBoardUI();
         updateScoreUI();
@@ -140,6 +177,10 @@ public class GameBoardController implements ServerListener {
 
         player1Name.setText(player1.getUsername());
         player2Name.setText(player2.getUsername());
+        
+        // Set avatar images based on gender
+        setAvatarByGender(player1Avatar, player1.getGender());
+        setAvatarByGender(player2Avatar, player2.getGender());
 
         updateBoardUI();
         updateScoreUI();
@@ -156,6 +197,10 @@ public class GameBoardController implements ServerListener {
 
         player1Name.setText(player1.getUsername());
         player2Name.setText(player2.getUsername());
+        
+        // Set avatar images based on gender
+        setAvatarByGender(player1Avatar, player1.getGender());
+        setAvatarByGender(player2Avatar, player2.getGender());
 
         // Reset the board UI
         resetBoard();
@@ -517,7 +562,6 @@ public class GameBoardController implements ServerListener {
                             navigationPause.stop();
                         }
                         ServerConnection.getConnection().setListener(null);
-
                         DialogUtil.closeCurrentDialog();
                         session.leaveMatch();
                         App.setRoot("homePage");

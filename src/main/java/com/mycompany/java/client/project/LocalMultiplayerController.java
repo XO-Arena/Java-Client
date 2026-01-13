@@ -1,9 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
- */
 package com.mycompany.java.client.project;
-
 import enums.PlayerSymbol;
 import enums.PlayerType;
 import enums.UserGender;
@@ -16,6 +11,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 
 /**
@@ -24,30 +21,45 @@ import javafx.scene.shape.Circle;
  * @author mohan
  */
 public class LocalMultiplayerController implements Initializable {
-
     @FXML
     private Button backButton;
     @FXML
     private Circle player2Avatar;
     @FXML
     private TextField player2NameField;
-    @FXML
-    private Button swapButton;
+    
     @FXML
     private Circle player1Avatar;
     @FXML
     private TextField player1NameField;
     @FXML
     private Button startButton;
-
+    
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        // Load and set images for player avatars
+        setAvatarImage(player1Avatar, "/assets/boy.png");
+        setAvatarImage(player2Avatar, "/assets/boy.png");
     }    
-
+    
+    private void setAvatarImage(Circle circle, String imagePath) {
+        try {
+            // Load the image from resources
+            Image image = new Image(getClass().getResourceAsStream(imagePath));
+            
+            // Create an ImagePattern and set it as the circle's fill
+            ImagePattern pattern = new ImagePattern(image);
+            circle.setFill(pattern);
+            
+        } catch (Exception e) {
+            System.err.println("Error loading image: " + imagePath);
+            e.printStackTrace();
+        }
+    }
+    
     @FXML
     private void handleBack(ActionEvent event) {
         try {
@@ -56,11 +68,7 @@ public class LocalMultiplayerController implements Initializable {
             System.getLogger(LocalMultiplayerController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
-
-    @FXML
-    private void handleSwap(ActionEvent event) {
-    }
-
+    
     @FXML
     private void handleStart(ActionEvent event) {
         try {
@@ -73,5 +81,4 @@ public class LocalMultiplayerController implements Initializable {
             System.getLogger(LocalMultiplayerController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
-    
 }
