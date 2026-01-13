@@ -457,7 +457,7 @@ public class HomePageController implements ServerListener {
                 loadingAlert.hide();
                 loadingAlert.close();
 
-                navigateToGameBoard(gameInfo);
+//                navigateToGameBoard(gameInfo);
             });
             pause.play();
         });
