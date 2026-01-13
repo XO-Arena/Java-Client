@@ -202,10 +202,8 @@ public class GameResultController implements Initializable, ServerListener {
                 "Cancel",
                 () -> { // Primary action
                     try {
-                        if (session.getSessionType() == SessionType.ONLINE) {
-                             Request req = new Request(RequestType.LEAVE_GAME, new Gson().toJsonTree(session.getSessionId()));
-                             ServerConnection.getConnection().sendRequest(req);
-                        }
+                        Request req = new Request(RequestType.LEAVE_GAME, new Gson().toJsonTree(session.getSessionId()));
+                        ServerConnection.getConnection().sendRequest(req);
                         DialogUtil.closeCurrentDialog();
                         App.setRoot("homePage");
                     } catch (IOException e) {
