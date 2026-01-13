@@ -89,30 +89,15 @@ public class InvitationService {
         });
     }
 
-//    public void stopInvitationProcess() {
-//        if (gameTimer != null) {
-//            gameTimer.stop();
-//        }
-//
-//        Platform.runLater(() -> {
-//            if (waitingAlert != null && waitingAlert.isShowing()) {
-//                waitingAlert.close();
-//            }
-//            resetInviteButtons();
-//        });
-//    }
-// أضف هذا المتغير فوق مع waitingAlert
     public void stopInvitationProcess() {
         if (gameTimer != null) {
             gameTimer.stop();
         }
 
         Platform.runLater(() -> {
-            // إغلاق ديالوج الانتظار
             if (waitingAlert != null && waitingAlert.isShowing()) {
                 waitingAlert.close();
             }
-            // إغلاق ديالوج الاستقبال
             if (inviteAlert != null && inviteAlert.isShowing()) {
                 inviteAlert.close();
             }
@@ -131,7 +116,7 @@ public class InvitationService {
 
     ///////////////////////////////////////////////////////////////////////////////
     
- private void showWaitingPopup(String receiver, Stage stage) {
+    private void showWaitingPopup(String receiver, Stage stage) {
         if (gameTimer != null) {
             gameTimer.stop();
         }
