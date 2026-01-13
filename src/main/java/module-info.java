@@ -5,6 +5,7 @@ module com.mycompany.java.client.project {
     requires java.desktop;
     requires javafx.swing;
     requires com.google.gson;
+    requires javafx.media;
     
     opens com.mycompany.java.client.project to javafx.fxml;
     opens com.mycompany.java.client.project.data to com.google.gson;
