@@ -66,9 +66,12 @@ public class ServerConnection implements Closeable {
                         listener.onMessage(response);
                     }
                 }
+                close();
             } catch (IOException e) {
-                if (listener != null) {
-                    listener.onDisconnect();
+                try {
+                    close();
+                } catch (IOException ex) {
+                    System.getLogger(ServerConnection.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
                 }
             }
         });
@@ -98,8 +101,21 @@ public class ServerConnection implements Closeable {
 
     @Override
     public void close() throws IOException {
-        if (writer != null) writer.close();
-        if (reader != null) reader.close();
-        if (socket != null) socket.close();
+        if (writer != null) {
+            writer.close();
+        }
+        if (reader != null) {
+            reader.close();
+        }
+        if (socket != null) {
+            socket.close();
+        }
+        synchronized (lock) {
+            INSTANCE = null;
+        }
+
+        if (listener != null) {
+            listener.onDisconnect();
+        }
     }
 }
