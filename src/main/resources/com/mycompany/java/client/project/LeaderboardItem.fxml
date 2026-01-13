@@ -16,7 +16,7 @@
 
             <Label fx:id="playerNameLabel" maxWidth="Infinity" styleClass="player-name-small" text="PlayerName" HBox.hgrow="ALWAYS" />
 
-            <Label fx:id="scoreLabel" styleClass="score-text" text="1,250 XP" />
+            <Label fx:id="scoreLabel" styleClass="score-text" text="1,250 PTS" />
          </children>
       </HBox>
    </children>

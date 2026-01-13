@@ -171,7 +171,6 @@ public class GameResultController implements Initializable, ServerListener {
 
     private void setAvatarImage(Player player, Circle avatarCircle) {
         try {
-            // Get avatar path based on player gender
             String avatarPath = getAvatarPath(player);
             
             if (avatarPath != null) {
@@ -180,14 +179,10 @@ public class GameResultController implements Initializable, ServerListener {
             }
         } catch (Exception e) {
             System.err.println("Failed to load avatar for " + player.getUsername() + ": " + e.getMessage());
-            // Keep default fill if image fails to load
         }
     }
 
     private String getAvatarPath(Player player) {
-        // Customize this based on your avatar naming convention
-        // Example: /assets/male_avatar.png or /assets/female_avatar.png
-        
         switch (player.getGender()) {
             case MALE:
                 return "/assets/boy.png";
