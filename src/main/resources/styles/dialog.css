@@ -110,3 +110,58 @@
     -fx-background-color: #1e293b;
     -fx-text-fill: #cbd5e1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.dialog-pane {
+    -fx-background-color: #1a1a2e;
+    -fx-border-color: #16213e;
+    -fx-border-width: 2;
+}
+
+.dialog-label-main {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-text-alignment: center;
+}
+
+.dialog-label-sub {
+    -fx-font-size: 14px;
+    -fx-text-fill: #94a3b8;
+    -fx-text-alignment: center;
+}
+
+.custom-vbox {
+    -fx-spacing: 20;
+    -fx-alignment: center;
+    -fx-padding: 30;
+}
+
+.dialog-pane .button {
+    -fx-background-color: #0f3460;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.dialog-pane .button:hover { -fx-background-color: #e94560; }
