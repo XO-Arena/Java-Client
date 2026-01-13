@@ -270,7 +270,7 @@ public class HomePageController implements ServerListener {
                 DialogUtil.closeCurrentDialog();
                 handleGameStarted(response.getPayload());
                 break;
-                
+
             case GAME_INVITE:
                 invitationService.handleReceivedInvite(response.getPayload());
                 break;
@@ -282,6 +282,14 @@ public class HomePageController implements ServerListener {
             case INVITE_REJECTED:
                 Stage stage = (Stage) onlinePlayersList.getScene().getWindow();
                 invitationService.onInvitationRejected(stage);
+                break;
+            case INVITE_CANCELED:
+                Stage stagee = (Stage) onlinePlayersList.getScene().getWindow();
+
+                InvitationDTO inviteDTO = gson.fromJson(response.getPayload(), InvitationDTO.class);
+
+                invitationService.handleIncomingCancellation(inviteDTO.getSenderUsername(), stagee);
+
                 break;
             default:
                 break;
@@ -402,7 +410,11 @@ public class HomePageController implements ServerListener {
             }
         });
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cb0eaa2 (feat: implement invitation cancellation logic and waiting popups)
     private void handleGameStarted(JsonElement json) {
         Platform.runLater(() -> {
             try {
@@ -414,7 +426,7 @@ public class HomePageController implements ServerListener {
             }
         });
     }
-    
+
     public void sendInvite(String receiverName, PlayerItemController itemController) {
         Stage stage = (Stage) onlinePlayersList.getScene().getWindow();
         String currentUsername = App.getCurrentUser().getUsername();
