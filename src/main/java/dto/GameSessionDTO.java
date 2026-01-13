@@ -25,11 +25,13 @@ public class GameSessionDTO {
     private int player1Wins;
     private int player2Wins;
     private int draws;
+    private boolean player1Left;
+    private boolean player2Left;
 
     public GameSessionDTO() {
     }
 
-    public GameSessionDTO(String sessionId, PlayerDTO player1, PlayerDTO player2, PlayerSymbol currentTurn, BoardDTO board, GameResult result, SessionStatus status, int player1Wins, int player2Wins, int draws) {
+    public GameSessionDTO(String sessionId, PlayerDTO player1, PlayerDTO player2, PlayerSymbol currentTurn, BoardDTO board, GameResult result, SessionStatus status, int player1Wins, int player2Wins, int draws, boolean player1Left, boolean player2Left) {
         this.sessionId = sessionId;
         this.player1 = player1;
         this.player2 = player2;
@@ -40,6 +42,8 @@ public class GameSessionDTO {
         this.player1Wins = player1Wins;
         this.player2Wins = player2Wins;
         this.draws = draws;
+        this.player1Left = player1Left;
+        this.player2Left = player2Left;
     }
     
     public static GameSessionDTO fromModel(GameSession gameSession) {
@@ -53,7 +57,9 @@ public class GameSessionDTO {
                 gameSession.isGameEnded() ? SessionStatus.FINISHED : SessionStatus.IN_PROGRESS,
                 gameSession.getPlayer1Wins(),
                 gameSession.getPlayer2Wins(),
-                gameSession.getDrawCount()
+                gameSession.getDrawCount(),
+                false, // Client side doesn't track this in model usually, but we will add logic later if needed
+                false
         );
     }
 
@@ -121,7 +127,7 @@ public class GameSessionDTO {
         this.player1Wins = player1Wins;
     }
 
-    public int getPlayer2Wins() {
+    public int getPlayer2Wins() { 
         return player2Wins;
     }
 
@@ -135,5 +141,21 @@ public class GameSessionDTO {
 
     public void setDraws(int draws) {
         this.draws = draws;
+    }
+
+    public boolean isPlayer1Left() {
+        return player1Left;
+    }
+
+    public void setPlayer1Left(boolean player1Left) {
+        this.player1Left = player1Left;
+    }
+
+    public boolean isPlayer2Left() {
+        return player2Left;
+    }
+
+    public void setPlayer2Left(boolean player2Left) {
+        this.player2Left = player2Left;
     }
 }

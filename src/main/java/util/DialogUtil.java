@@ -11,6 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -90,6 +91,36 @@ public class DialogUtil {
                 currentDialogStage = null;
             }
         });
+    }
+
+    public static void showInfoDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        styleDialog(alert);
+        alert.showAndWait();
+    }
+
+    public static void showErrorDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        styleDialog(alert);
+        alert.showAndWait();
+    }
+
+    private static void styleDialog(Alert alert) {
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(DialogUtil.class
+                .getResourceAsStream("/assets/xo.png")));
+
+        DialogPane pane = alert.getDialogPane();
+        pane.getStylesheets().add(
+                DialogUtil.class.getResource("/styles/main.css").toExternalForm()
+        );
+        pane.getStyleClass().add("custom-dialog");
     }
 
 }

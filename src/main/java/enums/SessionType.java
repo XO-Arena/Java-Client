@@ -7,5 +7,6 @@ package enums;
 public enum SessionType {
     LOCAL,
     AI,
-    ONLINE  
+    ONLINE,
+    RECORDED
 }

@@ -1,19 +1,14 @@
 package com.mycompany.java.client.project;
 
+import models.GameRecord;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
-/**
- * Controller for individual game card items
- * 
- * @author ANTER
- */
 public class GameCardItemController implements Initializable {
 
     @FXML
@@ -35,7 +30,7 @@ public class GameCardItemController implements Initializable {
     private Button playButton;
     
     private GameRecord gameRecord;
-    private Consumer<GameRecord> onPlayCallback;
+    private RecordedGamesController recGameController;
     @FXML
     private Button deleteButton;
 
@@ -44,31 +39,24 @@ public class GameCardItemController implements Initializable {
         // Initialize if needed
     }
     
-    /**
-     * Sets the game data for this card
-     */
+  
     public void setGameData(GameRecord game) {
         this.gameRecord = game;
         updateUI();
     }
     
-    /**
-     * Sets the callback function to be called when play button is clicked
-     */
-    public void setOnPlayCallback(Consumer<GameRecord> callback) {
-        this.onPlayCallback = callback;
+  
+    public void setRecGameController(RecordedGamesController controller) {
+        this.recGameController = controller;
     }
     
-    /**
-     * Updates the UI with game data
-     */
     private void updateUI() {
         if (gameRecord == null) return;
         
         player1Label.setText(gameRecord.getPlayer1());
         player2Label.setText(gameRecord.getPlayer2());
         dateLabel.setText(gameRecord.getDate());
-        movesLabel.setText(gameRecord.getMoves() + " moves");
+        movesLabel.setText(gameRecord.getMovesCount()+ " moves");
         
         // Set winner label and style
         String winner = gameRecord.getWinner();
@@ -89,9 +77,7 @@ public class GameCardItemController implements Initializable {
      */
     @FXML
     private void handlePlay(ActionEvent event) {
-        if (onPlayCallback != null && gameRecord != null) {
-            onPlayCallback.accept(gameRecord);
-        }
+        recGameController.handlePlayGame(gameRecord);
     }
     
     /**
@@ -103,5 +89,6 @@ public class GameCardItemController implements Initializable {
 
     @FXML
     private void handleDelete(ActionEvent event) {
+        recGameController.handleDeleteGame(gameRecord);
     }
 }

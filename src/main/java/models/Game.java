@@ -2,17 +2,20 @@ package models;
 
 import enums.GameResult;
 import enums.PlayerSymbol;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Game {
 
     private Board board;
     private PlayerSymbol currentPlayer;
     private boolean hasEnded;
-
+    private List<Move> moves;
     public Game() {
         board = new Board();
         currentPlayer = PlayerSymbol.X;
         hasEnded = false;
+        moves = new ArrayList<>();
     }
 
     public Board getBoard() {
@@ -34,9 +37,14 @@ public class Game {
         }
 
         board.setCell(row, col, currentPlayer);
+        moves.add(new Move(currentPlayer,row,col));
         return true;
     }
-
+    
+    public List<Move> getMoves() {
+        return moves;
+    }
+    
     public void switchPlayer() {
         currentPlayer = (currentPlayer == PlayerSymbol.X) ? PlayerSymbol.O : PlayerSymbol.X;
     }

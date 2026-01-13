@@ -1,19 +1,26 @@
 package com.mycompany.java.client.project;
 
-import com.google.gson.Gson;
 import com.mycompany.java.client.project.data.Request;
 import com.mycompany.java.client.project.data.Response;
 import com.mycompany.java.client.project.data.ServerConnection;
 import com.mycompany.java.client.project.data.ServerListener;
 import dto.GameSessionDTO;
-import enums.GameResult;
 import enums.RequestType;
 import enums.ResponseType;
 import enums.SessionType;
+import models.GameRecord;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import enums.GameResult;
+import java.io.FileWriter;
 import models.GameSession;
 import models.Player;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -50,7 +57,11 @@ public class GameResultController implements Initializable, ServerListener {
     private Label player2Name;
     @FXML
     private Label player2Symbol;
-
+    @FXML
+    private Button leaveButton;
+    @FXML
+    private Button rematchButton;
+    
     private GameSession session;
     private Player player1;
     private Player player2;
@@ -60,7 +71,7 @@ public class GameResultController implements Initializable, ServerListener {
     // Images for crown and clown hat
     private Image crownImage;
     private Image clownHatImage;
-
+    private String winner;
     /**
      * Initializes the controller class.
      */
@@ -84,6 +95,12 @@ public class GameResultController implements Initializable, ServerListener {
         if (session.getSessionType() == SessionType.ONLINE) {
             try {
                 ServerConnection.getConnection().setListener(this);
+                if (session.isOpponentLeft()) {
+                     if (rematchButton != null) {
+                        rematchButton.setDisable(true);
+                        rematchButton.setText("Opponent Left");
+                     }
+                }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -114,6 +131,7 @@ public class GameResultController implements Initializable, ServerListener {
                 // Player 2 loses - show clown hat
                 player2Crown.setImage(clownHatImage);
                 player2Crown.setVisible(true);
+                winner = session.getPlayer1().getUsername();
                 break;
 
             case O_WIN:
@@ -131,6 +149,11 @@ public class GameResultController implements Initializable, ServerListener {
 
             case DRAW:
                 // No winner in a draw - no crowns or hats
+                winner = session.getPlayer2().getUsername();
+                break;
+
+            case DRAW:
+                winner = result.name();
                 break;
 
             default:
@@ -166,6 +189,35 @@ public class GameResultController implements Initializable, ServerListener {
 
     @FXML
     private void handleSaveGame(ActionEvent event) {
+        leaveButton.setDisable(true); 
+        rematchButton.setDisable(true);
+        ((Button) event.getSource()).setDisable(true);
+        GameRecord record = new GameRecord(
+                System.currentTimeMillis(),
+                session.getPlayer1().getUsername(),
+                session.getPlayer2().getUsername(),
+                winner,
+                LocalDate.now().toString(),
+                session.getGame().getMoves()
+        );
+
+        boolean saved = saveGameToFile(record);
+
+        if (saved) {
+            DialogUtil.showInfoDialog(
+                    "Game Saved",
+                    "The game was saved successfully 🎉"
+            ); 
+            ((Button) event.getSource()).setText("Saved!");
+            ((Button) event.getSource()).setDisable(true);
+        } else {
+            DialogUtil.showErrorDialog(
+                    "Save Failed",
+                    "Something went wrong while saving the game."
+            );
+        }
+        leaveButton.setDisable(false); 
+        rematchButton.setDisable(false);
     }
 
     @FXML
@@ -181,6 +233,8 @@ public class GameResultController implements Initializable, ServerListener {
                 "Cancel",
                 () -> { // Primary action
                     try {
+                        Request req = new Request(RequestType.LEAVE_GAME, new Gson().toJsonTree(session.getSessionId()));
+                        ServerConnection.getConnection().sendRequest(req);
                         DialogUtil.closeCurrentDialog();
                         App.setRoot("homePage");
                     } catch (IOException e) {
@@ -194,7 +248,6 @@ public class GameResultController implements Initializable, ServerListener {
 
     }
 
-    @Override
     public void onMessage(Response response) {
         if (response.getType() == ResponseType.REMATCH_REQUESTED) {
             Platform.runLater(() -> {
@@ -204,6 +257,19 @@ public class GameResultController implements Initializable, ServerListener {
                 msg.setLayoutX(parent.getWidth() / 2 - 100);
                 msg.setLayoutY(parent.getHeight() - 100);
                 parent.getChildren().add(msg);
+            });
+        } else if (response.getType() == ResponseType.OPPONENT_LEFT) {
+            Platform.runLater(() -> {
+                 if (rematchButton != null) {
+                    rematchButton.setDisable(true);
+                    rematchButton.setText("Opponent Left");
+                 }
+                 Pane parent = (Pane) player1Name.getScene().getRoot();
+                 Label msg = new Label("Opponent has left the game.");
+                 msg.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10px; -fx-background-radius: 5px;");
+                 msg.setLayoutX(parent.getWidth() / 2 - 100);
+                 msg.setLayoutY(parent.getHeight() - 150);
+                 parent.getChildren().add(msg);
             });
         } else if (response.getType() == ResponseType.GAME_STARTED || response.getType() == ResponseType.GAME_UPDATE) {
             GameSessionDTO dto = new Gson().fromJson(response.getPayload(), GameSessionDTO.class);
@@ -222,4 +288,25 @@ public class GameResultController implements Initializable, ServerListener {
     public void onDisconnect() {
         // Handle disconnect if needed
     }
+
+    private boolean saveGameToFile(GameRecord record) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Path dir = Paths.get("games");
+
+        try {
+            Files.createDirectories(dir);
+
+            Path filePath = dir.resolve(record.getId() + ".json");
+            try (FileWriter writer = new FileWriter(filePath.toFile())) {
+                gson.toJson(record, writer);
+            }
+            return true;
+
+        } catch (IOException ex) {
+            System.getLogger(GameResultController.class.getName())
+                    .log(System.Logger.Level.ERROR, "Failed to save game", ex);
+            return false;
+        }
+    }
+
 }

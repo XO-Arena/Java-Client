@@ -61,8 +61,10 @@ public class HomePageController implements ServerListener {
     private Button loginButton;
     @FXML
     private Label statusText;
+     @FXML
+    private Label welcomeText;
+     
     private ListView<AnchorPane> recordedGamesList;
-
     private Gson gson;
     private ServerConnection con;
     private Stage currentDialogStage;
@@ -101,7 +103,7 @@ public class HomePageController implements ServerListener {
                 statusText.setText("status: Online");
                 statusText.getStyleClass().removeAll("status-offline");
                 statusText.getStyleClass().add("status-online");
-
+                welcomeText.setText("Welcome, "+App.getCurrentUser().getUsername()+"!");
                 sidePanel.setVisible(true);
                 sidePanel.setManaged(true);
                 quickGameButton.setDisable(false);
@@ -251,39 +253,46 @@ public class HomePageController implements ServerListener {
         if (response.getType() == null) {
             return;
         }
-        switch (response.getType()) {
+        Platform.runLater(() -> {
+            Stage currentStage = (Stage) onlinePlayersList.getScene().getWindow();
+            switch (response.getType()) {
 
-            case ONLINE_PLAYERS:
-                updateOnlinePlayersList(response.getPayload());
-                break;
+                case ONLINE_PLAYERS:
+                    updateOnlinePlayersList(response.getPayload());
+                    break;
 
-            case LEADERBOARD:
-                updateLeaderboard(response.getPayload());
-                break;
-            case JOIN_GAME:
-                DialogUtil.closeCurrentDialog();
-                handleGameJoin(response.getPayload());
-                break;
-            case GAME_STARTED:
-                DialogUtil.closeCurrentDialog();
-                handleGameStarted(response.getPayload());
-                break;
-                
-            case GAME_INVITE:
-                invitationService.handleReceivedInvite(response.getPayload());
-                break;
+                case LEADERBOARD:
+                    updateLeaderboard(response.getPayload());
+                    break;
+                case JOIN_GAME:
+                    DialogUtil.closeCurrentDialog();
+                    handleGameJoin(response.getPayload());
+                    break;
+                case GAME_STARTED:
+                    DialogUtil.closeCurrentDialog();
+                    handleGameStarted(response.getPayload());
+                    break;
 
-            case INVITE_ACCEPTED:
-                invitationService.onInvitationAccepted(response.getPayload());
-                break;
+                case GAME_INVITE:
+                    invitationService.handleReceivedInvite(response.getPayload(), currentStage);
+                    break;
 
-            case INVITE_REJECTED:
-                Stage stage = (Stage) onlinePlayersList.getScene().getWindow();
-                invitationService.onInvitationRejected(stage);
-                break;
-            default:
-                break;
-        }
+                case INVITE_ACCEPTED:
+                    invitationService.onInvitationAccepted(response.getPayload());
+                    break;
+
+                case INVITE_REJECTED:
+                    invitationService.onInvitationRejected(currentStage);
+                    break;
+                case INVITE_CANCELED:
+
+                    invitationService.handleIncomingCancellation(response.getPayload(), currentStage);
+
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     @Override
@@ -388,31 +397,33 @@ public class HomePageController implements ServerListener {
     }
 
     private void handleGameJoin(JsonElement json) {
-        try {
-            GameBoardController controller = App.setRoot("GameBoardPage").getController();
-            PlayerDTO[] playerDTO = gson.fromJson(json, PlayerDTO[].class);
-            controller.initPlayers(Player.fromPlayerDto(playerDTO[0]), Player.fromPlayerDto(playerDTO[1]));
-            System.out.println("Join game:\n" + json);
-        } catch (IOException ex) {
-            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
+        Platform.runLater(() -> {
+
+            try {
+                GameBoardController controller = App.setRoot("GameBoardPage").getController();
+                PlayerDTO[] playerDTO = gson.fromJson(json, PlayerDTO[].class);
+                controller.initPlayers(Player.fromPlayerDto(playerDTO[0]), Player.fromPlayerDto(playerDTO[1]));
+                System.out.println("Join game:\n" + json);
+            } catch (IOException ex) {
+                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        });
     }
-    
-    
-    
     private void handleGameStarted(JsonElement json) {
-        try {
-            GameBoardController controller = App.setRoot("GameBoardPage").getController();
-            GameSessionDTO dto = gson.fromJson(json, GameSessionDTO.class);
-            controller.initOnlineGame(dto);
-        } catch (IOException ex) {
-            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
+        Platform.runLater(() -> {
+            try {
+                GameBoardController controller = App.setRoot("GameBoardPage").getController();
+                GameSessionDTO dto = gson.fromJson(json, GameSessionDTO.class);
+                controller.initOnlineGame(dto);
+            } catch (IOException ex) {
+                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        });
     }
-    
+
     public void sendInvite(String receiverName, PlayerItemController itemController) {
         Stage stage = (Stage) onlinePlayersList.getScene().getWindow();
-        String currentUsername = "hunter";
+        String currentUsername = App.getCurrentUser().getUsername();
 
         invitationService.initiateInvitation(receiverName, currentUsername, itemController, stage);
     }
@@ -446,7 +457,7 @@ public class HomePageController implements ServerListener {
                 loadingAlert.hide();
                 loadingAlert.close();
 
-                navigateToGameBoard(gameInfo);
+//                navigateToGameBoard(gameInfo);
             });
             pause.play();
         });

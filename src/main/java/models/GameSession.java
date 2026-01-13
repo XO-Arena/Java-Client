@@ -28,6 +28,7 @@ public class GameSession {
     private String sessionId;
     
     private ServerConnection con;
+    private boolean opponentLeft;
 
     public GameSession(Player player1, Player player2, SessionType type) {
         this.player1 = player1;
@@ -38,6 +39,7 @@ public class GameSession {
         this.player1Wins = this.player2Wins = this.drawCount = 0;
 
         this.spectatorsList = new ArrayList<>();
+        this.opponentLeft = false;
         
         if (sessionType == SessionType.ONLINE) {
             try {
@@ -63,6 +65,7 @@ public class GameSession {
     public void startNewGame() {
         this.game = new Game();
         this.lastResult = GameResult.NONE;
+        this.opponentLeft = false;
         if (sessionType == SessionType.AI) {
             AIPlayer aiPlayer = (AIPlayer) player2;
             moveProvider = new ComputerMoveProvider(game.getBoard(), aiPlayer.getDifficulty(), player2.getSymbol());
@@ -83,6 +86,14 @@ public class GameSession {
 
     public void setDrawCount(int drawCount) {
         this.drawCount = drawCount;
+    }
+
+    public boolean isOpponentLeft() {
+        return opponentLeft;
+    }
+
+    public void setOpponentLeft(boolean opponentLeft) {
+        this.opponentLeft = opponentLeft;
     }
     
     public String getSessionId() {

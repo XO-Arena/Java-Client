@@ -11,6 +11,7 @@ import dto.InvitationDTO;
 import enums.GameResult;
 import enums.PlayerSymbol;
 import enums.PlayerType;
+import static enums.PlayerType.ONLINE;
 import enums.RequestType;
 import enums.ResponseType;
 import enums.SessionStatus;
@@ -47,13 +48,7 @@ import javafx.scene.shape.StrokeLineCap;
 import javax.imageio.ImageIO;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import models.GameRecord;
 import util.DialogUtil;
 
 public class GameBoardController implements ServerListener {
@@ -98,6 +93,11 @@ public class GameBoardController implements ServerListener {
     private TextField label_turn;
 
     private PauseTransition navigationPause;
+    private GameRecord record;
+    private List<Move> moves;
+    private int moveItrator = 0;
+    private boolean isRecordedMode = false;
+    private boolean replayStarted = false;
 
     public void initialize() {
         initButtonsMap();
@@ -116,7 +116,7 @@ public class GameBoardController implements ServerListener {
         buttonsMap.put("22", btn22);
     }
 
-public void initPlayers(Player player, Player opponent) {
+    public void initPlayers(Player player, Player opponent) {
 
         player1 = player;
         player2 = opponent;
@@ -145,7 +145,7 @@ public void initPlayers(Player player, Player opponent) {
         updateScoreUI();
         highlightCurrentPlayer();
     }
-        
+
     public void continueSession(GameSession existingSession, Player p1, Player p2) {
         this.session = existingSession;
         this.player1 = p1;
@@ -192,6 +192,9 @@ public void initPlayers(Player player, Player opponent) {
 
     @FXML
     private void handleMove(ActionEvent event) {
+        if (isRecordedMode) {
+            return;
+        }
 
         if (session.isGameEnded()) {
             return;
@@ -229,7 +232,10 @@ public void initPlayers(Player player, Player opponent) {
     }
 
     private void handleNextTurn() {
-
+        if (isRecordedMode) {
+            playRecordedMove();
+            return;
+        }
         if (session.isGameEnded()) {
             return;
         }
@@ -243,12 +249,10 @@ public void initPlayers(Player player, Player opponent) {
             case COMPUTER:
                 playComputerMove();
                 break;
-
-            case ONLINE:
-                waitForServerMove();
-                break;
-
+            case RECORDED:
+                playRecordedMove();
             case LOCAL:
+            case ONLINE:
                 break;
         }
     }
@@ -257,17 +261,6 @@ public void initPlayers(Player player, Player opponent) {
 
         Move move = session.getMoveProvider().getNextMove();
         session.playMove(move.row, move.col);
-
-        endTurn();
-    }
-
-    private void waitForServerMove() {
-        System.out.println("Waiting for server move...");
-    }
-
-    public void onServerMove(int row, int col) {
-
-        session.playMove(row, col);
 
         endTurn();
     }
@@ -373,6 +366,18 @@ public void initPlayers(Player player, Player opponent) {
     }
 
     private void navigateToGameResult() {
+        if (isRecordedMode) {
+            PauseTransition pause = new PauseTransition(Duration.seconds(1));
+            pause.setOnFinished(e -> {
+                try {
+                    App.setRoot("recordedGames");
+                } catch (IOException ex) {
+                    System.getLogger(GameBoardController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                }
+            });
+            pause.play();
+            return;
+        }
 
         // make a little delay to show the winning line
         navigationPause = new PauseTransition(Duration.seconds(2));
@@ -526,6 +531,45 @@ public void initPlayers(Player player, Player opponent) {
         );
     }
 
+    public void initRecordedGame(GameRecord record) {
+        this.record = record;
+        this.moves = record.getMoves();
+        this.isRecordedMode = true;
+        this.moveItrator = 0;
+
+        resetBoard();
+        disableBoard();
+
+        playRecordedMove();
+    }
+
+    private void playRecordedMove() {
+
+        if (!replayStarted) {
+            replayStarted = true;
+
+            PauseTransition startDelay = new PauseTransition(Duration.seconds(1));
+            startDelay.setOnFinished(e -> playRecordedMove());
+            startDelay.play();
+            return;
+        }
+
+        if (moveItrator >= moves.size()) {
+            highlightWinningCells();
+            return;
+        }
+
+        Move move = moves.get(moveItrator++);
+        session.playMove(move.row, move.col);
+
+        updateBoardUI();
+        highlightCurrentPlayer();
+
+        PauseTransition pause = new PauseTransition(Duration.seconds(1));
+        pause.setOnFinished(e -> playRecordedMove());
+        pause.play();
+    }
+
     public void initOnlineGame(GameSessionDTO dto) {
         Player p1 = Player.fromPlayerDto(dto.getPlayer1());
         Player p2 = Player.fromPlayerDto(dto.getPlayer2());
@@ -534,9 +578,13 @@ public void initPlayers(Player player, Player opponent) {
         if (p1.getUsername().equals(myUsername)) {
             p1.setType(PlayerType.LOCAL);
             p2.setType(PlayerType.ONLINE);
+            this.player1 = p1; 
+            this.player2 = p2;
         } else {
             p1.setType(PlayerType.ONLINE);
             p2.setType(PlayerType.LOCAL);
+            this.player1 = p2; 
+            this.player2 = p1;
         }
 
         initPlayers(p1, p2, enums.SessionType.ONLINE);
@@ -597,13 +645,21 @@ public void initPlayers(Player player, Player opponent) {
     }
 
     private void updateSession(GameSessionDTO dto) {
-        session.getGame().getBoard().setCells(dto.getBoard().getCells());
+        applyBoardDiff(dto.getBoard().getCells());
         session.getGame().getBoard().setWinCode(dto.getBoard().getWinCode());
 
         session.setPlayer1Wins(dto.getPlayer1Wins());
         session.setPlayer2Wins(dto.getPlayer2Wins());
         session.setDrawCount(dto.getDraws());
         session.getGame().setCurrentPlayer(dto.getCurrentTurn());
+
+        String currentUser = App.getCurrentUser().getUsername();
+        boolean isP1 = session.getPlayer1().getUsername().equals(currentUser);
+        if (isP1) {
+            session.setOpponentLeft(dto.isPlayer2Left());
+        } else {
+            session.setOpponentLeft(dto.isPlayer1Left());
+        }
 
         if (dto.getStatus() == SessionStatus.FINISHED) {
             session.getGame().setHasEnded(true);
@@ -627,6 +683,25 @@ public void initPlayers(Player player, Player opponent) {
                     navigateToGameResult();
                 } else if (dto.getResult() == GameResult.DRAW) {
                     navigateToGameResult();
+                }
+            }
+        }
+    }
+
+    private void applyBoardDiff(PlayerSymbol[][] newCells) {
+
+        PlayerSymbol[][] currentCells
+                = session.getGame().getBoard().getCells();
+
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+
+                PlayerSymbol oldValue = currentCells[r][c];
+                PlayerSymbol newValue = newCells[r][c];
+
+                if (oldValue == null && newValue != null) {
+                    session.getGame().playMove(r, c);
+                    return;
                 }
             }
         }
