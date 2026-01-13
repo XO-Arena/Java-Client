@@ -1,5 +1,6 @@
 package com.mycompany.java.client.project;
 
+<<<<<<< HEAD
 import com.google.gson.Gson;
 import com.mycompany.java.client.project.data.Request;
 import com.mycompany.java.client.project.data.Response;
@@ -10,10 +11,23 @@ import enums.GameResult;
 import enums.RequestType;
 import enums.ResponseType;
 import enums.SessionType;
+=======
+import models.GameRecord;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import enums.GameResult;
+import enums.PlayerSymbol;
+import java.io.FileWriter;
+>>>>>>> 50c0304 (Handle save action to save the record of the game as json file)
 import models.GameSession;
 import models.Player;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -25,6 +39,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import util.DialogUtil;
+import models.Move;
 
 /**
  * FXML Controller class
@@ -48,12 +63,13 @@ public class GameResultController implements Initializable, ServerListener {
     private Label player2Name;
     @FXML
     private Label player2Symbol;
+    @FXML
+    private Button leaveButton;
 
     private GameSession session;
     private Player player1;
     private Player player2;
-    @FXML
-    private Button leaveButton;
+    private String winner;
 
     /**
      * Initializes the controller class.
@@ -97,14 +113,16 @@ public class GameResultController implements Initializable, ServerListener {
         switch (result) {
             case X_WIN:
                 player1Crown.setVisible(true);
+                winner = session.getPlayer1().getUsername();
                 break;
 
             case O_WIN:
                 player2Crown.setVisible(true);
+                winner = session.getPlayer2().getUsername();
                 break;
 
             case DRAW:
-                // No winner in a draw
+                winner = result.name();
                 break;
 
             default:
@@ -140,6 +158,34 @@ public class GameResultController implements Initializable, ServerListener {
 
     @FXML
     private void handleSaveGame(ActionEvent event) {
+        leaveButton.setDisable(true); 
+        ((Button) event.getSource()).setDisable(true);
+        GameRecord record = new GameRecord(
+                System.currentTimeMillis(),
+                session.getPlayer1().getUsername(),
+                session.getPlayer2().getUsername(),
+                winner,
+                LocalDate.now().toString(),
+                session.getGame().getMoves()
+        );
+
+        boolean saved = saveGameToFile(record);
+
+        if (saved) {
+            DialogUtil.showInfoDialog(
+                    "Game Saved",
+                    "The game was saved successfully 🎉"
+            );
+            leaveButton.setDisable(false); 
+            ((Button) event.getSource()).setText("Saved!");
+            ((Button) event.getSource()).setDisable(true);
+        } else {
+            DialogUtil.showErrorDialog(
+                    "Save Failed",
+                    "Something went wrong while saving the game."
+            );
+            leaveButton.setDisable(false); 
+        }
     }
 
     @FXML
@@ -168,6 +214,7 @@ public class GameResultController implements Initializable, ServerListener {
 
     }
 
+<<<<<<< HEAD
     @Override
     public void onMessage(Response response) {
         if (response.getType() == ResponseType.REMATCH_REQUESTED) {
@@ -196,4 +243,26 @@ public class GameResultController implements Initializable, ServerListener {
     public void onDisconnect() {
         // Handle disconnect if needed
     }
+=======
+    private boolean saveGameToFile(GameRecord record) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Path dir = Paths.get("games");
+
+        try {
+            Files.createDirectories(dir);
+
+            Path filePath = dir.resolve(record.getId() + ".json");
+            try (FileWriter writer = new FileWriter(filePath.toFile())) {
+                gson.toJson(record, writer);
+            }
+            return true;
+
+        } catch (IOException ex) {
+            System.getLogger(GameResultController.class.getName())
+                    .log(System.Logger.Level.ERROR, "Failed to save game", ex);
+            return false;
+        }
+    }
+
+>>>>>>> 50c0304 (Handle save action to save the record of the game as json file)
 }
