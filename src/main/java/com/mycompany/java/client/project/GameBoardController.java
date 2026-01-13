@@ -1,5 +1,8 @@
 package com.mycompany.java.client.project;
 
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import com.google.gson.Gson;
 import com.mycompany.java.client.project.data.Request;
 import com.mycompany.java.client.project.data.Response;
@@ -36,7 +39,10 @@ import java.util.Map;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.TextField;
 import javafx.scene.image.WritableImage;
@@ -47,6 +53,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeLineCap;
 import javax.imageio.ImageIO;
 import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import models.GameRecord;
 import util.DialogUtil;
@@ -304,7 +312,7 @@ public class GameBoardController implements ServerListener {
     private void handleResult() {
 
         GameResult result = session.getLastResult();
-
+        String mySymbol = player1.getSymbol().name();
         switch (result) {
 
             case NONE:
@@ -313,15 +321,20 @@ public class GameBoardController implements ServerListener {
             case X_WIN:
             case O_WIN:
                 highlightWinningCells();
-//                playWinSound();
                 disableBoard();
                 updateScoreUI();
+                if (session.getLastResult().name().startsWith(player1.getSymbol().name())) {
+                    playResultVideo("WIN");
+                } else {
+                    playResultVideo("LOSE");
+                }
                 break;
 
             case DRAW:
                 disableBoard();
                 updateScoreUI();
-                navigateToGameResult();
+                playResultVideo("DRAW");
+//                navigateToGameResult();
                 break;
         }
         Platform.runLater(this::takeBoardScreenshot);
@@ -366,31 +379,39 @@ public class GameBoardController implements ServerListener {
     }
 
     private void navigateToGameResult() {
-        if (isRecordedMode) {
-            PauseTransition pause = new PauseTransition(Duration.seconds(1));
-            pause.setOnFinished(e -> {
-                try {
-                    App.setRoot("recordedGames");
-                } catch (IOException ex) {
-                    System.getLogger(GameBoardController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-                }
-            });
-            pause.play();
-            return;
-        }
-
-        // make a little delay to show the winning line
-        navigationPause = new PauseTransition(Duration.seconds(2));
-        navigationPause.setOnFinished(e -> {
-            try {
-                GameResultController controller = App.setRoot("gameResult").getController();
-                controller.initGameResult(session, player1, player2);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        });
-        navigationPause.play();
+    try {
+        GameResultController controller = App.setRoot("gameResult").getController();
+        controller.initGameResult(session, player1, player2);
+    } catch (IOException ex) {
+        ex.printStackTrace();
     }
+}
+//    private void navigateToGameResult() {
+//        if (isRecordedMode) {
+//            PauseTransition pause = new PauseTransition(Duration.seconds(1));
+//            pause.setOnFinished(e -> {
+//                try {
+//                    App.setRoot("recordedGames");
+//                } catch (IOException ex) {
+//                    System.getLogger(GameBoardController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+//                }
+//            });
+//            pause.play();
+//            return;
+//        }
+//
+//        // make a little delay to show the winning line
+//        navigationPause = new PauseTransition(Duration.seconds(2));
+//        navigationPause.setOnFinished(e -> {
+//            try {
+//                GameResultController controller = App.setRoot("gameResult").getController();
+//                controller.initGameResult(session, player1, player2);
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//            }
+//        });
+//        navigationPause.play();
+//    }
 
     private void drawWinningLine(List<Button> cells) {
 
@@ -675,14 +696,26 @@ public class GameBoardController implements ServerListener {
             if (dto.getResult() != GameResult.NONE) {
                 if (dto.getResult() == GameResult.X_WIN || dto.getResult() == GameResult.O_WIN) {
                     highlightWinningCells();
+
+                    boolean iWon = (dto.getResult() == GameResult.X_WIN && isP1)
+                            || (dto.getResult() == GameResult.O_WIN && !isP1);
+
+                    if (iWon) {
+                        playResultVideo("WIN");
+                    } else {
+                        playResultVideo("LOSE");
+                    }
                 }
                 disableBoard();
                 updateScoreUI();
 
                 if (dto.getBoard().getWinCode() == null && dto.getResult() != GameResult.DRAW) {
-                    navigateToGameResult();
+//                    navigateToGameResult();
+                    playResultVideo("DRAW");
                 } else if (dto.getResult() == GameResult.DRAW) {
-                    navigateToGameResult();
+                                        playResultVideo("DRAW");
+
+//                    navigateToGameResult();
                 }
             }
         }
@@ -704,6 +737,59 @@ public class GameBoardController implements ServerListener {
                     return;
                 }
             }
+        }
+    }
+
+    public void playResultVideo(String resultType) {
+        // resultType ممكن تكون "WIN", "LOSE", "DRAW"
+        String fileName = "";
+        switch (resultType) {
+            case "WIN":
+                fileName = "/assets/winner.mp4";
+                break;
+            case "LOSE":
+                fileName = "/assets/loser.mp4";
+                break;
+            case "DRAW":
+                fileName = "/assets/draw.mp4";
+                break;
+        }
+
+        try {
+            String path = getClass().getResource(fileName).toExternalForm();
+            Media media = new Media(path);
+            MediaPlayer mediaPlayer = new MediaPlayer(media);
+            MediaView mediaView = new MediaView(mediaPlayer);
+
+            // ضبط أبعاد الفيديو
+            mediaView.setFitWidth(600);
+            mediaView.setPreserveRatio(true);
+
+            Stage videoStage = new Stage();
+            // جعل النافذة "Pop-up" لا يمكن الضغط خلفها حتى تغلق
+            videoStage.initModality(Modality.APPLICATION_MODAL);
+
+            StackPane root = new StackPane(mediaView);
+            root.setStyle("-fx-background-color: black;"); // خلفية سوداء للفيديو
+            Scene scene = new Scene(root, 600, 400);
+
+            videoStage.setScene(scene);
+            videoStage.setTitle("Game Result");
+            videoStage.setResizable(false);
+
+            videoStage.show();
+            mediaPlayer.play();
+
+            // إغلاق النافذة تلقائياً عند انتهاء الفيديو
+            mediaPlayer.setOnEndOfMedia(() -> {
+                mediaPlayer.stop();
+                videoStage.close();
+                // السطر ده هو اللي هيخلي اللعبة تكمل بعد الفيديو
+                Platform.runLater(() -> navigateToGameResult());
+            });
+
+        } catch (Exception e) {
+            System.err.println("خطأ في تشغيل الفيديو: " + e.getMessage());
         }
     }
 
