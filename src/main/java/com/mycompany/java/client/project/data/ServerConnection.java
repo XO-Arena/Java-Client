@@ -1,6 +1,7 @@
 package com.mycompany.java.client.project.data;
 
 import com.google.gson.Gson;
+import enums.ResponseType;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
@@ -56,28 +57,34 @@ public class ServerConnection implements Closeable {
         return true;
     }
     
-    private void startListenerThread() {
-        listenerThread = new Thread(() -> {
-            try {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    Response response = gson.fromJson(line, Response.class);
-                    if (listener != null) {
+   private void startListenerThread() {
+    listenerThread = new Thread(() -> {
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                Response response = gson.fromJson(line, Response.class);
+                System.out.println(response.getType().name());
+                if (listener != null) {
+                    if (response.getType() == ResponseType.SERVER_SHUTDOWN) {
+                        listener.onDisconnect();
+                        break; 
+                    } else {
                         listener.onMessage(response);
                     }
                 }
-                close();
-            } catch (IOException e) {
-                try {
-                    close();
-                } catch (IOException ex) {
-                    System.getLogger(ServerConnection.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-                }
             }
-        });
-        listenerThread.setDaemon(true);
-        listenerThread.start();
-    }
+        } catch (IOException ignored) {
+        } finally {
+            try {
+                close();
+            } catch (IOException ignored) {}
+        }
+    });
+
+    listenerThread.setDaemon(true);
+    listenerThread.start();
+}
+
 
     public boolean isAlive() {
         return socket != null && socket.isConnected() && !socket.isClosed();
