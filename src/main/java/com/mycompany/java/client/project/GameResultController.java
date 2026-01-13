@@ -1,24 +1,18 @@
 package com.mycompany.java.client.project;
 
-<<<<<<< HEAD
-import com.google.gson.Gson;
 import com.mycompany.java.client.project.data.Request;
 import com.mycompany.java.client.project.data.Response;
 import com.mycompany.java.client.project.data.ServerConnection;
 import com.mycompany.java.client.project.data.ServerListener;
 import dto.GameSessionDTO;
-import enums.GameResult;
 import enums.RequestType;
 import enums.ResponseType;
 import enums.SessionType;
-=======
 import models.GameRecord;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import enums.GameResult;
-import enums.PlayerSymbol;
 import java.io.FileWriter;
->>>>>>> 50c0304 (Handle save action to save the record of the game as json file)
 import models.GameSession;
 import models.Player;
 import java.io.IOException;
@@ -27,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -39,7 +32,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import util.DialogUtil;
-import models.Move;
 
 /**
  * FXML Controller class
@@ -214,8 +206,6 @@ public class GameResultController implements Initializable, ServerListener {
 
     }
 
-<<<<<<< HEAD
-    @Override
     public void onMessage(Response response) {
         if (response.getType() == ResponseType.REMATCH_REQUESTED) {
             Platform.runLater(() -> {
@@ -243,7 +233,7 @@ public class GameResultController implements Initializable, ServerListener {
     public void onDisconnect() {
         // Handle disconnect if needed
     }
-=======
+
     private boolean saveGameToFile(GameRecord record) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         Path dir = Paths.get("games");
@@ -264,5 +254,4 @@ public class GameResultController implements Initializable, ServerListener {
         }
     }
 
->>>>>>> 50c0304 (Handle save action to save the record of the game as json file)
 }

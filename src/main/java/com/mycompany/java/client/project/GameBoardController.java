@@ -47,13 +47,7 @@ import javafx.scene.shape.StrokeLineCap;
 import javax.imageio.ImageIO;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import models.GameRecord;
 import util.DialogUtil;
 
 public class GameBoardController implements ServerListener {
@@ -98,6 +92,11 @@ public class GameBoardController implements ServerListener {
     private TextField label_turn;
 
     private PauseTransition navigationPause;
+    private GameRecord record;
+    private List<Move> moves;
+    private int moveItrator = 0;
+    private boolean isRecordedMode = false;
+    private boolean replayStarted = false;
 
     public void initialize() {
         initButtonsMap();
@@ -116,7 +115,7 @@ public class GameBoardController implements ServerListener {
         buttonsMap.put("22", btn22);
     }
 
-public void initPlayers(Player player, Player opponent) {
+    public void initPlayers(Player player, Player opponent) {
 
         player1 = player;
         player2 = opponent;
@@ -145,7 +144,7 @@ public void initPlayers(Player player, Player opponent) {
         updateScoreUI();
         highlightCurrentPlayer();
     }
-        
+
     public void continueSession(GameSession existingSession, Player p1, Player p2) {
         this.session = existingSession;
         this.player1 = p1;
@@ -192,6 +191,9 @@ public void initPlayers(Player player, Player opponent) {
 
     @FXML
     private void handleMove(ActionEvent event) {
+        if (isRecordedMode) {
+            return;
+        }
 
         if (session.isGameEnded()) {
             return;
@@ -229,7 +231,10 @@ public void initPlayers(Player player, Player opponent) {
     }
 
     private void handleNextTurn() {
-
+        if (isRecordedMode) {
+            playRecordedMove();
+            return;
+        }
         if (session.isGameEnded()) {
             return;
         }
@@ -247,7 +252,8 @@ public void initPlayers(Player player, Player opponent) {
             case ONLINE:
                 waitForServerMove();
                 break;
-
+            case RECORDED:
+                playRecordedMove();
             case LOCAL:
                 break;
         }
@@ -373,6 +379,18 @@ public void initPlayers(Player player, Player opponent) {
     }
 
     private void navigateToGameResult() {
+        if (isRecordedMode) {
+            PauseTransition pause = new PauseTransition(Duration.seconds(1));
+            pause.setOnFinished(e -> {
+                try {
+                    App.setRoot("recordedGames");
+                } catch (IOException ex) {
+                    System.getLogger(GameBoardController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                }
+            });
+            pause.play();
+            return;
+        }
 
         // make a little delay to show the winning line
         navigationPause = new PauseTransition(Duration.seconds(2));
@@ -524,6 +542,45 @@ public void initPlayers(Player player, Player opponent) {
                     DialogUtil.closeCurrentDialog();
                 }
         );
+    }
+
+    public void initRecordedGame(GameRecord record) {
+        this.record = record;
+        this.moves = record.getMoves();
+        this.isRecordedMode = true;
+        this.moveItrator = 0;
+
+        resetBoard();
+        disableBoard();
+
+        playRecordedMove();
+    }
+
+    private void playRecordedMove() {
+
+        if (!replayStarted) {
+            replayStarted = true;
+
+            PauseTransition startDelay = new PauseTransition(Duration.seconds(1));
+            startDelay.setOnFinished(e -> playRecordedMove());
+            startDelay.play();
+            return;
+        }
+
+        if (moveItrator >= moves.size()) {
+            highlightWinningCells();
+            return;
+        }
+
+        Move move = moves.get(moveItrator++);
+        session.playMove(move.row, move.col);
+
+        updateBoardUI();
+        highlightCurrentPlayer();
+
+        PauseTransition pause = new PauseTransition(Duration.seconds(1));
+        pause.setOnFinished(e -> playRecordedMove());
+        pause.play();
     }
 
     public void initOnlineGame(GameSessionDTO dto) {
