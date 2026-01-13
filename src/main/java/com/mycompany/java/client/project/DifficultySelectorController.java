@@ -52,7 +52,7 @@ public class DifficultySelectorController implements Initializable {
         try {
             App.setRoot("homePage");
         } catch (IOException ex) {
-            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(DifficultySelectorController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
     
@@ -61,7 +61,7 @@ public class DifficultySelectorController implements Initializable {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
             controller.initPlayers(new Player("Player 1", UserGender.MALE, 300, PlayerType.LOCAL, PlayerSymbol.X), new AIPlayer(difficulty, PlayerSymbol.O));
         } catch (IOException ex) {
-            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(DifficultySelectorController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
 

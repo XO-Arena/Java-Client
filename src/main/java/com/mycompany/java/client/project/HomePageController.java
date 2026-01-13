@@ -390,26 +390,29 @@ public class HomePageController implements ServerListener {
     }
 
     private void handleGameJoin(JsonElement json) {
-        try {
-            GameBoardController controller = App.setRoot("GameBoardPage").getController();
-            PlayerDTO[] playerDTO = gson.fromJson(json, PlayerDTO[].class);
-            controller.initPlayers(Player.fromPlayerDto(playerDTO[0]), Player.fromPlayerDto(playerDTO[1]));
-            System.out.println("Join game:\n" + json);
-        } catch (IOException ex) {
-            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
+        Platform.runLater(() -> {
+
+            try {
+                GameBoardController controller = App.setRoot("GameBoardPage").getController();
+                PlayerDTO[] playerDTO = gson.fromJson(json, PlayerDTO[].class);
+                controller.initPlayers(Player.fromPlayerDto(playerDTO[0]), Player.fromPlayerDto(playerDTO[1]));
+                System.out.println("Join game:\n" + json);
+            } catch (IOException ex) {
+                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        });
     }
     
-    
-    
     private void handleGameStarted(JsonElement json) {
-        try {
-            GameBoardController controller = App.setRoot("GameBoardPage").getController();
-            GameSessionDTO dto = gson.fromJson(json, GameSessionDTO.class);
-            controller.initOnlineGame(dto);
-        } catch (IOException ex) {
-            System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
+        Platform.runLater(() -> {
+            try {
+                GameBoardController controller = App.setRoot("GameBoardPage").getController();
+                GameSessionDTO dto = gson.fromJson(json, GameSessionDTO.class);
+                controller.initOnlineGame(dto);
+            } catch (IOException ex) {
+                System.getLogger(HomePageController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        });
     }
     
     public void sendInvite(String receiverName, PlayerItemController itemController) {

@@ -65,7 +65,6 @@ public class GameResultController implements Initializable, ServerListener {
     private Player player2;
     private String winner;
     
-
     /**
      * Initializes the controller class.
      */
@@ -83,6 +82,12 @@ public class GameResultController implements Initializable, ServerListener {
         if (session.getSessionType() == SessionType.ONLINE) {
              try {
                 ServerConnection.getConnection().setListener(this);
+                if (session.isOpponentLeft()) {
+                     if (rematchButton != null) {
+                        rematchButton.setDisable(true);
+                        rematchButton.setText("Opponent Left");
+                     }
+                }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -197,6 +202,8 @@ public class GameResultController implements Initializable, ServerListener {
                 "Cancel",
                 () -> { // Primary action
                     try {
+                        Request req = new Request(RequestType.LEAVE_GAME, new Gson().toJsonTree(session.getSessionId()));
+                        ServerConnection.getConnection().sendRequest(req);
                         DialogUtil.closeCurrentDialog();
                         App.setRoot("homePage");
                     } catch (IOException e) {
@@ -218,6 +225,19 @@ public class GameResultController implements Initializable, ServerListener {
                  msg.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10px; -fx-background-radius: 5px;");
                  msg.setLayoutX(parent.getWidth() / 2 - 100);
                  msg.setLayoutY(parent.getHeight() - 100);
+                 parent.getChildren().add(msg);
+            });
+        } else if (response.getType() == ResponseType.OPPONENT_LEFT) {
+            Platform.runLater(() -> {
+                 if (rematchButton != null) {
+                    rematchButton.setDisable(true);
+                    rematchButton.setText("Opponent Left");
+                 }
+                 Pane parent = (Pane) player1Name.getScene().getRoot();
+                 Label msg = new Label("Opponent has left the game.");
+                 msg.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10px; -fx-background-radius: 5px;");
+                 msg.setLayoutX(parent.getWidth() / 2 - 100);
+                 msg.setLayoutY(parent.getHeight() - 150);
                  parent.getChildren().add(msg);
             });
         } else if (response.getType() == ResponseType.GAME_STARTED || response.getType() == ResponseType.GAME_UPDATE) {
