@@ -409,11 +409,6 @@ public class HomePageController implements ServerListener {
             }
         });
     }
-<<<<<<< HEAD
-    
-=======
-
->>>>>>> cb0eaa2 (feat: implement invitation cancellation logic and waiting popups)
     private void handleGameStarted(JsonElement json) {
         Platform.runLater(() -> {
             try {
