@@ -698,11 +698,6 @@ public class GameBoardController implements ServerListener {
                     Platform.runLater(() -> updateSession(dto));
                     break;
                 }
-                case GAME_ENDED: {
-                    GameSessionDTO dto = new Gson().fromJson(response.getPayload(), GameSessionDTO.class);
-                    Platform.runLater(() -> updateSession(dto));
-                    break;
-                }
                 case ERROR:
                     System.out.println("Server Error: " + response.getPayload());
                     // Optional: Show alert to user?
@@ -781,11 +776,14 @@ public class GameBoardController implements ServerListener {
                 }
                 disableBoard();
                 updateScoreUI();
-                PauseTransition pause = new PauseTransition(Duration.seconds(2));
-                pause.setOnFinished(e -> {
-                    playResultVideo("DRAW");
-                });
-                pause.play();
+                if (dto.getResult() == GameResult.DRAW) {
+                    
+                    PauseTransition pause = new PauseTransition(Duration.seconds(2));
+                    pause.setOnFinished(e -> {
+                        playResultVideo("DRAW");
+                    });
+                    pause.play();
+                }
             }
         }
     }

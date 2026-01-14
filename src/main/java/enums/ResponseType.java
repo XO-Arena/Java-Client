@@ -17,7 +17,6 @@ public enum ResponseType {
     JOIN_GAME,
     GAME_STARTED,
     GAME_UPDATE,
-    GAME_ENDED,
     ERROR,
     REMATCH_REQUESTED,
     OPPONENT_LEFT,
