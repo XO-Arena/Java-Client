@@ -173,6 +173,9 @@ public class GameBoardController implements ServerListener {
         setAvatarByGender(player1Avatar, player1.getGender());
         setAvatarByGender(player2Avatar, player2.getGender());
 
+        player1Score.setText("Player - "+player1.getSymbol().name());
+        player2Score.setText("Player - "+player2.getSymbol().name());
+
         updateBoardUI();
         updateScoreUI();
         highlightCurrentPlayer();
@@ -445,7 +448,6 @@ public class GameBoardController implements ServerListener {
         // now we want to navigate the names with its score 
         navigateToGameResult();
     }
-
 
     private void navigateToGameResult() {
         if (isRecordedMode) {
