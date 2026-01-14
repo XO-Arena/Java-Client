@@ -47,12 +47,10 @@
     -fx-padding: 4 0 4 0;
 }
 
-/* إخفاء التحديد الافتراضي للخلية لأنه يغطي تصميم الكارت */
 .custom-list .list-cell:selected {
     -fx-background-color: transparent; 
 }
 
-/* جعل الكارت يتفاعل عند اختيار الخلية */
 .custom-list .list-cell:selected .player-item-card {
     -fx-border-color: #2563eb;
     -fx-border-width: 1.5;

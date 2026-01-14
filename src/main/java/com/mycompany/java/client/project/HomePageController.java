@@ -73,7 +73,7 @@ public class HomePageController implements ServerListener {
     @FXML
     public void initialize() {
 
-        logoImage.setImage(new Image(getClass().getResourceAsStream("/assets/xo.png")));
+        logoImage.setImage(new Image(getClass().getResourceAsStream("/assets/remove-xo.png")));
         gson = new Gson();
 
         try {

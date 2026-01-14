@@ -1,6 +1,4 @@
-/* =========================================
-   Difficulty Tiles
-   ========================================= */
+
 .difficulty-tile {
     -fx-alignment: center;
     -fx-spacing: 15;
@@ -25,9 +23,6 @@
     -fx-background-color: rgba(20, 20, 40, 0.95);
 }
 
-/* =========================================
-   Difficulty Labels
-   ========================================= */
 .difficulty-label {
     -fx-text-fill: white;
     -fx-font-size: 18px;
