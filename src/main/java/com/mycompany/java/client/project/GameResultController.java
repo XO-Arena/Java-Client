@@ -110,8 +110,6 @@ public class GameResultController implements Initializable, ServerListener {
 
     private void displayGameResult() {
         GameResult result = session.getLastResult();
-
-        // Hide crowns initially
         player1Crown.setVisible(false);
         player2Crown.setVisible(false);
 
@@ -125,13 +123,13 @@ public class GameResultController implements Initializable, ServerListener {
                 loserPlayer = player2;   // O player loses
                 this.winner = player1.getUsername();
                 break;
-
+                
             case O_WIN:
                 winnerPlayer = player2;  // O player wins
                 loserPlayer = player1;   // X player loses
                 this.winner = player2.getUsername();
                 break;
-
+                
             case DRAW:
                 this.winner = "DRAW";
                 // Display both players normally without crowns
@@ -140,24 +138,25 @@ public class GameResultController implements Initializable, ServerListener {
                 return;
         }
 
+        
         // Display winner on left with crown
         displayPlayer(winnerPlayer, player2Name, player1Symbol, player1Avatar, player1Crown, crownImage);
-
+        
         // Display loser on right with clown hat
         displayPlayer(loserPlayer, player1Name, player2Symbol, player2Avatar, player2Crown, clownHatImage);
     }
 
-    private void displayPlayer(Player player, Label nameLabel, Label symbolLabel,
-            Circle avatarCircle, ImageView crownView, Image crownImage) {
+    private void displayPlayer(Player player, Label nameLabel, Label symbolLabel, 
+                               Circle avatarCircle, ImageView crownView, Image crownImage) {
         // Set player name
         nameLabel.setText(player.getUsername());
-
+        
         // Set player symbol
         symbolLabel.setText(player.getSymbol().toString());
-
+        
         // Set avatar image in circle
         setAvatarImage(player, avatarCircle);
-
+        
         // Set crown/hat if provided
         if (crownImage != null) {
             crownView.setImage(crownImage);
@@ -172,7 +171,6 @@ public class GameResultController implements Initializable, ServerListener {
     private void setAvatarImage(Player player, Circle avatarCircle) {
         try {
             String avatarPath = getAvatarPath(player);
-
             if (avatarPath != null) {
                 Image avatarImage = new Image(getClass().getResourceAsStream(avatarPath));
                 avatarCircle.setFill(new ImagePattern(avatarImage));
@@ -223,7 +221,6 @@ public class GameResultController implements Initializable, ServerListener {
         leaveButton.setDisable(true);
         rematchButton.setDisable(true);
         ((Button) event.getSource()).setDisable(true);
-
         GameRecord record = new GameRecord(
                 System.currentTimeMillis(),
                 player1.getUsername(),

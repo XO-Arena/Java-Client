@@ -53,7 +53,6 @@ public class LeaderboardItemController {
         try {
             playerAvatar.setImage(new Image(getClass().getResourceAsStream(imagePath)));
         } catch (Exception e) {
-            // تبقى الصورة الافتراضية
         }
     }
 }

@@ -144,7 +144,6 @@ public class GameBoardController implements ServerListener {
                     break;
             }
         }
-
         try {
             Image image = new Image(getClass().getResourceAsStream(imagePath));
             ImagePattern pattern = new ImagePattern(image);
@@ -170,6 +169,10 @@ public class GameBoardController implements ServerListener {
         setAvatarByGender(player1Avatar, player1.getGender());
         setAvatarByGender(player2Avatar, player2.getGender());
 
+        // Set avatar images based on gender
+        setAvatarByGender(player1Avatar, player1.getGender());
+        setAvatarByGender(player2Avatar, player2.getGender());
+
         updateBoardUI();
         updateScoreUI();
         highlightCurrentPlayer();
@@ -184,6 +187,10 @@ public class GameBoardController implements ServerListener {
 
         player1Name.setText(player1.getUsername());
         player2Name.setText(player2.getUsername());
+
+        // Set avatar images based on gender
+        setAvatarByGender(player1Avatar, player1.getGender());
+        setAvatarByGender(player2Avatar, player2.getGender());
 
         // Set avatar images based on gender
         setAvatarByGender(player1Avatar, player1.getGender());
@@ -204,6 +211,10 @@ public class GameBoardController implements ServerListener {
 
         player1Name.setText(player1.getUsername());
         player2Name.setText(player2.getUsername());
+
+        // Set avatar images based on gender
+        setAvatarByGender(player1Avatar, player1.getGender());
+        setAvatarByGender(player2Avatar, player2.getGender());
 
         // Set avatar images based on gender
         setAvatarByGender(player1Avatar, player1.getGender());
@@ -369,28 +380,29 @@ public class GameBoardController implements ServerListener {
                 updateScoreUI();
                 if (session.getLastResult().name().startsWith(player1.getSymbol().name())) {
                     PauseTransition pause = new PauseTransition(Duration.seconds(2));
-                        pause.setOnFinished(e -> {
-                            playResultVideo("WIN");
-                        });
-                        pause.play();
-                    
+                    pause.setOnFinished(e -> {
+                        playResultVideo("WIN");
+                    });
+                    pause.play();
+
                 } else {
                     PauseTransition pause = new PauseTransition(Duration.seconds(2));
-                        pause.setOnFinished(e -> {
-                            playResultVideo("LOSE");
-                        });
-                        pause.play();
-                    
+                    pause.setOnFinished(e -> {
+                        playResultVideo("LOSE");
+                    });
+                    pause.play();
+
                 }
                 break;
 
             case DRAW:
                 disableBoard();
-                updateScoreUI();PauseTransition pause = new PauseTransition(Duration.seconds(2));
-                        pause.setOnFinished(e -> {
-                            playResultVideo("DRAW");
-                        });
-                        pause.play();
+                updateScoreUI();
+                PauseTransition pause = new PauseTransition(Duration.seconds(2));
+                pause.setOnFinished(e -> {
+                    playResultVideo("DRAW");
+                });
+                pause.play();
                 break;
         }
         Platform.runLater(this::takeBoardScreenshot);
@@ -434,14 +446,6 @@ public class GameBoardController implements ServerListener {
         navigateToGameResult();
     }
 
-    private void navigateToGameResultx() {
-        try {
-            GameResultController controller = App.setRoot("gameResult").getController();
-            controller.initGameResult(session, player1, player2);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
 
     private void navigateToGameResult() {
         if (isRecordedMode) {
