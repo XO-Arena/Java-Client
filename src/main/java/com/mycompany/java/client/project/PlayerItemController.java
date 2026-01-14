@@ -37,10 +37,9 @@ public class PlayerItemController {
                         "/assets/avatar.png"
                 ))
         );
-        
+
     }
-    
-    
+
     public void setHomeController(HomePageController controller) {
         this.homeController = controller;
     }
@@ -73,10 +72,11 @@ public class PlayerItemController {
     public void setPlayerStatus(UserState state) {
         switch (state) {
             case ONLINE:
-                playerStatusLabel.setText("ready");
+                playerStatusLabel.setText("Ready");
                 statusIndicator.setStyle("-fx-fill: #55ff55;");
                 break;
             case IN_GAME:
+                playerStatusLabel.setText("In Game");
                 actionButton.setText("Watch");
                 statusIndicator.setStyle("-fx-fill: #ff5555;");
                 break;
@@ -87,10 +87,10 @@ public class PlayerItemController {
 
     @FXML
     private void handleActionButton(ActionEvent event) {
-        String targetPlayer = playerNameLabel.getText();
-        System.out.println("hunter");
-        if (homeController != null) {
+        if (actionButton.getText() == "Invite" && homeController != null) {
+            String targetPlayer = playerNameLabel.getText();
             homeController.sendInvite(targetPlayer, this);
+
         }
     }
 

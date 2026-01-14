@@ -77,8 +77,7 @@
                 <VBox alignment="CENTER_LEFT">
                     <Label fx:id="player1Name" style="-fx-font-weight: bold; -fx-font-size: 15px;" text="Sova" textFill="WHITE" />
                     <HBox>
-                        <Label style="-fx-font-weight: bold;" text="Score : " textFill="#2e5bff" />
-                        <Label fx:id="player1Score" style="-fx-font-weight: bold;" text="0" textFill="#2e5bff" />
+                        <Label fx:id="player1Score" style="-fx-font-weight: bold; -fx-font-size: 15px;" text="0" textFill="#2e5bff" />
                     </HBox>
                 </VBox>
             </HBox>
@@ -116,8 +115,7 @@
                 <VBox alignment="CENTER_RIGHT">
                     <Label fx:id="player2Name" style="-fx-font-weight: bold; -fx-font-size: 15px;" text="Sage" textFill="WHITE" />
                     <HBox>
-                        <Label style="-fx-font-weight: bold;" text="Score : " textFill="#ff5e7e" />
-                        <Label fx:id="player2Score" style="-fx-font-weight: bold;" text="0" textFill="#ff5e7e" />
+                        <Label fx:id="player2Score" style="-fx-font-weight: bold;  -fx-font-size: 15px;" text="0" textFill="#ff5e7e" />
                     </HBox>
                 </VBox>
                 <StackPane fx:id="player2Container" styleClass="avatar-turn-container">

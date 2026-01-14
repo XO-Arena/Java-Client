@@ -161,7 +161,7 @@ public class HomePageController implements ServerListener {
                     int rank = i + 1;
                     controller.setRank("#" + rank);
                     controller.setPlayerName(players[i].getUsername());
-                    controller.setScore(players[i].getScore() + "px");
+                    controller.setScore(players[i].getScore() + "PTS");
                     leaderboardItem.setPrefWidth(leaderboardList.getPrefWidth() - 10);
 
                     leaderboardList.getItems().add(leaderboardItem);
