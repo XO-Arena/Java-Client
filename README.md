@@ -78,20 +78,20 @@ The client provides a **modern JavaFX GUI**, handles game logic, communicates wi
 - **JDBC**
 
 ---
-
 ## 📁 Project Structure
 
+```text
 client/
-├── controllers/
-├── models/
-├── services/
-├── dto/
-├── enums/
-├── views/
-├── assets/
-│   ├── videos/
-│   └── styles/
-└── App.java
+├─ controllers/     # JavaFX controllers
+├─ models/          # Game and player models
+├─ services/        # Networking & business logic
+├─ dto/             # Data Transfer Objects
+├─ enums/           # Enums for game states & types
+├─ views/           # FXML UI files
+├─ assets/
+│  ├─ videos/       # Reward & game videos
+│  └─ styles/       # CSS styles
+└─ App.java         # Application entry point
 
 
 ## ⚙️ Requirements (What You Need to Run the Project)
