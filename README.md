@@ -93,7 +93,7 @@ client/
 │  └─ styles/       # CSS styles
 └─ App.java         # Application entry point
 
-
+```
 ## ⚙️ Requirements (What You Need to Run the Project)
 
 Before running the client application, make sure you have the following installed on your device:
