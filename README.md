@@ -80,7 +80,7 @@ The client provides a **modern JavaFX GUI**, handles game logic, communicates wi
 ---
 
 ## 📁 Project Structure
-
+```text
 client/
 ├─ controllers/     # JavaFX controllers
 ├─ models/          # Game and player models
@@ -92,7 +92,7 @@ client/
 │  ├─ videos/       # Reward & game videos
 │  └─ styles/       # CSS styles
 └─ App.java         # Application entry point
-
+```
 
 
 
