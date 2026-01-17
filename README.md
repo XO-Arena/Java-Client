@@ -39,10 +39,6 @@ The client provides a **modern JavaFX GUI**, handles game logic, communicates wi
 - Automatically matches players without manual invitations
 - Fast and seamless matchmaking experience
 
-### 👀 Spectator Mode
-- Allows users to watch ongoing matches in real time
-- Live updates of game moves from the server
-
 ### 🌐 Online Gameplay
 - View available online users
 - Send and receive game requests
