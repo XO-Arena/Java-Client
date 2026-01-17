@@ -115,7 +115,8 @@ Before running the client application, make sure you have the following installe
 ## ▶️ How to Run the Project
 
 ### 1️⃣ Run the Server First
-- Clone and open the **Server Application** repository in your cmd use git clone "https://github.com/XO-Arena/Java-Server.git"
+- Clone and open the **Server Application** repository
+- in your cmd use git clone "https://github.com/XO-Arena/Java-Server.git"
 - Open the project in your preferred IDE (IntelliJ / NetBeans)
 - Run the server and make sure it is listening on the configured port (4646)
 - Keep the server running before starting the client
