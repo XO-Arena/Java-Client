@@ -78,13 +78,13 @@ The client provides a **modern JavaFX GUI**, handles game logic, communicates wi
 - **JDBC**
 
 ---
-## 📁 Project Structure
 
+## 📁 Project Structure
 ```text
 client/
 ├─ controllers/     # JavaFX controllers
 ├─ models/          # Game and player models
-├─ services/        # App Services(Invitations..)
+├─ services/        # App Services & business logic
 ├─ dto/             # Data Transfer Objects
 ├─ enums/           # Enums for game states & types
 ├─ views/           # FXML UI files
@@ -92,8 +92,10 @@ client/
 │  ├─ videos/       # Reward & game videos
 │  └─ styles/       # CSS styles
 └─ App.java         # Application entry point
-
 ```
+
+
+
 ## ⚙️ Requirements (What You Need to Run the Project)
 
 Before running the client application, make sure you have the following installed on your device:
