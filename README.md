@@ -84,7 +84,7 @@ The client provides a **modern JavaFX GUI**, handles game logic, communicates wi
 client/
 ├─ controllers/     # JavaFX controllers
 ├─ models/          # Game and player models
-├─ services/        # Networking & business logic
+├─ services/        # App Services(Invitations..)
 ├─ dto/             # Data Transfer Objects
 ├─ enums/           # Enums for game states & types
 ├─ views/           # FXML UI files
