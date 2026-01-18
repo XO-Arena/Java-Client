@@ -14,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
@@ -39,12 +40,44 @@ public class LocalMultiplayerController implements Initializable {
     private TextField player1NameField;
     @FXML
     private Button startButton;
+    @FXML
+    private ComboBox<String> genderComboPlayer1;
+    @FXML
+    private ComboBox<String> genderComboPlayer2;
+    private UserGender player1Gender;
+    private UserGender player2Gender;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        genderComboPlayer1.getItems().addAll("Male", "Female");
+        genderComboPlayer2.getItems().addAll("Male", "Female");
+
+        genderComboPlayer1.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) {
+                return;
+            }
+
+            player1Gender = newVal.equals("Male") ? UserGender.MALE : UserGender.FEMALE;
+            setAvatarImage(
+                    player1Avatar,
+                    newVal.equals("Male") ? "/assets/boy.png" : "/assets/girl.png"
+            );
+        });
+
+        genderComboPlayer2.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) {
+                return;
+            }
+
+            player2Gender = newVal.equals("Male") ? UserGender.MALE : UserGender.FEMALE;
+            setAvatarImage(
+                    player2Avatar,
+                    newVal.equals("Male") ? "/assets/boy.png" : "/assets/girl.png"
+            );
+        });
         // Load and set images for player avatars
         setAvatarImage(player1Avatar, "/assets/boy.png");
         setAvatarImage(player2Avatar, "/assets/boy.png");
@@ -92,6 +125,14 @@ public class LocalMultiplayerController implements Initializable {
 
     @FXML
     private void handleStart(ActionEvent event) {
+        if (player1Gender == null || player2Gender == null) {
+            DialogUtil.showAlert(
+                    "Validation Error",
+                    "Please select gender for both players.",
+                    AlertType.ERROR,
+                    this
+            );
+        }
         if (!validateInputs()) {
             return;
         }
@@ -99,8 +140,8 @@ public class LocalMultiplayerController implements Initializable {
         try {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
             controller.initPlayers(
-                    new Player(player1NameField.getText().trim(), UserGender.MALE, 300, PlayerType.LOCAL, PlayerSymbol.X),
-                    new Player(player2NameField.getText().trim(), UserGender.MALE, 300, PlayerType.LOCAL, PlayerSymbol.O)
+                    new Player(player1NameField.getText().trim(), player1Gender, 300, PlayerType.LOCAL, PlayerSymbol.X),
+                    new Player(player2NameField.getText().trim(), player2Gender, 300, PlayerType.LOCAL, PlayerSymbol.O)
             );
         } catch (IOException ex) {
             System.getLogger(LocalMultiplayerController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);

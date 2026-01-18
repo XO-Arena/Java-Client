@@ -11,6 +11,7 @@ import com.mycompany.java.client.project.data.ServerListener;
 import dto.GameSessionDTO;
 import dto.MoveDTO;
 import dto.InvitationDTO;
+import enums.Difficulty;
 import enums.GameResult;
 import enums.PlayerSymbol;
 import enums.PlayerType;
@@ -125,32 +126,94 @@ public class GameBoardController implements ServerListener {
         buttonsMap.put("21", btn21);
         buttonsMap.put("22", btn22);
     }
+//
+//    private void setAvatarByGender(Circle circle, UserGender gender) {
+//        String imagePath;
+//
+//        if (gender == null) {
+//            imagePath = "/assets/boy.png";
+//        } else {
+//            switch (gender) {
+//                case MALE:
+//                    imagePath = "/assets/boy.png";
+//                    break;
+//                case FEMALE:
+//                    imagePath = "/assets/girl.png";
+//                    break;
+//                default:
+//                    imagePath = "/assets/boy.png";
+//                    break;
+//            }
+//        }
+//
+//        if (player2.getType() == PlayerType.COMPUTER) {
+//
+//            if (Difficulty.EASY.name.equals(player2.getUsername())) {
+//                imagePath = "/assets/easy.png";
+//
+//            } else if (Difficulty.MEDIUM.name.equals(player2.getUsername())) {
+//                imagePath = "/assets/medium.png";
+//
+//            } else if (Difficulty.HARD.name.equals(player2.getUsername())) {
+//                imagePath = "/assets/hard.png";
+//
+//            } else {
+//                imagePath = "/assets/impossible.png";
+//            }
+//        }
+//
+//        try {
+//            Image image = new Image(getClass().getResourceAsStream(imagePath));
+//            ImagePattern pattern = new ImagePattern(image);
+//            circle.setFill(pattern);
+//        } catch (Exception e) {
+//            System.err.println("Error loading avatar image: " + imagePath);
+//            e.printStackTrace();
+//            circle.setFill(Color.GRAY);
+//        }
+//    }
 
-    private void setAvatarByGender(Circle circle, UserGender gender) {
+    private void setAvatar(Circle circle, Player player) {
         String imagePath;
 
-        if (gender == null) {
-            imagePath = "/assets/boy.png";
-        } else {
-            switch (gender) {
-                case MALE:
-                    imagePath = "/assets/boy.png";
-                    break;
-                case FEMALE:
-                    imagePath = "/assets/girl.png";
-                    break;
-                default:
-                    imagePath = "/assets/boy.png";
-                    break;
+        if (player.getType() == PlayerType.COMPUTER) {
+            try {
+                Difficulty diff = Difficulty.valueOf(
+                        player.getUsername().toUpperCase()
+                );
+
+                switch (diff) {
+                    case EASY:
+                        imagePath = "/assets/easy.png";
+                        break;
+                    case MEDIUM:
+                        imagePath = "/assets/medium.png";
+                        break;
+                    case HARD:
+                        imagePath = "/assets/hard.png";
+                        break;
+                    case IMPOSSIBLE:
+                        imagePath = "/assets/impossible.png";
+                        break;
+                    default:
+                        imagePath = "/assets/boy.png";
+                }
+
+            } catch (IllegalArgumentException e) {
+                // fallback protection
+                imagePath = "/assets/boy.png";
             }
+
+        } else {
+            imagePath = (player.getGender() == UserGender.FEMALE)
+                    ? "/assets/girl.png"
+                    : "/assets/boy.png";
         }
+
         try {
             Image image = new Image(getClass().getResourceAsStream(imagePath));
-            ImagePattern pattern = new ImagePattern(image);
-            circle.setFill(pattern);
+            circle.setFill(new ImagePattern(image));
         } catch (Exception e) {
-            System.err.println("Error loading avatar image: " + imagePath);
-            e.printStackTrace();
             circle.setFill(Color.GRAY);
         }
     }
@@ -166,15 +229,14 @@ public class GameBoardController implements ServerListener {
         player2Name.setText(player2.getUsername());
 
         // Set avatar images based on gender
-        setAvatarByGender(player1Avatar, player1.getGender());
-        setAvatarByGender(player2Avatar, player2.getGender());
+        setAvatar(player1Avatar, player1);
+        setAvatar(player2Avatar, player2);
 
-        // Set avatar images based on gender
-        setAvatarByGender(player1Avatar, player1.getGender());
-        setAvatarByGender(player2Avatar, player2.getGender());
-
-        player1Score.setText("Player - "+player1.getSymbol().name());
-        player2Score.setText("Player - "+player2.getSymbol().name());
+//        // Set avatar images based on gender
+//        setAvatarByGender(player1Avatar, player1.getGender());
+//        setAvatarByGender(player2Avatar, player2.getGender());
+        player1Score.setText("Player - " + player1.getSymbol().name());
+        player2Score.setText("Player - " + player2.getSymbol().name());
 
         updateBoardUI();
         updateScoreUI();
@@ -191,13 +253,12 @@ public class GameBoardController implements ServerListener {
         player1Name.setText(player1.getUsername());
         player2Name.setText(player2.getUsername());
 
+//        // Set avatar images based on gender
+//        setAvatar(player1Avatar, player1);
+//        setAvatar(player2Avatar, player2);
         // Set avatar images based on gender
-        setAvatarByGender(player1Avatar, player1.getGender());
-        setAvatarByGender(player2Avatar, player2.getGender());
-
-        // Set avatar images based on gender
-        setAvatarByGender(player1Avatar, player1.getGender());
-        setAvatarByGender(player2Avatar, player2.getGender());
+        setAvatar(player1Avatar, player1);
+        setAvatar(player2Avatar, player2);
 
         updateBoardUI();
         updateScoreUI();
@@ -216,13 +277,12 @@ public class GameBoardController implements ServerListener {
         player2Name.setText(player2.getUsername());
 
         // Set avatar images based on gender
-        setAvatarByGender(player1Avatar, player1.getGender());
-        setAvatarByGender(player2Avatar, player2.getGender());
+        setAvatar(player1Avatar, player1);
+        setAvatar(player2Avatar, player2);
 
-        // Set avatar images based on gender
-        setAvatarByGender(player1Avatar, player1.getGender());
-        setAvatarByGender(player2Avatar, player2.getGender());
-
+//        // Set avatar images based on gender
+//        setAvatarByGender(player1Avatar, player1.getGender());
+//        setAvatarByGender(player2Avatar, player2.getGender());
         // Reset the board UI
         resetBoard();
         updateBoardUI();
@@ -777,7 +837,7 @@ public class GameBoardController implements ServerListener {
                 disableBoard();
                 updateScoreUI();
                 if (dto.getResult() == GameResult.DRAW) {
-                    
+
                     PauseTransition pause = new PauseTransition(Duration.seconds(2));
                     pause.setOnFinished(e -> {
                         playResultVideo("DRAW");

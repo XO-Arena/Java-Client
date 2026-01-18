@@ -59,7 +59,9 @@ public class DifficultySelectorController implements Initializable {
     private void navigateToGameBoard(Difficulty difficulty) {
         try {
             GameBoardController controller = App.setRoot("GameBoardPage").getController();
-            controller.initPlayers(new Player("You", UserGender.MALE, 300, PlayerType.LOCAL, PlayerSymbol.X), new AIPlayer(difficulty, PlayerSymbol.O));
+            controller.initPlayers(
+                    new Player("You", App.getCurrentUser().getGender(),App.getCurrentUser().getScore() , PlayerType.LOCAL, PlayerSymbol.X),
+                    new AIPlayer(difficulty, PlayerSymbol.O));
         } catch (IOException ex) {
             System.getLogger(DifficultySelectorController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }

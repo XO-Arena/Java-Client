@@ -194,3 +194,74 @@
     -fx-background-color: rgba(46, 91, 255, 0.3);
     -fx-border-width: 2;
 }
+
+
+/* ===== Card-style ComboBox ===== */
+.combo-box {
+    -fx-background-color: #1E293B; /* same as card */
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+
+    -fx-border-color: #334155;
+    -fx-border-width: 1.2;
+
+    -fx-font-size: 13px;
+    -fx-text-fill: #E5E7EB;
+
+    -fx-padding: 4 10;
+}
+
+/* Text inside ComboBox */
+.combo-box .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #E5E7EB;
+}
+
+/* Arrow button */
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+/* Arrow icon */
+.combo-box .arrow {
+    -fx-background-color: #CBD5E1;
+}
+
+/* Hover */
+.combo-box:hover {
+    -fx-border-color: #60A5FA;
+}
+
+/* Focused */
+.combo-box:focused {
+    -fx-border-color: #38BDF8;
+    -fx-border-width: 1.5;
+}
+
+/* ===== Dropdown ===== */
+.combo-box-popup .list-view {
+    -fx-background-color: #1E293B;
+    -fx-background-radius: 10;
+    -fx-border-color: #334155;
+    -fx-border-radius: 10;
+    -fx-padding: 4;
+}
+
+/* Dropdown items */
+.combo-box-popup .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #E5E7EB;
+    -fx-padding: 8 12;
+}
+
+/* Hover item */
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #334155;
+    -fx-background-radius: 8;
+}
+
+/* Selected item */
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: #2563EB;
+    -fx-text-fill: white;
+}
